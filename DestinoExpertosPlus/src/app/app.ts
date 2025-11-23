@@ -1,9 +1,10 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { CrudCliente } from "./components/crud-clientes/crud-clientes";
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [CrudCliente],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

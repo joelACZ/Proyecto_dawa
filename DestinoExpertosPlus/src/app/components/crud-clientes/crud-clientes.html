@@ -1,0 +1,38 @@
+<input 
+  type="text" 
+  placeholder="Buscar cliente..." 
+  #inputBusq 
+  (keyup)="search(inputBusq)"
+>
+
+<table>
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Email</th>
+      <th>Teléfono</th>
+      <th>Dirección</th>
+      <th>Preferencias</th>
+      <th>Notificaciones</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    @for(c of clientes; track $index){
+    <tr>
+      <td>{{ c.nombre }}</td>
+      <td>{{ c.email }}</td>
+      <td>{{ c.telefono }}</td>
+      <td>{{ c.direccion }}</td>
+      <td>{{ c.preferencias.join(', ') }}</td>
+      <td>{{ c.notificaciones ? 'Sí' : 'No' }}</td>
+
+      <td>
+        <button (click)="edit(c)">Editar</button>
+        <button (click)="delete(c)">Eliminar</button>
+      </td>
+    </tr>
+    }
+  </tbody>
+</table>
