@@ -13,6 +13,6 @@ export const routes: Routes = [
     {path: "crud-servicios",component:CrudServicios},
     {path: "crud-solicitudes",component:CrudSolicitudes},//
     // Ruta por defecto
-    {path: '**', redirectTo: 'menu' , pathMatch: 'full'},
+    //{path: '**', redirectTo: 'menu' , pathMatch: 'full'},
 
 ];
