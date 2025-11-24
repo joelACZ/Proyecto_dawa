@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+
 import { Cliente } from '../../models/Cliente.model';
 import { ServClientesJson } from '../../services/cliente-service';
 
@@ -8,11 +10,10 @@ import { ServClientesJson } from '../../services/cliente-service';
   styleUrls: ['./crud-clientes.css'],
 })
 export class CrudClientes {
-  
   clientes: Cliente[] = [];
   clienteEdit: Cliente | null = null;
 
-  constructor(private servClientes: ServClientesJson) {
+  constructor(private servClientes: ServClientesJson, private router: Router) {
     this.loadClientes();
   }
 
@@ -21,6 +22,12 @@ export class CrudClientes {
     this.servClientes.getClientes().subscribe((data) => {
       this.clientes = data;
     });
+  }
+  // visualizar id
+  view(id: number | undefined) {
+    if (id) {
+      this.router.navigate(['/cliente-view/', id]);
+    }
   }
 
   // Buscar cliente

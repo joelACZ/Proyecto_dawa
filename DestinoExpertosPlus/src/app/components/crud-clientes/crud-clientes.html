@@ -8,6 +8,7 @@
 <table>
   <thead>
     <tr>
+      <th>ID</th>
       <th>Nombre</th>
       <th>Email</th>
       <th>Teléfono</th>
@@ -19,8 +20,9 @@
   </thead>
 
   <tbody>
-    @for(c of clientes; track $index){
+    @for(c of clientes; track c.id){
     <tr>
+      <td>{{ c.id }}</td>
       <td>{{ c.nombre }}</td>
       <td>{{ c.email }}</td>
       <td>{{ c.telefono }}</td>

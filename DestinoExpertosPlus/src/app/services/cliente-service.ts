@@ -8,7 +8,7 @@ import { Cliente } from '../models/Cliente.model';
 })
 export class ServClientesJson {
 
-  private clientesUrl = 'http://localhost:3000/cliente';
+  private clientesUrl = 'http://localhost:3000/clientes';
 
   constructor(private http: HttpClient) {}
 
