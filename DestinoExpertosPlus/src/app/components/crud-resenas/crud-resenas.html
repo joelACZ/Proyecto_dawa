@@ -1,63 +1,39 @@
-<div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center">
-    <h2> CRUD Reseñas</h2>
-    <button class="btn btn-success">
-      <i class="bi bi-plus-circle-fill me-1"></i> Nueva Reseña
-    </button>
-  </div>
+<h2>CRUD Reseñas</h2>
 
-  <input
-    class="form-control mt-3 mb-2"
-    type="text"
-    placeholder="Buscar reseña por comentario o ID de solicitud..."
-    #busq
-    (keyup)="search(busq)"
-  />
+<input 
+  type="text" 
+  placeholder="Buscar reseña..." 
+  #busq 
+  (keyup)="search(busq)"
+>
 
-  <table class="table table-striped-columns table-hover table-bordered ">
-    <thead class="table-dark">
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Solicitud ID</th>
+      <th>Calificación</th>
+      <th>Comentario</th>
+      <th>Fecha</th>
+      <th>Anónima</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for(resena of resenas; track resena.id){
       <tr>
-        <th>ID</th>
-        <th>Solicitud ID</th>
-        <th>Calificación</th>
-        <th>Comentario</th>
-        <th>Fecha</th>
-        <th>Anónima</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for(resena of resenas; track resena.id){
-        <tr>
-          <td>{{ resena.id }}</td>
-          <td>{{ resena.solicitud_id }}</td>
-          <td>{{ resena.calificacion }} ⭐</td>
+        <td>{{ resena.id }}</td>
+        <td>{{ resena.solicitud_id }}</td>
+        <td>{{ resena.calificacion }}</td>
         <td>{{ resena.comentario }}</td>
-          <td>
-            @if (resena.anonima) {
-              <span class="badge bg-secondary">Sí</span>
-            } @else {
-              <span class="badge bg-success">No</span>
-            }
-          </td>
-          <td>
-            <button class="btn btn-info btn-sm me-2" (click)="view(resena.id)" title="Ver Detalle">
-              <i class="bi bi-binoculars-fill"></i>
-            </button>
-            <button class="btn btn-primary btn-sm me-2" (click)="edit(resena)" title="Editar">
-              <i class="bi bi-pen-fill"></i>
-            </button>
-            <button class="btn btn-danger btn-sm" (click)="delete(resena)" title="Eliminar">
-              <i class="bi bi-trash3-fill"></i>
-            </button>
-          </td>
-        </tr>
-      }
-      @empty {
-        <tr>
-          <td colspan="7" class="text-center text-muted">No hay reseñas para mostrar.</td>
-        </tr>
-      }
-    </tbody>
-  </table>
-</div>
+        <td>{{ resena.fecha | date:'dd/MM/yyyy' }}</td>
+        <td>{{ resena.anonima ? 'Sí' : 'No' }}</td>
+        <td>
+          <button (click)="view(resena.id)">Ver</button>
+          <button (click)="edit(resena)">Editar</button>
+          <button (click)="delete(resena)">Eliminar</button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

@@ -31,6 +31,7 @@
       <td>{{ c.notificaciones ? 'Sí' : 'No' }}</td>
 
       <td>
+        <button (click)="view(c.id)">Ver</button>
         <button (click)="edit(c)">Editar</button>
         <button (click)="delete(c)">Eliminar</button>
       </td>

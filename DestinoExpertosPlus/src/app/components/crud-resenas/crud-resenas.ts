@@ -2,11 +2,14 @@ import { Component } from '@angular/core';
 import { Resena } from '../../models/Resena.model';
 import { ServResenasJson } from '../../services/resena-service';
 import { Router } from '@angular/router';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-resena-crud',
+  standalone: true,
   templateUrl: './crud-resenas.html',
   styleUrls: ['./crud-resenas.css'],
+  imports: [DatePipe]
 })
 export class CrudResenas {
 
