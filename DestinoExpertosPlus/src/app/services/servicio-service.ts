@@ -8,7 +8,7 @@ import { Servicio } from '../models/Servicio.model';
 })
 export class ServServiciosJson {
 
-  private servicioUrl = 'http://localhost:3000/servicio';
+  private servicioUrl = 'http://localhost:3000/servicios';
 
   constructor(private http: HttpClient) {}
 

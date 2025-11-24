@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { Servicio } from '../../models/Servicio.model';
 import { ServServiciosJson } from '../../services/servicio-service';
 
@@ -12,7 +13,10 @@ export class CrudServicios {
   servicios: Servicio[] = [];
   servicioEdit: Servicio | null = null;
 
-  constructor(private servServicios: ServServiciosJson) {
+  constructor(
+    private servServicios: ServServiciosJson,
+    private router: Router
+  ) {
     this.loadServicios();
   }
 
@@ -23,6 +27,13 @@ export class CrudServicios {
     });
   }
 
+  // Visualizar por ID
+  view(id: number | undefined) {
+    if (id) {
+      this.router.navigate(['/servicio-view/', id]);
+    }
+  }
+
   // Buscar servicio
   search(input: HTMLInputElement) {
     const param = input.value;
@@ -31,7 +42,7 @@ export class CrudServicios {
     });
   }
 
-  // Crear nuevo
+// Crear nuevo
   create(form: any) {
     const nuevo: Servicio = form.value;
 
@@ -61,10 +72,10 @@ export class CrudServicios {
 
   // Eliminar
   delete(servicio: Servicio) {
-    if (!confirm(`¿Eliminar el servicio ${servicio.nombre}?`)) return;
-
+    if (!confirm('¿Eliminar el servicio ${servicio.nombre}?')) return;
+    
     this.servServicios.delete(servicio.id).subscribe(() => {
       this.loadServicios();
-    });
-  }
+    });
+  }
 }

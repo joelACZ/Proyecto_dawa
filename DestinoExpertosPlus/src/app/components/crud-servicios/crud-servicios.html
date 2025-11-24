@@ -1,1 +1,43 @@
-<p>crud-servicios works!</p>
+<input 
+  type="text" 
+  placeholder="Buscar servicio..." 
+  #inputBusq 
+  (keyup)="search(inputBusq)"
+>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Categoría</th>
+      <th>Descripción</th>
+      <th>Precio Base</th>
+      <th>Duración</th>
+      <th>Profesional ID</th>
+      <th>Activo</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    @for(s of servicios; track s.id){
+    <tr>
+      <td>{{ s.id }}</td>
+      <td>{{ s.nombre }}</td>
+      <td>{{ s.categoria }}</td>
+      <td>{{ s.descripcion }}</td>
+      <td>{{ s.precioBase }}</td>
+      <td>{{ s.duracionEstimada }}</td>
+      <td>{{ s.profesional_id }}</td>
+      <td>{{ s.activo ? 'Sí' : 'No' }}</td>
+
+      <td>
+        <button (click)="view(s.id)">Ver</button>
+        <button (click)="edit(s)">Editar</button>
+        <button (click)="delete(s)">Eliminar</button>
+      </td>
+    </tr>
+    }
+  </tbody>
+</table>
