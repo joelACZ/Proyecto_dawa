@@ -7,7 +7,7 @@ import { ServClientesJson } from '../../services/cliente-service';
   templateUrl: './crud-clientes.html',
   styleUrls: ['./crud-clientes.css'],
 })
-export class CrudCliente {
+export class CrudClientes {
   
   clientes: Cliente[] = [];
   clienteEdit: Cliente | null = null;

@@ -1,18 +1,19 @@
 import { Component } from '@angular/core';
 import { Resena } from '../../models/Resena.model';
 import { ServResenasJson } from '../../services/resena-service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-resena-crud',
   templateUrl: './crud-resenas.html',
   styleUrls: ['./crud-resenas.css'],
 })
-export class CrudResena {
+export class CrudResenas {
 
   resenas: Resena[] = [];
   resenaEdit: Resena | null = null;
 
-  constructor(private servResenas: ServResenasJson) {
+  constructor(private servResenas: ServResenasJson , private router:Router) {
     this.loadResenas();
   }
 
@@ -67,12 +68,24 @@ export class CrudResena {
       this.loadResenas();
     });
   }
+  // Visualiar detalles
+
+      view(id:number | undefined){
+      //navegar a otro componente //viene de app-routing.module.ts
+      //this.router.navigate(["movie-view"]); parametros
+      this.router.navigate(["/movie-view/", id]);
+      let pre=22323;
+      //this.router.navigate(["/movie-view/", id,1]);
+    }
 
   // Eliminar
   delete(resena: Resena) {
     if (!confirm(`¿Eliminar reseña #${resena.id}?`)) return;
 
-    this.servResenas.delete(resena.id).subscribe(() => {
+    const id = resena.id;
+    if (id == null) return;
+
+    this.servResenas.delete(id).subscribe(() => {
       this.loadResenas();
     });
   }
