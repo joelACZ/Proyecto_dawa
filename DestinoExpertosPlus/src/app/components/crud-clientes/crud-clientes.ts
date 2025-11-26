@@ -3,12 +3,13 @@ import { Router } from '@angular/router';
 import { DataTableComponent } from "../data-table/data-table";
 import { Cliente } from '../../models/Cliente.model';
 import { ServClientesJson } from '../../services/cliente-service';
+import { CardComponent } from "../cards/cards";
 
 @Component({
   selector: 'app-cliente-crud',
   templateUrl: './crud-clientes.html',
   styleUrls: ['./crud-clientes.css'],
-  imports: [DataTableComponent],
+  imports: [DataTableComponent, CardComponent],
 })
 export class CrudClientes {
   clientes: Cliente[] = [];

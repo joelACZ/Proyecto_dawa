@@ -1,31 +1,47 @@
-<div class="p-6 bg-gray-100 min-h-screen">
+<h1 class="text-2xl font-bold mb-6">Gestión de Clientes</h1>
 
-  <!-- Título -->
-  <h1 class="text-2xl font-bold mb-6">Gestión de Clientes</h1>
+<app-card
+  title="Gestión de Clientes"
+  subtitle="Administra los clientes registrados en la plataforma"
+  content="Aquí puedes buscar, ver, editar y eliminar clientes registrados." >
+</app-card>
 
-  <!-- Buscar -->
-  <div class="mb-4 flex flex-col md:flex-row gap-2 items-start md:items-center">
-    <input
-      type="text"
-      placeholder="Buscar cliente..."
-      class="border p-2 rounded w-full md:w-64"
-      #txtBuscar
-      (input)="search(txtBuscar)"
-    />
-  </div>
-
-  <!-- Tabla reutilizable -->
-  <app-data-table
-    [data]="clientes"
-    [columns]="columns"
-  ></app-data-table>
-
-  <!-- Formulario de creación/edición -->
-  <div class="mt-6 bg-white p-4 rounded-lg shadow-md w-full md:w-1/2">
-    <h2 class="text-lg font-semibold mb-4">
-      {{ clienteEdit ? 'Editar Cliente' : 'Nuevo Cliente' }}
-    </h2>
-
-    
-
+<div class="mb-4 mt-4 flex flex-col md:flex-row gap-2 items-start md:items-center"> 
+  <input 
+    type="text" 
+    placeholder="Buscar cliente..."
+    class="border p-2 rounded w-full md:w-64"
+    #inputBusq 
+    (input)="search(inputBusq)"
+  />
 </div>
+
+<app-data-table 
+  [data]="clientes"
+  [columns]="[
+    { field: 'id', header: 'ID' },
+    { field: 'nombre', header: 'Nombre' },
+    { field: 'email', header: 'Email' },
+    { field: 'telefono', header: 'Teléfono' },
+    { field: 'direccion', header: 'Dirección' },
+    { field: 'preferencias', header: 'Preferencias' },
+    { field: 'notificaciones', header: 'Notificaciones' }
+  ]">
+
+  <ng-template #rowTemplate let-row>
+    <td class="p-2 border">{{ row.id }}</td>
+    <td class="p-2 border">{{ row.nombre }}</td>
+    <td class="p-2 border">{{ row.email }}</td>
+    <td class="p-2 border">{{ row.telefono }}</td>
+    <td class="p-2 border">{{ row.direccion }}</td>
+    <td class="p-2 border">{{ row.preferencias.join(', ') }}</td>
+    <td class="p-2 border">{{ row.notificaciones ? 'Sí' : 'No' }}</td>
+  </ng-template>
+
+  <ng-template #actions let-row>
+    <button class="text-blue-600 mr-2" (click)="view(row.id)">Ver</button>
+    <button class="text-yellow-600 mr-2" (click)="edit(row)">Editar</button>
+    <button class="text-red-600" (click)="delete(row)">Eliminar</button>
+  </ng-template>
+
+</app-data-table>

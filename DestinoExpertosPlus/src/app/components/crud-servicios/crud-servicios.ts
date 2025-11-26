@@ -16,7 +16,7 @@ export class CrudServicios {
   servicios: Servicio[] = [];
   servicioEdit: Servicio | null = null;
 
-  // 🔹 Columnas de la tabla reutilizable
+  // Columnas de la tabla reutilizable
   columns = [
     { field: 'id', header: 'ID' },
     { field: 'nombre', header: 'Nombre' },
