@@ -1,10 +1,12 @@
 import { Component, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterModule, RouterOutlet } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
-
+import { CardComponent } from './components/cards/cards';
+import { DataTableComponent } from './components/data-table/data-table';
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet , RouterLink , RouterLinkActive , RouterModule, HttpClientModule ],
+  standalone: true,
+  imports: [RouterOutlet , RouterLink , RouterLinkActive , RouterModule, HttpClientModule],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

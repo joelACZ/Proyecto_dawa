@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-
+import { DataTableComponent } from "../data-table/data-table";
 import { Cliente } from '../../models/Cliente.model';
 import { ServClientesJson } from '../../services/cliente-service';
 
@@ -8,10 +8,18 @@ import { ServClientesJson } from '../../services/cliente-service';
   selector: 'app-cliente-crud',
   templateUrl: './crud-clientes.html',
   styleUrls: ['./crud-clientes.css'],
+  imports: [DataTableComponent],
 })
 export class CrudClientes {
   clientes: Cliente[] = [];
   clienteEdit: Cliente | null = null;
+
+  // 🔹 Columnas de la tabla reutilizable
+  columns = [
+    { field: 'id', header: 'ID' },
+    { field: 'nombre', header: 'Nombre' },
+    { field: 'descripcion', header: 'Descripción' }
+  ];
 
   constructor(private servClientes: ServClientesJson, private router: Router) {
     this.loadClientes();

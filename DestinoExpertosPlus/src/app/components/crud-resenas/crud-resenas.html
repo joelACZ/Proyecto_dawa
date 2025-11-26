@@ -1,39 +1,35 @@
-<h2>CRUD Reseñas</h2>
+<h1 class="text-2xl font-bold mb-6">Gestión de Reseñas</h1>
 
-<input 
-  type="text" 
-  placeholder="Buscar reseña..." 
-  #busq 
-  (keyup)="search(busq)"
->
+<app-card
+  title="Gestión de Reseñas"
+  subtitle="Administra las reseñas creadas por los usuarios"
+  content="Aquí puedes visualizar, editar y eliminar reseñas realizadas sobre los servicios prestados.">
+</app-card>
 
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Solicitud ID</th>
-      <th>Calificación</th>
-      <th>Comentario</th>
-      <th>Fecha</th>
-      <th>Anónima</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
-    @for(resena of resenas; track resena.id){
-      <tr>
-        <td>{{ resena.id }}</td>
-        <td>{{ resena.solicitud_id }}</td>
-        <td>{{ resena.calificacion }}</td>
-        <td>{{ resena.comentario }}</td>
-        <td>{{ resena.fecha | date:'dd/MM/yyyy' }}</td>
-        <td>{{ resena.anonima ? 'Sí' : 'No' }}</td>
-        <td>
-          <button (click)="view(resena.id)">Ver</button>
-          <button (click)="edit(resena)">Editar</button>
-          <button (click)="delete(resena)">Eliminar</button>
-        </td>
-      </tr>
-    }
-  </tbody>
-</table>
+<div class="mb-4 mt-4 flex flex-col md:flex-row gap-2 items-start md:items-center"> <input
+      type="text"
+      placeholder="Buscar reseñas..."
+      class="border p-2 rounded w-full md:w-64"
+      #txtBuscar
+      (input)="search(txtBuscar)"
+    />
+  </div>
+
+<app-data-table 
+  [data]="resenas" 
+  [columns]="[
+    { field: 'id', header: 'ID' },
+    { field: 'solicitud_id', header: 'Solicitud ID' },
+    { field: 'calificacion', header: 'Calificación' },
+    { field: 'comentario', header: 'Comentario' },
+    { field: 'fecha', header: 'Fecha' },
+    { field: 'anonima', header: 'Anónima' }
+  ]">
+
+  <ng-template #actions let-row>
+    <button class="text-blue-600 mr-2" (click)="view(row.id)">Ver</button>
+    <button class="text-yellow-600 mr-2" (click)="edit(row)">Editar</button>
+    <button class="text-red-600" (click)="delete(row)">Eliminar</button>
+  </ng-template>
+
+</app-data-table>

@@ -3,20 +3,30 @@ import { Resena } from '../../models/Resena.model';
 import { ServResenasJson } from '../../services/resena-service';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { DataTableComponent } from '../data-table/data-table';
+import { CardComponent } from "../cards/cards";
 
 @Component({
   selector: 'app-resena-crud',
   standalone: true,
   templateUrl: './crud-resenas.html',
   styleUrls: ['./crud-resenas.css'],
-  imports: [DatePipe]
+  imports: [DataTableComponent, CardComponent],
 })
 export class CrudResenas {
 
   resenas: Resena[] = [];
   resenaEdit: Resena | null = null;
 
-  constructor(private servResenas: ServResenasJson , private router:Router) {
+  // 🔹 Columnas de la tabla reutilizable
+  columns = [
+    { field: 'id', header: 'ID' },
+    { field: 'nombre', header: 'Nombre' },
+    { field: 'descripcion', header: 'Descripción' }
+  ]; 
+
+  constructor(private servResenas: ServResenasJson, 
+    private router:Router) {
     this.loadResenas();
   }
 

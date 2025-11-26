@@ -1,41 +1,31 @@
-<input 
-  type="text" 
-  placeholder="Buscar cliente..." 
-  #inputBusq 
-  (keyup)="search(inputBusq)"
->
+<div class="p-6 bg-gray-100 min-h-screen">
 
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Nombre</th>
-      <th>Email</th>
-      <th>Teléfono</th>
-      <th>Dirección</th>
-      <th>Preferencias</th>
-      <th>Notificaciones</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
+  <!-- Título -->
+  <h1 class="text-2xl font-bold mb-6">Gestión de Clientes</h1>
 
-  <tbody>
-    @for(c of clientes; track c.id){
-    <tr>
-      <td>{{ c.id }}</td>
-      <td>{{ c.nombre }}</td>
-      <td>{{ c.email }}</td>
-      <td>{{ c.telefono }}</td>
-      <td>{{ c.direccion }}</td>
-      <td>{{ c.preferencias.join(', ') }}</td>
-      <td>{{ c.notificaciones ? 'Sí' : 'No' }}</td>
+  <!-- Buscar -->
+  <div class="mb-4 flex flex-col md:flex-row gap-2 items-start md:items-center">
+    <input
+      type="text"
+      placeholder="Buscar cliente..."
+      class="border p-2 rounded w-full md:w-64"
+      #txtBuscar
+      (input)="search(txtBuscar)"
+    />
+  </div>
 
-      <td>
-        <button (click)="view(c.id)">Ver</button>
-        <button (click)="edit(c)">Editar</button>
-        <button (click)="delete(c)">Eliminar</button>
-      </td>
-    </tr>
-    }
-  </tbody>
-</table>
+  <!-- Tabla reutilizable -->
+  <app-data-table
+    [data]="clientes"
+    [columns]="columns"
+  ></app-data-table>
+
+  <!-- Formulario de creación/edición -->
+  <div class="mt-6 bg-white p-4 rounded-lg shadow-md w-full md:w-1/2">
+    <h2 class="text-lg font-semibold mb-4">
+      {{ clienteEdit ? 'Editar Cliente' : 'Nuevo Cliente' }}
+    </h2>
+
+    
+
+</div>

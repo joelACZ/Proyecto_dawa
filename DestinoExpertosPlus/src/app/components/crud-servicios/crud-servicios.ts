@@ -2,16 +2,26 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { Servicio } from '../../models/Servicio.model';
 import { ServServiciosJson } from '../../services/servicio-service';
+import { DataTableComponent } from "../data-table/data-table";
+import { CardComponent } from "../cards/cards";
 
 @Component({
   selector: 'app-servicio-crud',
   templateUrl: './crud-servicios.html',
   styleUrls: ['./crud-servicios.css'],
+  imports: [DataTableComponent, CardComponent],
 })
 export class CrudServicios {
   
   servicios: Servicio[] = [];
   servicioEdit: Servicio | null = null;
+
+  // 🔹 Columnas de la tabla reutilizable
+  columns = [
+    { field: 'id', header: 'ID' },
+    { field: 'nombre', header: 'Nombre' },
+    { field: 'descripcion', header: 'Descripción' }
+  ];
 
   constructor(
     private servServicios: ServServiciosJson,
@@ -76,6 +86,6 @@ export class CrudServicios {
     
     this.servServicios.delete(servicio.id).subscribe(() => {
       this.loadServicios();
-    });
-  }
+});
+}
 }

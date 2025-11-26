@@ -1,11 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { Servicio } from '../../models/Servicio.model';
 
 @Component({
-  selector: 'app-cards',
-  imports: [],
+  selector: 'app-card',
+  standalone: true,
   templateUrl: './cards.html',
-  styleUrl: './cards.css',
 })
-export class Cards {
-
+export class CardComponent {
+  @Input() servicio!: Servicio;
+  @Input() title: string = '';
+  @Input() subtitle: string = '';
+  @Input() content: string = '';
 }

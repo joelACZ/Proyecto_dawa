@@ -1,11 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, Input, ContentChild, TemplateRef } from '@angular/core';
+import { NgFor, NgIf, NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'app-data-table',
-  imports: [],
+  standalone: true,
+  imports: [NgFor, NgIf, NgTemplateOutlet],   
   templateUrl: './data-table.html',
-  styleUrl: './data-table.css',
 })
-export class DataTable {
+export class DataTableComponent {
+  @Input() data: any[] = [];
+  @Input() columns: { field: string; header: string }[] = [];
 
+  @ContentChild('actions', { static: false })
+  actionsTemplate!: TemplateRef<any>;
 }

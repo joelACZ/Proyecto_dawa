@@ -1,10 +1,45 @@
-<h1>Plataforma de Servicios de Oficios Locales  </h1>
+<div class="flex min-h-screen bg-gray-100">
 
-<nav class="main-menu">
-    <a routerLink="crud-clientes" routerLinkActive="active">Gestion de Clientes</a>
-    <a routerLink="crud-servicios" routerLinkActive="active">Gestion de Servicios</a>
-    <a routerLink="crud-resenas" routerLinkActive="active">Gestion de Reseñas</a>
-    <a routerLink="crud-profesionales" routerLinkActive="active">Gestion de Profesionales</a>
-    <a routerLink="crud-solicitudes" routerLinkActive="active">Gestion de Solicitudes</a>
-</nav>
-<router-outlet>  </router-outlet>
+  <!-- SIDEBAR -->
+  <aside class="w-64 bg-gray-800 text-white p-5 space-y-4">
+      <h1 class="text-xl font-bold mb-6">Plataforma de Servicios</h1>
+
+      <nav class="flex flex-col space-y-3">
+          <a routerLink="crud-clientes" 
+             routerLinkActive="bg-gray-700"
+             class="px-3 py-2 rounded hover:bg-gray-700 transition">
+             Gestión de Clientes
+          </a>
+          
+          <a routerLink="crud-servicios" 
+             routerLinkActive="bg-gray-700"
+             class="px-3 py-2 rounded hover:bg-gray-700 transition">
+             Gestión de Servicios
+          </a>
+
+          <a routerLink="crud-resenas" 
+             routerLinkActive="bg-gray-700"
+             class="px-3 py-2 rounded hover:bg-gray-700 transition">
+             Gestión de Reseñas
+          </a>
+
+          <a routerLink="crud-profesionales" 
+             routerLinkActive="bg-gray-700"
+             class="px-3 py-2 rounded hover:bg-gray-700 transition">
+             Gestión de Profesionales
+          </a>
+
+          <a routerLink="crud-solicitudes" 
+             routerLinkActive="bg-gray-700"
+             class="px-3 py-2 rounded hover:bg-gray-700 transition">
+             Gestión de Solicitudes
+          </a>
+      </nav>
+  </aside>
+
+  <!-- CONTENIDO A LA DERECHA -->
+  <main class="flex-1 p-8">
+      <router-outlet></router-outlet>
+  </main>
+
+</div>
