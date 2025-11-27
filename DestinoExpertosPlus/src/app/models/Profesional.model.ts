@@ -1,11 +1,12 @@
-export interface Profesional {
-  id: number;
-  nombre: string;
+import { Identifiable, WithContactInfo, WithLocation } from './base.model';
+
+export interface Profesional extends Identifiable, WithContactInfo, WithLocation {
   especialidad: string;
-  telefono: string;
-  email: string;
-  ubicacion: string;
   oficios: string[];
-  experiencia: number;
+  experiencia: number; // en años
   disponibilidad: boolean;
+  
 }
+
+export type ProfesionalCreate = Omit<Profesional, 'id'>;
+export type ProfesionalUpdate = Partial<Omit<Profesional, 'id'>>;
