@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { DataTableComponent } from "../data-table/data-table";
+import { DataTableComponent } from "../shared/data-table/data-table";
 import { Cliente } from '../../models/Cliente.model';
 import { ServClientesJson } from '../../services/cliente-service';
-import { CardComponent } from "../cards/cards";
+import { CardComponent } from '../shared/cards/cards';
 
 @Component({
   selector: 'app-cliente-crud',
@@ -15,7 +15,6 @@ export class CrudClientes {
   clientes: Cliente[] = [];
   clienteEdit: Cliente | null = null;
 
-  // 🔹 Columnas de la tabla reutilizable
   columns = [
     { field: 'id', header: 'ID' },
     { field: 'nombre', header: 'Nombre' },

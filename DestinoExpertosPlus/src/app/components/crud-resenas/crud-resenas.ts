@@ -3,8 +3,9 @@ import { Resena } from '../../models/Resena.model';
 import { ServResenasJson } from '../../services/resena-service';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
-import { DataTableComponent } from '../data-table/data-table';
-import { CardComponent } from "../cards/cards";
+import { DataTableComponent } from '../shared/data-table/data-table';
+import { CardComponent } from '../shared/cards/cards';
+
 
 @Component({
   selector: 'app-resena-crud',

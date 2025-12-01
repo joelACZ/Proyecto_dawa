@@ -1,76 +1,86 @@
 {
   "profesionales": [
     {
-      "id": 1,
+      "id": "1",
       "nombre": "Carlos Medina",
       "especialidad": "Electricista",
       "telefono": "0991234567",
       "email": "carlos.medina@example.com",
       "ubicacion": "Quito",
-      "oficios": ["Instalaciones", "Reparaciones", "Mantenimiento"],
+      "oficios": [
+        "Instalaciones",
+        "Reparaciones",
+        "Mantenimiento"
+      ],
       "experiencia": 6,
       "disponibilidad": true
     },
     {
-      "id": 2,
+      "id": "2",
       "nombre": "Andrea Torres",
       "especialidad": "Plomería",
       "telefono": "0987654321",
       "email": "andrea.torres@example.com",
       "ubicacion": "Guayaquil",
-      "oficios": ["Tuberías", "Desagües", "Instalaciones Sanitarias"],
+      "oficios": [
+        "Tuberías",
+        "Desagües",
+        "Instalaciones Sanitarias"
+      ],
       "experiencia": 4,
       "disponibilidad": false
     }
   ],
-
   "servicios": [
     {
-      "id": 1,
+      "id": "1",
       "nombre": "Instalación Eléctrica",
       "categoria": "Electricidad",
       "descripcion": "Instalación de cableado, lámparas y tomacorrientes.",
-      "precioBase": 35.0,
+      "precioBase": 35,
       "duracionEstimada": 60,
       "profesional_id": 1,
       "activo": true
     },
     {
-      "id": 2,
+      "id": "2",
       "nombre": "Reparación de Tuberías",
       "categoria": "Plomería",
-      "descripcion": "Reparación de fugas y tuberías dañadas.",
-      "precioBase": 25.0,
+      "descripcion": "Reparación de fugas y tuberías dañadas",
+      "precioBase": 25,
       "duracionEstimada": 45,
       "profesional_id": 2,
       "activo": true
     }
   ],
-
   "clientes": [
     {
-      "id": 1,
+      "id": "1",
       "nombre": "Javier López",
       "email": "javier.lopez@example.com",
       "telefono": "0973332211",
       "direccion": "Cuenca",
-      "preferencias": ["Electricidad", "Urgente"],
+      "preferencias": [
+        "Electricidad",
+        "Urgente"
+      ],
       "notificaciones": true
     },
     {
-      "id": 2,
+      "id": "2",
       "nombre": "María González",
       "email": "maria.gonzalez@example.com",
       "telefono": "0981112299",
       "direccion": "Quito",
-      "preferencias": ["Plomería"],
+      "preferencias": [
+        "Plomería"
+      ],
       "notificaciones": false
     }
   ],
-
   "solicitudes": [
     {
-      "id": 1,
+      "id": "1",
       "cliente_id": 1,
       "profesional_id": 1,
       "servicio_id": 1,
@@ -81,7 +91,7 @@
       "urgencia": true
     },
     {
-      "id": 2,
+      "id": "2",
       "cliente_id": 2,
       "profesional_id": 2,
       "servicio_id": 2,
@@ -92,10 +102,9 @@
       "urgencia": false
     }
   ],
-
   "resenas": [
     {
-      "id": 1,
+      "id": "1",
       "solicitud_id": 2,
       "calificacion": 5,
       "comentario": "Excelente servicio, muy rápida solución.",
