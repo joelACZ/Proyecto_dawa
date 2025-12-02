@@ -80,26 +80,37 @@
   ],
   "solicitudes": [
     {
-      "id": "1",
-      "cliente_id": 1,
+      "cliente_id": 2,
       "profesional_id": 1,
-      "servicio_id": 1,
-      "fecha": "2025-11-21T13:30:00Z",
-      "estado": "Pendiente",
+      "servicio_id": 2,
+      "ubicacion": "Manta",
       "descripcion": "No funciona un tomacorriente.",
-      "ubicacion": "Quito",
-      "urgencia": true
+      "estado": "completado",
+      "urgencia": false,
+      "id": "1",
+      "fecha": "2025-12-02T03:40:33.468Z"
     },
     {
-      "id": "2",
       "cliente_id": 2,
       "profesional_id": 2,
       "servicio_id": 2,
-      "fecha": "2025-11-20T10:00:00Z",
-      "estado": "Completado",
-      "descripcion": "Fuga en la cocina.",
       "ubicacion": "Quito",
-      "urgencia": false
+      "descripcion": "Fuga en la cocina.",
+      "estado": "completado",
+      "urgencia": false,
+      "id": "2",
+      "fecha": "2025-12-02T02:17:40.921Z"
+    },
+    {
+      "cliente_id": 1,
+      "profesional_id": 2,
+      "servicio_id": 1,
+      "ubicacion": "Cuenca",
+      "descripcion": "De urgencia se necesita una instalación eléctrica",
+      "estado": "pendiente",
+      "urgencia": true,
+      "id": "3",
+      "fecha": "2025-12-02T02:42:35.407Z"
     }
   ],
   "resenas": [
@@ -114,7 +125,7 @@
       "anonimaFormateada": "No"
     },
     {
-      "id": 4,
+      "id": "4",
       "solicitud_id": 7,
       "calificacion": 5,
       "comentario": "excelentess",
@@ -122,7 +133,7 @@
       "anonima": false
     },
     {
-      "id": 5,
+      "id": "5",
       "solicitud_id": 6,
       "calificacion": 3,
       "comentario": "erteterett",

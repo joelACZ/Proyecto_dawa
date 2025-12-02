@@ -1,1 +1,186 @@
-<p>crud-solicitudes works!</p>
+<h1 class="text-2xl font-bold mb-6">Gestión de Solicitudes</h1>
+
+<app-card
+  title="Gestión de Solicitudes"
+  subtitle="Administra los pedidos de servicio entre clientes y profesionales"
+  content="Controla el estado de las solicitudes, asignaciones, urgencias y detalles del trabajo." >
+</app-card>
+
+<div class="mb-4 mt-4 flex flex-col md:flex-row gap-2 items-start md:items-center">
+  <input
+    type="text"
+    placeholder="Buscar por descripción o estado..."
+    class="border p-2 rounded w-full md:w-64"
+    #txtBuscar
+    (input)="search(txtBuscar)"
+  />
+  <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" (click)="openNew()">
+    Nueva Solicitud
+  </button>
+</div>
+
+<app-data-table 
+  [data]="solicitudesTabla" 
+  [columns]="columns" > 
+  
+  
+
+  <ng-template #actions let-row>
+    <button class="text-blue-600 mr-2 hover:text-blue-800" (click)="view(row.id)" title="Ver Detalle">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block align-text-bottom" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+      </svg>
+    </button>
+
+    <button class="text-yellow-600 mr-2 hover:text-yellow-800" (click)="openEdit(row)" title="Editar Solicitud">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block align-text-bottom" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+      </svg>
+    </button>
+
+    <button class="text-red-600 hover:text-red-800" (click)="delete(row)" title="Cancelar Solicitud">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block align-text-bottom" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+      </svg>
+    </button>
+  </ng-template>
+</app-data-table>
+
+<div class="modal fade" id="solicitudModal" tabindex="-1" #solicitudModalRef>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          {{ editingId ? 'Editar Solicitud #' + editingId : 'Nueva Solicitud' }}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="cancelEdit()"></button>
+      </div>
+
+      <form [formGroup]="formSolicitud" (ngSubmit)="save()">
+        <div class="modal-body">
+          
+          <div class="row">
+              <div class="mb-3 col-md-6">
+                  <label class="form-label">Cliente</label>
+                  <select class="form-select" formControlName="cliente_id">
+                      <option [value]="''" disabled>SELECCIONE...</option>
+                      @for (c of listaClientes; track $index) {
+                          <option [value]="c.id">{{ c.nombre }}</option>
+                      }
+                  </select>
+                  @if(formSolicitud.get('cliente_id')?.invalid && formSolicitud.get('cliente_id')?.touched) {
+                      <span class="text-danger small">Cliente es requerido.</span>
+                  }
+              </div>
+
+              <div class="mb-3 col-md-6">
+                  <label class="form-label">Profesional</label>
+                  <select class="form-select" formControlName="profesional_id">
+                      <option [value]="''" disabled>SELECCIONE...</option>
+                      @for (p of listaProfesionales; track $index) {
+                          <option [value]="p.id">{{ p.nombre }} - {{ p.especialidad }}</option>
+                      }
+                  </select>
+                  @if(formSolicitud.get('profesional_id')?.invalid && formSolicitud.get('profesional_id')?.touched) {
+                      <span class="text-danger small">Profesional es requerido.</span>
+                  }
+              </div>
+
+              <div class="mb-3 col-md-6">
+                  <label class="form-label">Servicio</label>
+                  <select class="form-select" formControlName="servicio_id">
+                      <option [value]="''" disabled>SELECCIONE...</option>
+                      @for (s of listaServicios; track $index) {
+                          <option [value]="s.id">{{ s.nombre }}</option>
+                      }
+                  </select>
+                  @if(formSolicitud.get('servicio_id')?.invalid && formSolicitud.get('servicio_id')?.touched) {
+                      <span class="text-danger small">Servicio es requerido.</span>
+                  }
+              </div>
+
+              <div class="mb-3 col-md-6">
+                  <label class="form-label">Ubicación</label>
+                  <input type="text" class="form-control" formControlName="ubicacion" placeholder="Dirección del trabajo"/>
+                  @if(formSolicitud.get('ubicacion')?.invalid && formSolicitud.get('ubicacion')?.touched) {
+                      <span class="text-danger small">Ubicación es requerida.</span>
+                  }
+              </div>
+
+              <div class="mb-3 col-md-6">
+                  <label class="form-label">Estado</label>
+                  <select class="form-select" formControlName="estado">
+                      @for (e of listaEstados; track $index) {
+                          <option [value]="e">{{ e | uppercase }}</option>
+                      }
+                  </select>
+              </div>
+              
+              <div class="mb-3 col-md-6 d-flex align-items-center mt-4">
+                  <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="checkbox" formControlName="urgencia" id="checkUrgencia"/>
+                      <label class="form-check-label" for="checkUrgencia">Marcar como Urgente</label>
+                  </div>
+              </div>
+          </div>
+
+          <div class="mb-3">
+              <label class="form-label">Descripción del Problema</label>
+              <textarea class="form-control" formControlName="descripcion" rows="3" placeholder="Detalle lo que necesita..."></textarea>
+              @if(formSolicitud.get('descripcion')?.invalid && formSolicitud.get('descripcion')?.touched) {
+                  <span class="text-danger small">Descripción es requerida.</span>
+              }
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-bs-dismiss="modal" (click)="cancelEdit()">
+            Cancelar
+          </button>
+          <button class="btn btn-primary" type="submit" [disabled]="formSolicitud.invalid">
+              {{ editingId ? 'Actualizar' : 'Crear Solicitud' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="detailModal" tabindex="-1" #detailModalRef>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            
+            <div class="modal-header">
+                <h5 class="modal-title">Detalles de Solicitud #{{ solicitudView?.id }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="solicitudView = null"></button>
+            </div>
+
+            <div class="modal-body">
+                @if (solicitudView) {
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>Cliente:</strong> {{ solicitudView.cliente }}</li>
+                        <li class="list-group-item"><strong>Profesional:</strong> {{ solicitudView.profesional }}</li>
+                        <li class="list-group-item"><strong>Servicio:</strong> {{ solicitudView.servicio }}</li>
+                        <li class="list-group-item"><strong>Fecha:</strong> {{ solicitudView.fecha | date:'dd/MM/yyyy h:mm a' }}</li>
+                        <li class="list-group-item"><strong>Ubicación:</strong> {{ solicitudView.ubicacion }}</li>
+                        <li class="list-group-item"><strong>Estado:</strong> <span class="badge bg-primary">{{ solicitudView.estado | uppercase }}</span></li>
+                        <li class="list-group-item"><strong>Urgencia:</strong> 
+                            <span [class]="solicitudView.urgencia === 'SÍ' ? 'text-danger fw-bold' : 'text-success'">
+                                {{ solicitudView.urgencia }}
+                            </span>
+                        </li>
+                        <li class="list-group-item"><strong>Descripción:</strong> {{ solicitudView.descripcion }}</li>
+                    </ul>
+                } @else {
+                    <p>Cargando detalles...</p>
+                }
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
