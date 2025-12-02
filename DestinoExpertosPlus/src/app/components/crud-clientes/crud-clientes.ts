@@ -1,28 +1,54 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { DataTableComponent } from "../shared/data-table/data-table";
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { Cliente } from '../../models/Cliente.model';
 import { ServClientesJson } from '../../services/cliente-service';
+import { DataTableComponent } from '../shared/data-table/data-table';
 import { CardComponent } from '../shared/cards/cards';
+
 
 @Component({
   selector: 'app-cliente-crud',
   templateUrl: './crud-clientes.html',
   styleUrls: ['./crud-clientes.css'],
-  imports: [DataTableComponent, CardComponent],
+  imports: [CommonModule, ReactiveFormsModule, DataTableComponent, CardComponent],
 })
 export class CrudClientes {
   clientes: Cliente[] = [];
-  clienteEdit: Cliente | null = null;
+  
+  // Formulario reactivo
+  formCliente!: FormGroup;
+  editingId: number | null = null;
+  showModal: boolean = false;
 
+  // Columnas de la tabla reutilizable
   columns = [
     { field: 'id', header: 'ID' },
     { field: 'nombre', header: 'Nombre' },
-    { field: 'descripcion', header: 'Descripción' }
+    { field: 'email', header: 'Email' },
+    { field: 'telefono', header: 'Teléfono' }
   ];
 
-  constructor(private servClientes: ServClientesJson, private router: Router) {
+  constructor(
+    private servClientes: ServClientesJson, 
+    private router: Router,
+    private fb: FormBuilder
+  ) {
     this.loadClientes();
+    this.initForm();
+  }
+
+  // Inicializar formulario reactivo
+  initForm() {
+    this.formCliente = this.fb.group({
+      nombre: ['', [Validators.required, Validators.minLength(2)]],
+      email: ['', [Validators.required, Validators.email]],
+      telefono: ['', Validators.required],
+      direccion: [''],
+      preferencias: [''],
+      notificaciones: [false]
+    });
   }
 
   // Cargar lista
@@ -31,10 +57,15 @@ export class CrudClientes {
       this.clientes = data;
     });
   }
-  // visualizar id
+
+  // Visualizar id - CORREGIDO: Manejo de error si la ruta no existe
   view(id: number | undefined) {
     if (id) {
-      this.router.navigate(['/cliente-view/', id]);
+      // Verificar si la ruta existe antes de navegar
+      this.router.navigate(['/cliente-view', id]).catch(() => {
+        console.warn(`La ruta '/cliente-view' no está configurada`);
+        alert('La funcionalidad de vista detallada no está disponible');
+      });
     }
   }
 
@@ -46,32 +77,62 @@ export class CrudClientes {
     });
   }
 
-  // Crear nuevo
-  create(form: any) {
-    const nuevo: Cliente = form.value;
-
-    this.servClientes.create(nuevo).subscribe(() => {
-      form.reset();
-      this.loadClientes();
-    });
+  // Abrir modal para nuevo cliente
+  openNew() {
+    this.editingId = null;
+    this.formCliente.reset();
+    this.showModal = true;
   }
 
-  // Seleccionar cliente para editar
-  edit(cliente: Cliente) {
-    this.clienteEdit = { ...cliente };
+  // Abrir modal para editar cliente
+  openEdit(cliente: Cliente) {
+    this.editingId = cliente.id;
+    this.formCliente.patchValue({
+      ...cliente,
+      preferencias: Array.isArray(cliente.preferencias) ? cliente.preferencias.join(', ') : cliente.preferencias
+    });
+    this.showModal = true;
   }
 
-  // Guardar edición
-  update(form: any) {
-    if (!this.clienteEdit) return;
+  // Cerrar modal
+  closeModal() {
+    this.showModal = false;
+    this.formCliente.reset();
+  }
 
-    const actualizado: Cliente = { ...this.clienteEdit, ...form.value };
+  // Guardar (crear o actualizar)
+  save() {
+    if (this.formCliente.invalid) {
+      alert('Por favor complete los campos requeridos correctamente');
+      return;
+    }
 
-    this.servClientes.update(actualizado).subscribe(() => {
-      this.clienteEdit = null;
-      form.reset();
-      this.loadClientes();
-    });
+    const formData = this.formCliente.value;
+    
+    // Convertir preferencias de string a array
+    const datos = {
+      ...formData,
+      preferencias: formData.preferencias ? 
+        formData.preferencias.split(',').map((p: string) => p.trim()).filter((p: string) => p !== '') 
+        : []
+    };
+
+    if (this.editingId) {
+      // Actualizar
+      const actualizado: Cliente = { ...datos, id: this.editingId };
+      this.servClientes.update(actualizado).subscribe(() => {
+        this.closeModal();
+        this.loadClientes();
+        alert('Cliente actualizado exitosamente');
+      });
+    } else {
+      // Crear nuevo
+      this.servClientes.create(datos).subscribe(() => {
+        this.closeModal();
+        this.loadClientes();
+        alert('Cliente creado exitosamente');
+      });
+    }
   }
 
   // Eliminar
@@ -80,6 +141,8 @@ export class CrudClientes {
 
     this.servClientes.delete(cliente.id).subscribe(() => {
       this.loadClientes();
+      alert('Cliente eliminado exitosamente');
     });
   }
 }
+

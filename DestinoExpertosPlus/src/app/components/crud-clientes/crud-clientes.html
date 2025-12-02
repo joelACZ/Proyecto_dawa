@@ -6,7 +6,7 @@
   content="Aquí puedes buscar, ver, editar y eliminar clientes registrados." >
 </app-card>
 
-<div class="mb-4 mt-4 flex flex-col md:flex-row gap-2 items-start md:items-center"> 
+<div class="mb-4 mt-4 flex flex-col md:flex-row gap-2 items-start md:items-center justify-between">
   <input 
     type="text" 
     placeholder="Buscar cliente..."
@@ -14,6 +14,116 @@
     #inputBusq 
     (input)="search(inputBusq)"
   />
+  <button 
+    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+    (click)="openNew()">
+    Nuevo Cliente
+  </button>
+</div>
+
+<!-- Modal Dialog -->
+<div *ngIf="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+    <div class="flex justify-between items-center p-4 border-b">
+      <h3 class="text-lg font-semibold">
+        {{ editingId ? 'Editar Cliente' : 'Nuevo Cliente' }}
+      </h3>
+      <button 
+        (click)="closeModal()"
+        class="text-gray-500 hover:text-gray-700 text-xl">
+        &times;
+      </button>
+    </div>
+
+    <form [formGroup]="formCliente" (ngSubmit)="save()" class="p-4 space-y-4">
+      <!-- Nombre -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+        <input 
+          type="text" 
+          formControlName="nombre"
+          class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Ingrese el nombre">
+        <div *ngIf="formCliente.get('nombre')?.invalid && formCliente.get('nombre')?.touched" class="text-red-500 text-xs mt-1">
+          <span *ngIf="formCliente.get('nombre')?.errors?.['required']">El nombre es requerido</span>
+          <span *ngIf="formCliente.get('nombre')?.errors?.['minlength']">Mínimo 2 caracteres</span>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+        <input 
+          type="email" 
+          formControlName="email"
+          class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Ingrese el email">
+        <div *ngIf="formCliente.get('email')?.invalid && formCliente.get('email')?.touched" class="text-red-500 text-xs mt-1">
+          <span *ngIf="formCliente.get('email')?.errors?.['required']">El email es requerido</span>
+          <span *ngIf="formCliente.get('email')?.errors?.['email']">Formato de email inválido</span>
+        </div>
+      </div>
+
+      <!-- Teléfono -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono *</label>
+        <input 
+          type="text" 
+          formControlName="telefono"
+          class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Ingrese el teléfono">
+        <div *ngIf="formCliente.get('telefono')?.invalid && formCliente.get('telefono')?.touched" class="text-red-500 text-xs mt-1">
+          El teléfono es requerido
+        </div>
+      </div>
+
+      <!-- Dirección -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+        <input 
+          type="text" 
+          formControlName="direccion"
+          class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Ingrese la dirección">
+      </div>
+
+      <!-- Preferencias -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Preferencias</label>
+        <input 
+          type="text" 
+          formControlName="preferencias"
+          class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Ingrese las preferencias">
+      </div>
+
+      <!-- Notificaciones -->
+      <div class="flex items-center">
+        <input 
+          type="checkbox" 
+          formControlName="notificaciones"
+          id="notificaciones"
+          class="mr-2">
+        <label for="notificaciones" class="text-sm font-medium text-gray-700">Recibir notificaciones</label>
+      </div>
+
+      <!-- Botones -->
+      <div class="flex justify-end gap-2 pt-4 border-t">
+        <button 
+          type="button"
+          (click)="closeModal()"
+          class="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+          Cancelar
+        </button>
+        <button 
+          type="submit"
+          [disabled]="formCliente.invalid"
+          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
+          {{ editingId ? 'Actualizar' : 'Crear' }}
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <app-data-table 
@@ -34,13 +144,14 @@
     <td class="p-2 border">{{ row.email }}</td>
     <td class="p-2 border">{{ row.telefono }}</td>
     <td class="p-2 border">{{ row.direccion }}</td>
-    <td class="p-2 border">{{ row.preferencias.join(', ') }}</td>
+    <td class="p-2 border">{{ row.preferencias?.join(', ') }}</td>
     <td class="p-2 border">{{ row.notificaciones ? 'Sí' : 'No' }}</td>
   </ng-template>
 
   <ng-template #actions let-row>
-    <button class="text-yellow-600 mr-2" (click)="edit(row)">Editar</button>
-    <button class="text-red-600" (click)="delete(row)">Eliminar</button>
+    <button class="text-blue-600 mr-2 hover:underline" (click)="view(row.id)">Ver</button>
+    <button class="text-yellow-600 mr-2 hover:underline" (click)="openEdit(row)">Editar</button>
+    <button class="text-red-600 hover:underline" (click)="delete(row)">Eliminar</button>
   </ng-template>
 
 </app-data-table>
