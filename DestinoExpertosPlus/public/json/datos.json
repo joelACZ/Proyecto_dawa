@@ -46,7 +46,7 @@
       "id": "2",
       "nombre": "Reparación de Tuberías",
       "categoria": "Plomería",
-      "descripcion": "Reparación de fugas y tuberías dañadas.",
+      "descripcion": "Reparación de fugas y tuberías dañadas",
       "precioBase": 25,
       "duracionEstimada": 45,
       "profesional_id": 2,
@@ -117,10 +117,28 @@
     {
       "id": "1",
       "solicitud_id": 2,
-      "calificacion": 5,
+      "calificacion": 4,
       "comentario": "Excelente servicio, muy rápida solución.",
-      "fecha": "2025-11-20T12:00:00Z",
+      "fecha": "2025-12-11",
+      "anonima": true,
+      "calificacionFormateada": "4 ★ - Buen servicio",
+      "anonimaFormateada": "No"
+    },
+    {
+      "id": 4,
+      "solicitud_id": 7,
+      "calificacion": 5,
+      "comentario": "excelentess",
+      "fecha": "2025-12-18",
       "anonima": false
+    },
+    {
+      "id": 5,
+      "solicitud_id": 6,
+      "calificacion": 3,
+      "comentario": "erteterett",
+      "fecha": "2025-12-16",
+      "anonima": true
     }
   ]
 }
