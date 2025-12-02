@@ -1,17 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; 
+import { CommonModule, DatePipe } from '@angular/common'; 
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms'; 
 
 // === IMPORTACIONES DE RXJS ===
 import { Observable, forkJoin } from 'rxjs'; 
-import { map } from 'rxjs/operators'; 
 
-// Modelos
+// Modelos (Asegúrate que estas rutas son correctas)
 import { Solicitud } from '../../models/Solicitud.model';
 import { Servicio } from '../../models/Servicio.model';
 import { Cliente } from '../../models/Cliente.model'; 
-import { Profesional } from '../../models/Profesional.model';
+import { Profesional } from '../../models/Profesional.model'; 
 
 // Servicios
 import { ServServiciosJson } from '../../services/servicio-service';
@@ -19,29 +18,42 @@ import { ServClientesJson } from '../../services/cliente-service';
 import { SolicitudService } from '../../services/solicitud-service';
 import { ProfesionalService } from '../../services/profesional-service';
 
-// Componentes Reutilizables
-import { DataTableComponent } from "../data-table/data-table";
-import { CardComponent } from "../cards/cards";
+// Componentes de diseño original
+import { DataTableComponent } from '../shared/data-table/data-table';
+import { CardComponent } from '../shared/cards/cards';
+
+// Declaramos la librería Bootstrap (NECESARIO para el modal)
+declare const bootstrap: any; 
 
 @Component({
   selector: 'app-crud-solicitudes',
   templateUrl: './crud-solicitudes.html',
   styleUrls: ['./crud-solicitudes.css'],
   standalone: true,
-  imports: [DataTableComponent, CardComponent, CommonModule, FormsModule], 
+  imports: [DataTableComponent, CardComponent, CommonModule, ReactiveFormsModule, DatePipe], 
 })
-export class CrudSolicitudes implements OnInit {
+export class CrudSolicitudes implements OnInit, AfterViewInit {
 
-  // La interfaz de Solicitud ahora debe ser más flexible para aceptar strings (nombres)
-  solicitudes: any[] = []; // Usamos 'any' porque transformaremos IDs (number) a Nombres (string)
-  solicitudEdit: Solicitud | null = null;
+  // Listas de datos
+  solicitudesOriginal: Solicitud[] = [];
+  solicitudesTabla: any[] = [];         
+  listaServicios: Servicio[] = []; 
+  listaClientes: Cliente[] = []; 
+  listaProfesionales: Profesional[] = []; 
+  
+  formSolicitud!: FormGroup; 
+  editingId: number | null = null; 
+  
+  // PROPIEDADES DEL MODAL
+  modalRef: any; 
+  @ViewChild('solicitudModalRef') modalElement!: ElementRef;
+  
+  modalViewRef: any;
+  @ViewChild('detailModalRef') detailModalElement!: ElementRef;
+  solicitudView: any = null;
 
-  listaServicios: Servicio[] = [];
-  listaClientes: any[] = [];      
-  listaProfesionales: any[] = []; 
+  listaEstados = ['pendiente', 'en_proceso', 'completado', 'cancelado'];
 
-  // Columnas para el data-table
-  // NOTA: Los fields 'cliente_id', etc., ahora mostrarán el string (nombre)
   columns = [
     { field: 'id', header: 'ID' },
     { field: 'fecha', header: 'Fecha' },
@@ -50,8 +62,7 @@ export class CrudSolicitudes implements OnInit {
     { field: 'servicio_id', header: 'Servicio' },
     { field: 'ubicacion', header: 'Ubicación' },
     { field: 'estado', header: 'Estado' },
-    { field: 'urgencia', header: 'Urgente' },
-    { field: 'actions', header: 'Acciones' } // Añadimos la columna de acciones aquí
+    { field: 'urgencia', header: 'Urgente' }
   ];
 
   constructor(
@@ -59,113 +70,218 @@ export class CrudSolicitudes implements OnInit {
     private servServicios: ServServiciosJson,
     private servClientes: ServClientesJson, 
     private servProfesionales: ProfesionalService,
-    private router: Router
-  ) {}
+    private router: Router,
+    private fb: FormBuilder 
+  ) {
+    this.initForm(); 
+  }
+  
+  ngAfterViewInit() {
+    this.modalRef = new bootstrap.Modal(this.modalElement.nativeElement);
+    this.modalViewRef = new bootstrap.Modal(this.detailModalElement.nativeElement);
+  }
+
+  initForm(): void {
+    this.formSolicitud = this.fb.group({
+      cliente_id: ['', Validators.required], 
+      profesional_id: ['', Validators.required], 
+      servicio_id: ['', Validators.required], 
+      ubicacion: ['', [Validators.required, Validators.maxLength(100)]], 
+      descripcion: ['', [Validators.required, Validators.maxLength(500)]],
+      estado: ['pendiente', Validators.required], 
+      urgencia: [false], 
+    });
+  }
 
   ngOnInit() {
-    this.loadData(); // Llama al nuevo método que carga todo
+    this.loadData();
+  }
+
+  private formatFecha(date: any): string {
+      const pipe = new DatePipe('es-EC'); 
+      return pipe.transform(date, 'dd/MM/yyyy h:mm a') || 'N/A';
+  }
+
+  private formatUrgencia(isUrgent: boolean): string {
+      return isUrgent ? 'SÍ' : 'NO';
   }
 
   loadData() {
-    // 1. Usamos forkJoin para esperar a que todas las listas auxiliares carguen
     forkJoin({
-        clientes: this.servClientes.getClientes(),
-        profesionales: this.servProfesionales.getProfesionales(),
-        servicios: this.servServicios.getServicios()
+      clientes: this.servClientes.getClientes() as Observable<Cliente[]>,
+      profesionales: this.servProfesionales.getProfesionales() as Observable<Profesional[]>,
+      servicios: this.servServicios.getServicios() as Observable<Servicio[]>
     }).subscribe(auxData => {
-        // Almacenamos las listas para usarlas en el formulario y los helpers
-        this.listaClientes = auxData.clientes;
-        this.listaProfesionales = auxData.profesionales;
-        this.listaServicios = auxData.servicios;
+      this.listaClientes = auxData.clientes;
+      this.listaProfesionales = auxData.profesionales;
+      this.listaServicios = auxData.servicios;
 
-        // 2. Cargamos las solicitudes y las transformamos
-        this.servSolicitudes.getSolicitudes().subscribe((solicitudes: Solicitud[]) => {
-            this.solicitudes = solicitudes.map(s => ({
-                ...s,
-                // Transformamos el ID a Nombre usando los helpers y las listas cargadas
-                cliente_id: this.getClienteNombre(s.cliente_id), 
-                profesional_id: this.getProfesionalNombre(s.profesional_id),
-                servicio_id: this.getServicioNombre(s.servicio_id)
-            }));
+      this.servSolicitudes.getSolicitudes().subscribe((solicitudes: Solicitud[]) => {
+        this.solicitudesOriginal = solicitudes;
+        
+        this.solicitudesTabla = solicitudes.map(s => ({
+          ...s,
+          cliente_id: this.getClienteNombre(s.cliente_id), 
+          profesional_id: this.getProfesionalNombre(s.profesional_id),
+          servicio_id: this.getServicioNombre(s.servicio_id),
+          fecha: s.fecha, // Dejamos fecha pura para el pipe
+          urgencia: s.urgencia // Dejamos urgencia pura para la lógica booleana del HTML
+        }));
+      });
+    });
+  }
+  
+  openNew() {
+      this.editingId = null;
+      this.formSolicitud.reset({ estado: 'pendiente', urgencia: false });
+      this.modalRef.show(); 
+  }
+  
+  openEdit(solicitud: any) {
+    // FIX TS2345: Usamos 'as any' para forzar el paso del ID (string|number)
+    this.servSolicitudes.getSolicitudById(solicitud.id as any).subscribe((solicitudOriginal: Solicitud) => {
+        this.editingId = solicitudOriginal.id ?? null;
+        
+        this.formSolicitud.patchValue({
+            cliente_id: solicitudOriginal.cliente_id,
+            profesional_id: solicitudOriginal.profesional_id,
+            servicio_id: solicitudOriginal.servicio_id,
+            ubicacion: solicitudOriginal.ubicacion,
+            estado: solicitudOriginal.estado,
+            urgencia: solicitudOriginal.urgencia,
+            descripcion: solicitudOriginal.descripcion,
         });
+        
+        this.modalRef.show(); 
+    });
+  }
+  
+  save() {
+    if (this.formSolicitud.invalid) {
+      alert("Por favor, complete todos los campos requeridos.");
+      return;
+    }
+
+    const datos: Solicitud = this.formSolicitud.value;
+    
+    datos.cliente_id = Number(datos.cliente_id);
+    datos.profesional_id = Number(datos.profesional_id);
+    datos.servicio_id = Number(datos.servicio_id);
+
+
+    if (this.editingId) { // Editar
+      
+      // FIX TS2345: Usamos 'as any' para forzar el paso del ID (string|number)
+      this.servSolicitudes.getSolicitudById(this.editingId as any).subscribe(() => {
+          
+          let solicitudUpdate: Solicitud = { 
+              ...datos, 
+              id: this.editingId!, 
+              fecha: new Date() 
+          }; 
+
+          this.servSolicitudes.update(solicitudUpdate).subscribe(() => {
+            alert("Solicitud Actualizada");
+            this.modalRef.hide(); 
+            this.cancelEdit();
+            this.loadData();
+          });
+      });
+      
+    } else { // Crear nueva
+      let solicitudNew: Solicitud = { 
+        ...datos,
+        fecha: new Date(), 
+        estado: 'pendiente' 
+      }; 
+
+      this.servSolicitudes.create(solicitudNew).subscribe(() => {
+        alert("Solicitud creada");
+        this.modalRef.hide(); 
+        this.cancelEdit();
+        this.loadData();
+      });
+    }
+  }
+
+  delete(solicitud: Solicitud) {
+    // FIX TS2345: Usamos 'as any' en la llamada si es necesario
+    if (!confirm(`¿Estás seguro de cancelar la solicitud #${solicitud.id}?`)) return;
+    
+    this.servSolicitudes.delete(solicitud.id as any).subscribe(() => {
+      alert("Solicitud Cancelada exitosamente");
+      this.loadData();
+    });
+  }
+  
+  cancelEdit() {
+      if (this.modalRef) {
+          this.modalRef.hide();
+      }
+      this.editingId = null;
+      this.formSolicitud.reset({ estado: 'pendiente', urgencia: false });
+  }
+
+  // viewDetails(id) para el modal de binoculares
+  viewDetails(id: number | string) {
+    // FIX TS2345: Usamos 'as any' para forzar el paso del ID (string|number)
+    this.servSolicitudes.getSolicitudById(id as any).subscribe((solicitudOriginal: Solicitud) => {
+        
+        // Creamos el objeto de vista con los nombres resueltos
+        this.solicitudView = {
+            id: solicitudOriginal.id,
+            fecha: solicitudOriginal.fecha, 
+            cliente: this.getClienteNombre(solicitudOriginal.cliente_id), 
+            profesional: this.getProfesionalNombre(solicitudOriginal.profesional_id),
+            servicio: this.getServicioNombre(solicitudOriginal.servicio_id),
+            ubicacion: solicitudOriginal.ubicacion,
+            descripcion: solicitudOriginal.descripcion,
+            estado: solicitudOriginal.estado,
+            urgencia: solicitudOriginal.urgencia ? 'SÍ' : 'NO',
+            
+            cliente_id: solicitudOriginal.cliente_id,
+            profesional_id: solicitudOriginal.profesional_id,
+            servicio_id: solicitudOriginal.servicio_id,
+        };
+        
+        this.modalViewRef.show();
     });
   }
 
   view(id: number | undefined) {
     if (id) {
-      this.router.navigate(['/solicitud-view/', id]);
+        this.viewDetails(id);
     }
   }
 
+  // --- MÉTODOS HELPERS ---
   search(input: HTMLInputElement) {
     const param = input.value;
     this.servSolicitudes.searchSolicitudes(param).subscribe((data: Solicitud[]) => {
-       this.solicitudes = data.map(s => ({
+        this.solicitudesOriginal = data;
+        this.solicitudesTabla = data.map(s => ({
             ...s,
             cliente_id: this.getClienteNombre(s.cliente_id), 
             profesional_id: this.getProfesionalNombre(s.profesional_id),
-            servicio_id: this.getServicioNombre(s.servicio_id)
+            servicio_id: this.getServicioNombre(s.servicio_id),
+            fecha: s.fecha, 
+            urgencia: s.urgencia
         }));
     });
   }
-
-  create(form: any) {
-    const nuevo: Solicitud = form.value;
-
-    nuevo.cliente_id = Number(nuevo.cliente_id);
-    nuevo.profesional_id = Number(nuevo.profesional_id);
-    nuevo.servicio_id = Number(nuevo.servicio_id);
-    nuevo.fecha = new Date(); // Fecha automática al crear
-    nuevo.estado = 'pendiente'; // Estado inicial
-
-    this.servSolicitudes.create(nuevo).subscribe(() => {
-      form.reset();
-      this.loadData(); // Llama al método completo para recargar la tabla
-    });
-  }
-
-  edit(solicitud: Solicitud) {
-    const solicitudOriginal = this.solicitudes.find(s => s.id === solicitud.id);
-    
-    this.solicitudEdit = { ...solicitudOriginal }; 
-  }
-
-  update(form: any) {
-    if (!this.solicitudEdit) return;
-
-    const actualizado: Solicitud = { ...this.solicitudEdit, ...form.value };
-    
-    actualizado.cliente_id = Number(actualizado.cliente_id);
-    actualizado.profesional_id = Number(actualizado.profesional_id);
-    actualizado.servicio_id = Number(actualizado.servicio_id);
-
-    this.servSolicitudes.update(actualizado).subscribe(() => {
-      this.solicitudEdit = null;
-      form.reset();
-      this.loadData(); // Llama al método completo para recargar la tabla
-    });
-  }
-
-  delete(solicitud: Solicitud) {
-    if (!confirm(`¿Estás seguro de cancelar la solicitud #${solicitud.id}?`)) return;
-    
-    this.servSolicitudes.delete(solicitud.id).subscribe(() => {
-      this.loadData(); // Llama al método completo para recargar la tabla
-    });
-  }
-
+  
   getClienteNombre(id: number | string): string {
-      const cliente = this.listaClientes.find(c => +c.id === +id); 
-      return cliente ? cliente.nombre : 'N/A';
+    const cliente = this.listaClientes.find(c => +c.id === +id); 
+    return cliente ? cliente.nombre : 'N/A';
   }
 
   getProfesionalNombre(id: number | string): string {
-      const profesional = this.listaProfesionales.find(p => +p.id === +id);
-      return profesional ? `${profesional.nombre} (${profesional.especialidad})` : 'N/A';
+    const profesional = this.listaProfesionales.find(p => +p.id === +id);
+    return profesional ? `${profesional.nombre} (${profesional.especialidad})` : 'N/A';
   }
 
   getServicioNombre(id: number | string): string {
-      const servicio = this.listaServicios.find(s => +s.id === +id);
-      return servicio ? servicio.nombre : 'N/A';
+    const servicio = this.listaServicios.find(s => +s.id === +id);
+    return servicio ? servicio.nombre : 'N/A';
   }
 }
