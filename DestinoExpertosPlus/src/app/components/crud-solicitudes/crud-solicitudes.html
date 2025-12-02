@@ -1,1 +1,188 @@
-<p>crud-solicitudes works!</p>
+<h1 class="text-2xl font-bold mb-6">Gestión de Solicitudes</h1>
+
+<app-card
+  title="Gestión de Solicitudes"
+  subtitle="Administra los pedidos de servicio entre clientes y profesionales"
+  content="Controla el estado de las solicitudes, asignaciones, urgencias y detalles del trabajo." >
+</app-card>
+
+<div class="mb-4 mt-4 flex flex-col md:flex-row gap-2 items-start md:items-center">
+    <input
+      type="text"
+      placeholder="Buscar por descripción o estado..."
+      class="border p-2 rounded w-full md:w-64"
+      #txtBuscar
+      (input)="search(txtBuscar)"
+    />
+</div>
+
+<app-data-table 
+  [data]="solicitudes" 
+  [columns]="[
+    { field: 'id', header: 'ID' },
+    { field: 'fecha', header: 'Fecha' },
+    { field: 'cliente_id', header: 'Cliente' }, 
+    { field: 'profesional_id', header: 'Profesional' }, 
+    { field: 'servicio_id', header: 'Servicio' }, 
+    { field: 'ubicacion', header: 'Ubicación' },
+    { field: 'estado', header: 'Estado' },
+    { field: 'urgencia', header: 'Urgente' },
+  ]" >
+  
+  <ng-template #col_fecha let-row>
+    {{ row.fecha | date:'dd/MM/yyyy h:mm a' }}
+  </ng-template>
+  
+  <ng-template #col_urgencia let-row>
+    <span 
+        [ngClass]="{ 
+            'text-red-600 font-semibold': row.urgencia, 
+            'text-green-600': !row.urgencia 
+        }">
+        {{ row.urgencia ? 'Sí' : 'No' }}
+    </span>
+  </ng-template>
+
+  <ng-template #actions let-row>
+    <button class="text-blue-600 mr-2 hover:text-blue-800" (click)="view(row.id)" title="Ver Detalle">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block align-text-bottom" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        </svg>
+        <span class="ml-1 hidden sm:inline"></span> 
+    </button>
+
+    <button class="text-yellow-600 mr-2 hover:text-yellow-800" (click)="edit(row)" title="Editar Solicitud">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block align-text-bottom" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+        </svg>
+        <span class="ml-1 hidden sm:inline"></span>
+    </button>
+
+    <button class="text-red-600 hover:text-red-800" (click)="delete(row)" title="Cancelar Solicitud">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block align-text-bottom" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+        <span class="ml-1 hidden sm:inline"></span>
+    </button>
+  </ng-template>
+</app-data-table>
+
+<div class="mt-8 p-4 border rounded shadow bg-white">
+  <h2 class="text-xl font-bold mb-4">
+    {{ solicitudEdit ? 'Editar Solicitud #' + solicitudEdit.id : 'Nueva Solicitud' }}
+  </h2>
+
+  <form #f="ngForm" (ngSubmit)="solicitudEdit ? update(f) : create(f)">
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      
+      <div>
+        <label class="block text-sm font-medium">Cliente</label>
+        <select 
+          name="cliente_id" 
+          [ngModel]="solicitudEdit?.cliente_id" 
+          class="border p-2 rounded w-full" 
+          required>
+          <option [value]="null" disabled>Seleccione un cliente</option>
+          <option *ngFor="let c of listaClientes" [value]="c.id">{{ c.nombre }}</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium">Profesional</label>
+        <select 
+          name="profesional_id" 
+          [ngModel]="solicitudEdit?.profesional_id" 
+          class="border p-2 rounded w-full" 
+          required>
+          <option [value]="null" disabled>Seleccione un profesional</option>
+          <option *ngFor="let p of listaProfesionales" [value]="p.id">{{ p.nombre }} - {{ p.especialidad }}</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium">Servicio</label>
+        <select 
+          name="servicio_id" 
+          [ngModel]="solicitudEdit?.servicio_id" 
+          class="border p-2 rounded w-full" 
+          required>
+          <option [value]="null" disabled>Seleccione un servicio</option>
+          <option *ngFor="let s of listaServicios" [value]="s.id">{{ s.nombre }}</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium">Ubicación</label>
+        <input 
+          type="text" 
+          name="ubicacion" 
+          [ngModel]="solicitudEdit?.ubicacion" 
+          class="border p-2 rounded w-full" 
+          placeholder="Dirección del trabajo" 
+          required
+        />
+      </div>
+
+      @if (solicitudEdit)
+      {
+        <div>
+          <label class="block text-sm font-medium">Estado</label>
+          <select 
+            name="estado" 
+            [ngModel]="solicitudEdit.estado" 
+            class="border p-2 rounded w-full">
+            <option value="pendiente">Pendiente</option>
+            <option value="en_proceso">En Proceso</option>
+            <option value="completado">Completado</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+      }
+      
+
+      <div class="flex items-center mt-6">
+        <input 
+          type="checkbox" 
+          name="urgencia" 
+          [ngModel]="solicitudEdit?.urgencia" 
+          class="h-5 w-5 text-blue-600" 
+        />
+        <label class="ml-2 block text-sm font-medium">¿Es Urgente?</label>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <label class="block text-sm font-medium">Descripción del problema</label>
+      <textarea 
+        name="descripcion" 
+        [ngModel]="solicitudEdit?.descripcion" 
+        rows="3" 
+        class="border p-2 rounded w-full"
+        placeholder="Detalle lo que necesita..."
+        required
+      ></textarea>
+    </div>
+
+    <div class="mt-4 flex gap-2">
+      <button 
+        type="submit" 
+        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        {{ solicitudEdit ? 'Actualizar' : 'Crear Solicitud' }}
+      </button>
+      
+      @if (solicitudEdit)
+      {
+        <button 
+          type="button" 
+          (click)="solicitudEdit = null; f.reset()"
+          class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+          Cancelar Edición
+        </button>  
+      }
+      
+    </div>
+
+  </form>
+</div>
