@@ -1,1 +1,303 @@
-<p>crud-solicitudes works!</p>
+<div class="container-fluid mt-4">
+  <!-- Mensajes -->
+  <div *ngIf="mensaje" class="alert alert-{{tipoMensaje}} alert-dismissible fade show" role="alert">
+    {{ mensaje }}
+    <button type="button" class="btn-close" (click)="mensaje = ''"></button>
+  </div>
+
+  <!-- Encabezado -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Gestión de Solicitudes</h2>
+    <button class="btn btn-primary" (click)="resetFormulario()" [disabled]="cargando">
+      {{ modoEdicion ? 'Cancelar Edición' : 'Nueva Solicitud' }}
+    </button>
+  </div>
+
+  <!-- Formulario de Solicitud -->
+  <div class="card mb-4" *ngIf="!cargando">
+    <div class="card-header">
+      <h5>{{ modoEdicion ? 'Editar Solicitud' : 'Crear Nueva Solicitud' }}</h5>
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="modoEdicion ? actualizarSolicitud() : crearSolicitud()" #solicitudForm="ngForm">
+        <div class="row g-3">
+          <!-- Cliente -->
+          <div class="col-md-4">
+            <label class="form-label">Cliente *</label>
+            <select class="form-select" [(ngModel)]="nuevaSolicitud.cliente_id" name="cliente_id" required>
+              <option value="0">Seleccionar cliente...</option>
+              <option *ngFor="let cliente of clientes" [value]="cliente.id">
+                {{ cliente.nombre }} ({{ cliente.email }})
+              </option>
+            </select>
+          </div>
+
+          <!-- Profesional -->
+          <div class="col-md-4">
+            <label class="form-label">Profesional *</label>
+            <select class="form-select" [(ngModel)]="nuevaSolicitud.profesional_id" name="profesional_id" required>
+              <option value="0">Seleccionar profesional...</option>
+              <!-- Aquí deberías cargar profesionales reales -->
+              <option value="1">Profesional 1</option>
+              <option value="2">Profesional 2</option>
+              <option value="3">Profesional 3</option>
+            </select>
+          </div>
+
+          <!-- Servicio -->
+          <div class="col-md-4">
+            <label class="form-label">Servicio *</label>
+            <select class="form-select" [(ngModel)]="nuevaSolicitud.servicio_id" name="servicio_id" required>
+              <option value="0">Seleccionar servicio...</option>
+              <option *ngFor="let servicio of servicios" [value]="servicio.id">
+                {{ servicio.nombre }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Descripción -->
+          <div class="col-12">
+            <label class="form-label">Descripción *</label>
+            <textarea class="form-control" [(ngModel)]="nuevaSolicitud.descripcion" 
+                     name="descripcion" rows="3" required
+                     placeholder="Describe la solicitud..."></textarea>
+          </div>
+
+          <!-- Ubicación -->
+          <div class="col-md-6">
+            <label class="form-label">Ubicación *</label>
+            <input type="text" class="form-control" [(ngModel)]="nuevaSolicitud.ubicacion" 
+                   name="ubicacion" required placeholder="Dirección del servicio">
+          </div>
+
+          <!-- Estado -->
+          <div class="col-md-3">
+            <label class="form-label">Estado</label>
+            <select class="form-select" [(ngModel)]="nuevaSolicitud.estado" name="estado">
+              <option *ngFor="let estado of estadosSolicitud" [value]="estado">
+                {{ estado.charAt(0).toUpperCase() + estado.slice(1).replace('_', ' ') }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Urgencia -->
+          <div class="col-md-3">
+            <div class="form-check mt-4">
+              <input class="form-check-input" type="checkbox" 
+                     [(ngModel)]="nuevaSolicitud.urgencia" 
+                     name="urgencia" (change)="toggleUrgencia()"
+                     id="urgenciaCheck">
+              <label class="form-check-label" for="urgenciaCheck">
+                Solicitud Urgente
+              </label>
+            </div>
+          </div>
+
+          <!-- Nivel de Urgencia (solo si es urgente) -->
+          <div class="col-md-3" *ngIf="nuevaSolicitud.urgencia">
+            <label class="form-label">Nivel de Urgencia *</label>
+            <select class="form-select" [(ngModel)]="nuevaSolicitud.nivelUrgencia" name="nivelUrgencia" required>
+              <option *ngFor="let nivel of nivelesUrgencia" [value]="nivel">
+                {{ nivel.charAt(0).toUpperCase() + nivel.slice(1) }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Botones del formulario -->
+          <div class="col-12">
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-success" [disabled]="cargando">
+                <span *ngIf="cargando" class="spinner-border spinner-border-sm me-1"></span>
+                {{ modoEdicion ? 'Actualizar' : 'Crear' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="resetFormulario()" [disabled]="cargando">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5>Filtros</h5>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <!-- Búsqueda general -->
+        <div class="col-md-4">
+          <label class="form-label">Buscar</label>
+          <input type="text" class="form-control" [(ngModel)]="filtroBusqueda" 
+                 placeholder="Descripción, ubicación o estado...">
+        </div>
+
+        <!-- Filtro por estado -->
+        <div class="col-md-2">
+          <label class="form-label">Estado</label>
+          <select class="form-select" [(ngModel)]="filtroEstado">
+            <option value="todos">Todos</option>
+            <option *ngFor="let estado of estadosSolicitud" [value]="estado">
+              {{ estado.charAt(0).toUpperCase() + estado.slice(1).replace('_', ' ') }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Filtro por urgencia -->
+        <div class="col-md-2">
+          <label class="form-label">Urgencia</label>
+          <select class="form-select" [(ngModel)]="filtroUrgencia">
+            <option value="todos">Todos</option>
+            <option value="urgente">Urgentes</option>
+            <option value="normal">Normales</option>
+          </select>
+        </div>
+
+        <!-- Filtro por cliente -->
+        <div class="col-md-2">
+          <label class="form-label">Cliente</label>
+          <select class="form-select" [(ngModel)]="filtroCliente">
+            <option value="0">Todos</option>
+            <option *ngFor="let cliente of clientes" [value]="cliente.id">
+              {{ cliente.nombre }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Botón limpiar filtros -->
+        <div class="col-md-2 d-flex align-items-end">
+          <button class="btn btn-outline-secondary w-100" (click)="limpiarFiltros()">
+            Limpiar Filtros
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de Solicitudes -->
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5>Solicitudes ({{ solicitudesFiltradas.length }})</h5>
+      <span *ngIf="cargando" class="spinner-border spinner-border-sm"></span>
+    </div>
+    
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Profesional</th>
+            <th>Servicio</th>
+            <th>Descripción</th>
+            <th>Ubicación</th>
+            <th>Estado</th>
+            <th>Urgencia</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let solicitud of solicitudesPaginadas">
+            <td>{{ solicitud.id }}</td>
+            <td>
+              <span class="badge bg-info">
+                {{ getClienteNombre(solicitud.cliente_id) }}
+              </span>
+            </td>
+            <td>
+              <span class="badge bg-secondary">
+                Prof. {{ solicitud.profesional_id }}
+              </span>
+            </td>
+            <td>
+              <span class="badge bg-light text-dark">
+                {{ getServicioNombre(solicitud.servicio_id) }}
+              </span>
+            </td>
+            <td class="text-truncate" style="max-width: 200px;" 
+                [title]="solicitud.descripcion">
+              {{ solicitud.descripcion }}
+            </td>
+            <td class="text-truncate" style="max-width: 150px;">
+              {{ solicitud.ubicacion }}
+            </td>
+            <td>
+              <span [class]="getClaseEstado(solicitud.estado)">
+                {{ solicitud.estado.replace('_', ' ') | titlecase }}
+              </span>
+            </td>
+            <td>
+              <span *ngIf="solicitud.urgencia" [class]="getClaseUrgencia(solicitud.nivelUrgencia!)">
+                {{ solicitud.nivelUrgencia | titlecase }}
+              </span>
+              <span *ngIf="!solicitud.urgencia" class="badge bg-secondary">
+                Normal
+              </span>
+            </td>
+            <td>{{ formatearFecha(solicitud.fecha) }}</td>
+            <td>
+              <div class="btn-group btn-group-sm" role="group">
+                <button class="btn btn-outline-primary" 
+                        (click)="seleccionarSolicitud(solicitud)"
+                        title="Editar">
+                  ✏️
+                </button>
+                <button class="btn btn-outline-danger" 
+                        (click)="eliminarSolicitud(solicitud.id)"
+                        title="Eliminar">
+                  🗑️
+                </button>
+                <div class="btn-group btn-group-sm" role="group">
+                  <button type="button" class="btn btn-outline-secondary dropdown-toggle" 
+                          data-bs-toggle="dropdown" aria-expanded="false">
+                    Estado
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li *ngFor="let estado of estadosSolicitud">
+                      <a class="dropdown-item" href="#" 
+                         (click)="cambiarEstado(solicitud, estado)">
+                        {{ estado.replace('_', ' ') | titlecase }}
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="solicitudesPaginadas.length === 0">
+            <td colspan="10" class="text-center text-muted py-4">
+              No hay solicitudes para mostrar
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginación -->
+    <div class="card-footer" *ngIf="totalPaginas > 1">
+      <nav aria-label="Paginación de solicitudes">
+        <ul class="pagination justify-content-center mb-0">
+          <li class="page-item" [class.disabled]="paginaActual === 1">
+            <a class="page-link" href="#" (click)="cambiarPagina(paginaActual - 1)">Anterior</a>
+          </li>
+          
+          <li class="page-item" *ngFor="let pagina of [].constructor(totalPaginas); let i = index"
+              [class.active]="paginaActual === i + 1">
+            <a class="page-link" href="#" (click)="cambiarPagina(i + 1)">
+              {{ i + 1 }}
+            </a>
+          </li>
+          
+          <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+            <a class="page-link" href="#" (click)="cambiarPagina(paginaActual + 1)">Siguiente</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  
+</div>
