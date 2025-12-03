@@ -7,6 +7,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { DataTableComponent } from '../shared/data-table/data-table';
 import { CardComponent } from '../shared/cards/cards';
+import { DetailModal } from "../shared/detail-modal/detail-modal";
 
 declare const bootstrap: any;
 
@@ -15,7 +16,7 @@ declare const bootstrap: any;
   standalone: true,
   templateUrl: './crud-resenas.html',
   styleUrls: ['./crud-resenas.css'],
-  imports: [DataTableComponent, CardComponent, ReactiveFormsModule, CommonModule],
+  imports: [DataTableComponent, CardComponent, ReactiveFormsModule, CommonModule, DetailModal],
 })
 export class CrudResenas {
   resenas: Resena[] = [];
@@ -23,16 +24,18 @@ export class CrudResenas {
   resenaEdit: Resena | null = null;
   modalRef: any;
 
+  // PARA EL MODAL REUTILIZABLE (DetailModal)
   resenaDetalle: Resena | null = null;
   showDetailModal: boolean = false;
-  showDeleteModal: boolean = false;
-  showNotificationModal: boolean = false;
-  showErrorModal: boolean = false;
+
+  // Otros modales
+  showDeleteModal = false;
+  showNotificationModal = false;
+  showErrorModal = false;
   resenaAEliminar: Resena | null = null;
-  
-  notificationMessage: string = '';
-  errorMessage: string = '';
-  
+  notificationMessage = '';
+  errorMessage = '';
+
   formResena!: FormGroup;
 
   opcionesCalificacion = [
@@ -43,16 +46,15 @@ export class CrudResenas {
     { valor: 5, texto: '5★ - Excelente servicio' },
   ];
 
+  @ViewChild('resenaModal') modalElement!: ElementRef;
+
   constructor(
     private servResenas: ServResenasJson,
-    private router: Router,
     private fb: FormBuilder
   ) {
     this.loadResenas();
     this.inicializarFormulario();
   }
-
-  @ViewChild('resenaModal') modalElement!: ElementRef;
 
   ngAfterViewInit() {
     this.modalRef = new bootstrap.Modal(this.modalElement.nativeElement);
@@ -74,35 +76,28 @@ export class CrudResenas {
         this.resenas = data;
         this.formatearDatosParaTabla();
       },
-      error: (error) => {
-        console.error('Error cargando reseñas:', error);
-        this.showError('Error al cargar las reseñas. Verifica que JSON Server esté corriendo.');
-      }
+      error: () => this.showError('Error al cargar reseñas')
     });
   }
 
   formatearDatosParaTabla() {
-    this.resenasParaTabla = this.resenas.map(resena => ({
-      ...resena,
-      calificacionFormateada: `${resena.calificacion} ★ - ${this.obtenerTextoCalificacion(resena.calificacion)}`,
-      anonimaFormateada: resena.anonima ? 'Sí' : 'No'
+    this.resenasParaTabla = this.resenas.map(r => ({
+      ...r,
+      calificacionFormateada: `${r.calificacion} ★ - ${this.obtenerTextoCalificacion(r.calificacion)}`,
+      anonimaFormateada: r.anonima ? 'Sí' : 'No'
     }));
   }
 
   search(input: HTMLInputElement) {
-    const param = input.value;
-    if (param.trim() === '') {
+    const param = input.value.trim();
+    if (!param) {
       this.loadResenas();
       return;
     }
-
     this.servResenas.searchResenas(param).subscribe({
       next: (data) => {
         this.resenas = data;
         this.formatearDatosParaTabla();
-      },
-      error: (error) => {
-        console.error('Error buscando reseñas:', error);
       }
     });
   }
@@ -115,86 +110,54 @@ export class CrudResenas {
 
   openEdit(resena: Resena) {
     this.resenaEdit = { ...resena };
-
-    const fechaFormateada = typeof resena.fecha === 'string' 
-      ? resena.fecha 
-      : new Date(resena.fecha).toISOString().split('T')[0];
-
+    const fecha = typeof resena.fecha === 'string' ? resena.fecha : new Date(resena.fecha).toISOString().split('T')[0];
     this.formResena.patchValue({
       solicitud_id: resena.solicitud_id,
       calificacion: resena.calificacion,
       comentario: resena.comentario,
-      fecha: fechaFormateada,
+      fecha: fecha,
       anonima: resena.anonima
     });
-    
     this.modalRef.show();
   }
 
   save() {
     if (this.formResena.invalid) {
-      Object.keys(this.formResena.controls).forEach(key => {
-        this.formResena.get(key)?.markAsTouched();
-      });
+      this.formResena.markAllAsTouched();
       return;
     }
 
     const datos = this.formResena.value;
 
-    if (this.resenaEdit && this.resenaEdit.id) {
-      const resenaData: Resena = {
-        ...this.resenaEdit,
-        ...datos,
-        fecha: datos.fecha,
-        anonima: Boolean(datos.anonima),
-        calificacion: Number(datos.calificacion)
-      };
-
-      this.servResenas.update(resenaData).subscribe({
+    if (this.resenaEdit?.id) {
+      const updated: Resena = { ...this.resenaEdit, ...datos, calificacion: Number(datos.calificacion) };
+      this.servResenas.update(updated).subscribe({
         next: () => {
           this.loadResenas();
           this.modalRef.hide();
-          this.showNotification('Reseña actualizada correctamente');
-        },
-        error: (error) => {
-          console.error('Error actualizando reseña:', error);
-          this.showError('Error al actualizar la reseña. Verifica que JSON Server esté corriendo.');
+          this.showNotification('Reseña actualizada');
         }
       });
     } else {
-      this.servResenas.getResenas().subscribe({
-        next: (resenas) => {
-          const maxId = resenas.length > 0 ? Math.max(...resenas.map((r) => r.id || 0)) : 0;
-          const resenaData: Resena = {
-            ...datos,
-            id: maxId + 1,
-            fecha: datos.fecha,
-            anonima: Boolean(datos.anonima),
-            calificacion: Number(datos.calificacion)
-          };
-
-          this.servResenas.create(resenaData).subscribe({
-            next: () => {
-              this.loadResenas();
-              this.modalRef.hide();
-              this.showNotification('Reseña creada correctamente');
-            },
-            error: (error) => {
-              console.error('Error creando reseña:', error);
-              this.showError('Error al crear la reseña. Verifica que JSON Server esté corriendo.');
-            }
-          });
-        },
-        error: (error) => {
-          console.error('Error obteniendo reseñas para ID:', error);
+      this.servResenas.create({ ...datos, calificacion: Number(datos.calificacion) } as Resena).subscribe({
+        next: () => {
+          this.loadResenas();
+          this.modalRef.hide();
+          this.showNotification('Reseña creada');
         }
       });
     }
   }
 
+  // ← AQUÍ USAMOS TU MODAL REUTILIZABLE
   view(resena: Resena) {
     this.resenaDetalle = resena;
     this.showDetailModal = true;
+  }
+
+  closeDetail() {
+    this.showDetailModal = false;
+    this.resenaDetalle = null;
   }
 
   openDeleteModal(resena: Resena) {
@@ -203,33 +166,14 @@ export class CrudResenas {
   }
 
   confirmDelete() {
-    if (!this.resenaAEliminar) return;
-
-    const id = this.resenaAEliminar.id;
-    if (id == null) return;
-
-    this.servResenas.delete(id).subscribe({
+    if (!this.resenaAEliminar?.id) return;
+    this.servResenas.delete(this.resenaAEliminar.id).subscribe({
       next: () => {
-        this.showNotification('Reseña eliminada correctamente');
+        this.showNotification('Reseña eliminada');
         this.loadResenas();
-        this.closeDeleteModal();
-      },
-      error: (error) => {
-        console.error('Error eliminando reseña:', error);
-        this.showError('Error al eliminar la reseña. Verifica que JSON Server esté corriendo.');
         this.closeDeleteModal();
       }
     });
-  }
-
-  showNotification(message: string) {
-    this.notificationMessage = message;
-    this.showNotificationModal = true;
-  }
-
-  showError(message: string) {
-    this.errorMessage = message;
-    this.showErrorModal = true;
   }
 
   closeDeleteModal() {
@@ -237,30 +181,18 @@ export class CrudResenas {
     this.resenaAEliminar = null;
   }
 
-  closeNotificationModal() {
-    this.showNotificationModal = false;
-    this.notificationMessage = '';
+  showNotification(msg: string) {
+    this.notificationMessage = msg;
+    this.showNotificationModal = true;
   }
 
-  closeErrorModal() {
-    this.showErrorModal = false;
-    this.errorMessage = '';
+  showError(msg: string) {
+    this.errorMessage = msg;
+    this.showErrorModal = true;
   }
 
-  closeDetail() {
-    this.showDetailModal = false;
-    this.resenaDetalle = null;
-  }
-
-  obtenerTextoCalificacion(calificacion: number = 0): string {
-    const textos = [
-      '',
-      'Pésimo servicio',
-      'Mal servicio',
-      'Servicio regular',
-      'Buen servicio',
-      'Excelente servicio',
-    ];
-    return textos[calificacion] || '';
+  obtenerTextoCalificacion(c: number): string {
+    const t = ['', 'Pésimo servicio', 'Mal servicio', 'Servicio regular', 'Buen servicio', 'Excelente servicio'];
+    return t[c] || '';
   }
 }

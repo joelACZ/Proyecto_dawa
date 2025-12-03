@@ -6,23 +6,30 @@ import { Cliente } from '../../models/Cliente.model';
 import { ServClientesJson } from '../../services/cliente-service';
 import { DataTableComponent } from '../shared/data-table/data-table';
 import { CardComponent } from '../shared/cards/cards';
+import { DetailModal } from '../shared/detail-modal/detail-modal';
 
 
 @Component({
   selector: 'app-cliente-crud',
   templateUrl: './crud-clientes.html',
   styleUrls: ['./crud-clientes.css'],
-  imports: [CommonModule, ReactiveFormsModule, DataTableComponent, CardComponent],
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule, 
+    DataTableComponent, 
+    CardComponent, 
+    DetailModal],
+  standalone: true, // Asegurar que sea standalone para las imports
 })
 export class CrudClientes {
   clientes: Cliente[] = [];
-  
-  // Formulario reactivo
   formCliente!: FormGroup;
   editingId: number | null = null;
-  showModal: boolean = false;
 
-  // Columnas de la tabla reutilizable
+  // Control del modal de detalles REUTILIZABLE
+  showViewModal = false;
+  clienteView: Cliente | null = null;
+
   columns = [
     { field: 'id', header: 'ID' },
     { field: 'nombre', header: 'Nombre' },
@@ -31,7 +38,7 @@ export class CrudClientes {
   ];
 
   constructor(
-    private servClientes: ServClientesJson, 
+    private servClientes: ServClientesJson,
     private router: Router,
     private fb: FormBuilder
   ) {
@@ -39,7 +46,6 @@ export class CrudClientes {
     this.initForm();
   }
 
-  // Inicializar formulario reactivo
   initForm() {
     this.formCliente = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(2)]],
@@ -51,42 +57,30 @@ export class CrudClientes {
     });
   }
 
-  // Cargar lista
   loadClientes() {
-    this.servClientes.getClientes().subscribe((data) => {
-      this.clientes = data;
-    });
+    this.servClientes.getClientes().subscribe(data => this.clientes = data);
   }
 
-  // Visualizar id - CORREGIDO: Manejo de error si la ruta no existe
-  view(id: number | undefined) {
-    if (id) {
-      // Verificar si la ruta existe antes de navegar
-      this.router.navigate(['/cliente-view', id]).catch(() => {
-        console.warn(`La ruta '/cliente-view' no está configurada`);
-        alert('La funcionalidad de vista detallada no está disponible');
-      });
-    }
+  // ---- ABRIR MODAL DE DETALLES (usando el componente reutilizable) ----
+  openView(cliente: Cliente) {
+    this.clienteView = cliente;
+    this.showViewModal = true;
   }
 
-  // Buscar cliente
-  search(input: HTMLInputElement) {
-    const param = input.value;
-    this.servClientes.searchClientes(param).subscribe((data) => {
-      this.clientes = data;
-    });
+  closeViewModal() {
+    this.showViewModal = false;
+    this.clienteView = null;
   }
 
-  // Abrir modal para nuevo cliente
+  // ---- Resto de métodos (new, edit, save, delete, search...) ----
   openNew() {
     this.editingId = null;
-    this.formCliente.reset();
+    this.formCliente.reset({ notificaciones: false });
     this.showModal = true;
   }
 
-  // Abrir modal para editar cliente
   openEdit(cliente: Cliente) {
-    this.editingId = cliente.id;
+    this.editingId = cliente.id || null;
     this.formCliente.patchValue({
       ...cliente,
       preferencias: Array.isArray(cliente.preferencias) ? cliente.preferencias.join(', ') : cliente.preferencias
@@ -94,55 +88,48 @@ export class CrudClientes {
     this.showModal = true;
   }
 
-  // Cerrar modal
-  closeModal() {
-    this.showModal = false;
-    this.formCliente.reset();
-  }
-
-  // Guardar (crear o actualizar)
   save() {
-    if (this.formCliente.invalid) {
-      alert('Por favor complete los campos requeridos correctamente');
-      return;
-    }
+    if (this.formCliente.invalid) return alert('Complete los campos requeridos');
 
     const formData = this.formCliente.value;
-    
-    // Convertir preferencias de string a array
     const datos = {
       ...formData,
-      preferencias: formData.preferencias ? 
-        formData.preferencias.split(',').map((p: string) => p.trim()).filter((p: string) => p !== '') 
+      preferencias: formData.preferencias
+        ? formData.preferencias.split(',').map((p: string) => p.trim()).filter(Boolean)
         : []
     };
 
     if (this.editingId) {
-      // Actualizar
-      const actualizado: Cliente = { ...datos, id: this.editingId };
-      this.servClientes.update(actualizado).subscribe(() => {
+      this.servClientes.update({ ...datos, id: this.editingId }).subscribe(() => {
         this.closeModal();
         this.loadClientes();
-        alert('Cliente actualizado exitosamente');
+        alert('Cliente actualizado');
       });
     } else {
-      // Crear nuevo
       this.servClientes.create(datos).subscribe(() => {
         this.closeModal();
         this.loadClientes();
-        alert('Cliente creado exitosamente');
+        alert('Cliente creado');
       });
     }
   }
 
-  // Eliminar
   delete(cliente: Cliente) {
     if (!confirm(`¿Eliminar a ${cliente.nombre}?`)) return;
-
-    this.servClientes.delete(cliente.id).subscribe(() => {
+    this.servClientes.delete(cliente.id!).subscribe(() => {
       this.loadClientes();
-      alert('Cliente eliminado exitosamente');
+      alert('Cliente eliminado');
     });
   }
-}
 
+  closeModal() {
+    this.showModal = false;
+  }
+
+  // Variables para el modal de crear/editar (el que ya tenías)
+  showModal = false;
+
+  search(input: HTMLInputElement) {
+    this.servClientes.searchClientes(input.value).subscribe(data => this.clientes = data);
+  }
+}
