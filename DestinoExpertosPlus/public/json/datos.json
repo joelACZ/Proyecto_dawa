@@ -65,17 +65,16 @@
   ],
   "clientes": [
     {
+      "id": "1",
       "nombre": "Javier López",
       "email": "javier.lopez@example.com",
       "telefono": "0973332211",
       "direccion": "Cuenca",
       "preferencias": [
         "Electricidad",
-        "Urgente",
-        "Calidad"
+        "Urgente"
       ],
-      "notificaciones": true,
-      "id": "1"
+      "notificaciones": true
     },
     {
       "id": "2",
