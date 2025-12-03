@@ -1,28 +1,34 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Component, ElementRef, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 import { Cliente } from '../../models/Cliente.model';
 import { ServClientesJson } from '../../services/cliente-service';
 import { DataTableComponent } from '../shared/data-table/data-table';
 import { CardComponent } from '../shared/cards/cards';
+import { DetailModal } from '../shared/detail-modal/detail-modal';
 
 
 @Component({
   selector: 'app-cliente-crud',
   templateUrl: './crud-clientes.html',
   styleUrls: ['./crud-clientes.css'],
-  imports: [CommonModule, ReactiveFormsModule, DataTableComponent, CardComponent],
+  imports: [
+    CommonModule, ReactiveFormsModule, DataTableComponent, CardComponent, DetailModal],
+  standalone: true, // Asegurar que sea standalone para las imports
 })
 export class CrudClientes {
-  clientes: Cliente[] = [];
-  
-  // Formulario reactivo
+clientes: Cliente[] = [];
   formCliente!: FormGroup;
   editingId: number | null = null;
-  showModal: boolean = false;
 
-  // Columnas de la tabla reutilizable
+  // Modal de detalles (tu DetailModal)
+  clienteView: Cliente | null = null;
+  showViewModal = false;
+
+  // Modal de crear/editar (con *ngIf, como tu DetailModal)
+  showEditModal = false;
+
   columns = [
     { field: 'id', header: 'ID' },
     { field: 'nombre', header: 'Nombre' },
@@ -31,18 +37,16 @@ export class CrudClientes {
   ];
 
   constructor(
-    private servClientes: ServClientesJson, 
-    private router: Router,
+    private servClientes: ServClientesJson,
     private fb: FormBuilder
   ) {
     this.loadClientes();
     this.initForm();
   }
 
-  // Inicializar formulario reactivo
   initForm() {
     this.formCliente = this.fb.group({
-      nombre: ['', [Validators.required, Validators.minLength(2)]],
+      nombre: ['', [Validators.required, Validators.min(2)]],
       email: ['', [Validators.required, Validators.email]],
       telefono: ['', Validators.required],
       direccion: [''],
@@ -51,98 +55,73 @@ export class CrudClientes {
     });
   }
 
-  // Cargar lista
   loadClientes() {
-    this.servClientes.getClientes().subscribe((data) => {
-      this.clientes = data;
-    });
+    this.servClientes.getClientes().subscribe(data => this.clientes = data);
   }
 
-  // Visualizar id - CORREGIDO: Manejo de error si la ruta no existe
-  view(id: number | undefined) {
-    if (id) {
-      // Verificar si la ruta existe antes de navegar
-      this.router.navigate(['/cliente-view', id]).catch(() => {
-        console.warn(`La ruta '/cliente-view' no está configurada`);
-        alert('La funcionalidad de vista detallada no está disponible');
-      });
-    }
+  // === MODAL DETALLES (tu DetailModal) ===
+  openView(c: Cliente) {
+    this.clienteView = c;
+    this.showViewModal = true;
   }
 
-  // Buscar cliente
-  search(input: HTMLInputElement) {
-    const param = input.value;
-    this.servClientes.searchClientes(param).subscribe((data) => {
-      this.clientes = data;
-    });
+  closeViewModal() {
+    this.showViewModal = false;
+    this.clienteView = null;
   }
 
-  // Abrir modal para nuevo cliente
+  // === MODAL CREAR/EDITAR (sin bootstrap) ===
   openNew() {
     this.editingId = null;
-    this.formCliente.reset();
-    this.showModal = true;
+    this.formCliente.reset({ notificaciones: false });
+    this.showEditModal = true;
   }
 
-  // Abrir modal para editar cliente
-  openEdit(cliente: Cliente) {
-    this.editingId = cliente.id;
+  openEdit(c: Cliente) {
+    this.editingId = c.id || null;
     this.formCliente.patchValue({
-      ...cliente,
-      preferencias: Array.isArray(cliente.preferencias) ? cliente.preferencias.join(', ') : cliente.preferencias
+      ...c,
+      preferencias: Array.isArray(c.preferencias) ? c.preferencias.join(', ') : c.preferencias
     });
-    this.showModal = true;
+    this.showEditModal = true;
   }
 
-  // Cerrar modal
-  closeModal() {
-    this.showModal = false;
-    this.formCliente.reset();
+  closeEditModal() {
+    this.showEditModal = false;
   }
 
-  // Guardar (crear o actualizar)
   save() {
-    if (this.formCliente.invalid) {
-      alert('Por favor complete los campos requeridos correctamente');
-      return;
-    }
+    if (this.formCliente.invalid) return;
 
-    const formData = this.formCliente.value;
-    
-    // Convertir preferencias de string a array
     const datos = {
-      ...formData,
-      preferencias: formData.preferencias ? 
-        formData.preferencias.split(',').map((p: string) => p.trim()).filter((p: string) => p !== '') 
+      ...this.formCliente.value,
+      preferencias: this.formCliente.value.preferencias
+        ? this.formCliente.value.preferencias.split(',').map((p: string) => p.trim()).filter(Boolean)
         : []
     };
 
     if (this.editingId) {
-      // Actualizar
-      const actualizado: Cliente = { ...datos, id: this.editingId };
-      this.servClientes.update(actualizado).subscribe(() => {
-        this.closeModal();
+      this.servClientes.update({ ...datos, id: this.editingId } as Cliente).subscribe(() => {
+        this.closeEditModal();
         this.loadClientes();
-        alert('Cliente actualizado exitosamente');
       });
     } else {
-      // Crear nuevo
-      this.servClientes.create(datos).subscribe(() => {
-        this.closeModal();
+      this.servClientes.create(datos as Cliente).subscribe(() => {
+        this.closeEditModal();
         this.loadClientes();
-        alert('Cliente creado exitosamente');
       });
     }
   }
 
-  // Eliminar
-  delete(cliente: Cliente) {
-    if (!confirm(`¿Eliminar a ${cliente.nombre}?`)) return;
+  delete(c: Cliente) {
+    if (confirm(`¿Eliminar a ${c.nombre}?`)) {
+      this.servClientes.delete(c.id!).subscribe(() => this.loadClientes());
+    }
+  }
 
-    this.servClientes.delete(cliente.id).subscribe(() => {
-      this.loadClientes();
-      alert('Cliente eliminado exitosamente');
-    });
+  search(input: HTMLInputElement) {
+    const q = input.value.trim();
+    if (!q) this.loadClientes();
+    else this.servClientes.searchClientes(q).subscribe(data => this.clientes = data);
   }
 }
-
