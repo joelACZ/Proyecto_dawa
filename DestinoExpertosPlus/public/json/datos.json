@@ -114,37 +114,35 @@
   ],
   "resenas": [
     {
-      "id": "1",
-      "solicitud_id": 2,
-      "calificacion": 4,
-      "comentario": "Excelente servicio, muy rápida solución.",
-      "fecha": "2025-12-11",
-      "anonima": true,
-      "calificacionFormateada": "4 ★ - Buen servicio",
-      "anonimaFormateada": "No"
-    },
-    {
       "id": "4",
       "solicitud_id": 7,
-      "calificacion": 5,
+      "calificacion": 1,
       "comentario": "excelentess",
       "fecha": "2025-12-18",
       "anonima": false
     },
     {
       "id": "5",
-      "solicitud_id": 6,
-      "calificacion": 3,
-      "comentario": "erteterett",
-      "fecha": "2025-12-16",
+      "solicitud_id": 3,
+      "calificacion": 4,
+      "comentario": "eeeeeeeeeeeee",
+      "fecha": "2025-12-08",
       "anonima": true
     },
     {
       "id": "6",
-      "solicitud_id": 7,
+      "solicitud_id": 44,
+      "calificacion": 1,
+      "comentario": "aaaaaaaaaaa",
+      "fecha": "2025-12-01",
+      "anonima": true
+    },
+    {
+      "id": "7",
+      "solicitud_id": 345,
       "calificacion": 3,
-      "comentario": "fafsfsdfsdfsdfsfsdfsd",
-      "fecha": "2025-12-03",
+      "comentario": "5555555555555555",
+      "fecha": "2025-12-08",
       "anonima": true
     }
   ]

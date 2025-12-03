@@ -2,7 +2,6 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Resena } from '../../models/Resena.model';
 import { ServResenasJson } from '../../services/resena-service';
 import { Router } from '@angular/router';
-
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { DataTableComponent } from '../shared/data-table/data-table';
@@ -22,19 +21,17 @@ export class CrudResenas {
   resenasParaTabla: any[] = [];
   resenaEdit: Resena | null = null;
   modalRef: any;
-
   resenaDetalle: Resena | null = null;
   showDetailModal: boolean = false;
   showDeleteModal: boolean = false;
   showNotificationModal: boolean = false;
   showErrorModal: boolean = false;
   resenaAEliminar: Resena | null = null;
-  
+ 
   notificationMessage: string = '';
   errorMessage: string = '';
-  
+ 
   formResena!: FormGroup;
-
   opcionesCalificacion = [
     { valor: 1, texto: '1★ - Pésimo servicio' },
     { valor: 2, texto: '2★ - Mal servicio' },
@@ -95,7 +92,6 @@ export class CrudResenas {
       this.loadResenas();
       return;
     }
-
     this.servResenas.searchResenas(param).subscribe({
       next: (data) => {
         this.resenas = data;
@@ -113,11 +109,18 @@ export class CrudResenas {
     this.modalRef.show();
   }
 
-  openEdit(resena: Resena) {
-    this.resenaEdit = { ...resena };
-
-    const fechaFormateada = typeof resena.fecha === 'string' 
-      ? resena.fecha 
+  openEdit(resena: any) {
+    this.resenaEdit = {
+      id: resena.id,
+      solicitud_id: resena.solicitud_id,
+      calificacion: resena.calificacion,
+      comentario: resena.comentario,
+      fecha: resena.fecha,
+      anonima: resena.anonima
+    };
+    
+    const fechaFormateada = typeof resena.fecha === 'string'
+      ? resena.fecha
       : new Date(resena.fecha).toISOString().split('T')[0];
 
     this.formResena.patchValue({
@@ -127,7 +130,7 @@ export class CrudResenas {
       fecha: fechaFormateada,
       anonima: resena.anonima
     });
-    
+   
     this.modalRef.show();
   }
 
@@ -142,12 +145,14 @@ export class CrudResenas {
     const datos = this.formResena.value;
 
     if (this.resenaEdit && this.resenaEdit.id) {
-      const resenaData: Resena = {
-        ...this.resenaEdit,
-        ...datos,
+      // ACTUALIZAR - Mantener ID como string
+      const resenaData: any = {
+        id: String(this.resenaEdit.id),
+        solicitud_id: +datos.solicitud_id,
+        calificacion: +datos.calificacion,
+        comentario: datos.comentario,
         fecha: datos.fecha,
-        anonima: Boolean(datos.anonima),
-        calificacion: Number(datos.calificacion)
+        anonima: Boolean(datos.anonima)
       };
 
       this.servResenas.update(resenaData).subscribe({
@@ -158,19 +163,24 @@ export class CrudResenas {
         },
         error: (error) => {
           console.error('Error actualizando reseña:', error);
-          this.showError('Error al actualizar la reseña. Verifica que JSON Server esté corriendo.');
+          this.showError('Error al actualizar la reseña.');
         }
       });
     } else {
+      // CREAR - Obtener el ID máximo como string
       this.servResenas.getResenas().subscribe({
         next: (resenas) => {
-          const maxId = resenas.length > 0 ? Math.max(...resenas.map((r) => r.id || 0)) : 0;
-          const resenaData: Resena = {
-            ...datos,
-            id: maxId + 1,
+          const maxId = resenas.length > 0 
+            ? Math.max(...resenas.map(r => parseInt(String(r.id)) || 0)) 
+            : 0;
+          
+          const resenaData: any = {
+            id: String(maxId + 1),
+            solicitud_id: +datos.solicitud_id,
+            calificacion: +datos.calificacion,
+            comentario: datos.comentario,
             fecha: datos.fecha,
-            anonima: Boolean(datos.anonima),
-            calificacion: Number(datos.calificacion)
+            anonima: Boolean(datos.anonima)
           };
 
           this.servResenas.create(resenaData).subscribe({
@@ -181,7 +191,7 @@ export class CrudResenas {
             },
             error: (error) => {
               console.error('Error creando reseña:', error);
-              this.showError('Error al crear la reseña. Verifica que JSON Server esté corriendo.');
+              this.showError('Error al crear la reseña.');
             }
           });
         },
@@ -192,13 +202,27 @@ export class CrudResenas {
     }
   }
 
-  view(resena: Resena) {
-    this.resenaDetalle = resena;
+  view(resena: any) {
+    this.resenaDetalle = {
+      id: resena.id,
+      solicitud_id: resena.solicitud_id,
+      calificacion: resena.calificacion,
+      comentario: resena.comentario,
+      fecha: resena.fecha,
+      anonima: resena.anonima
+    };
     this.showDetailModal = true;
   }
 
-  openDeleteModal(resena: Resena) {
-    this.resenaAEliminar = resena;
+  openDeleteModal(resena: any) {
+    this.resenaAEliminar = {
+      id: resena.id,
+      solicitud_id: resena.solicitud_id,
+      calificacion: resena.calificacion,
+      comentario: resena.comentario,
+      fecha: resena.fecha,
+      anonima: resena.anonima
+    };
     this.showDeleteModal = true;
   }
 
@@ -206,9 +230,9 @@ export class CrudResenas {
     if (!this.resenaAEliminar) return;
 
     const id = this.resenaAEliminar.id;
-    if (id == null) return;
+    if (!id) return;
 
-    this.servResenas.delete(id).subscribe({
+    this.servResenas.delete(id as any).subscribe({
       next: () => {
         this.showNotification('Reseña eliminada correctamente');
         this.loadResenas();
@@ -216,7 +240,7 @@ export class CrudResenas {
       },
       error: (error) => {
         console.error('Error eliminando reseña:', error);
-        this.showError('Error al eliminar la reseña. Verifica que JSON Server esté corriendo.');
+        this.showError('Error al eliminar la reseña.');
         this.closeDeleteModal();
       }
     });
