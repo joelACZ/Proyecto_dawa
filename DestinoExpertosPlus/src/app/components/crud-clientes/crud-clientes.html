@@ -1,47 +1,67 @@
+<h1 class="text-2xl font-bold mb-6">Gestión de Clientes</h1>
 
-<h1 class="text-3xl font-bold mb-6 text-gray-800">Gestión de Clientes</h1>
+<app-card title="Clientes" subtitle="Administra tus clientes"></app-card>
 
-<app-card
-  title="Gestión de Clientes"
-  subtitle="Administra los clientes registrados en la plataforma"
-  content="Aquí puedes buscar, crear, editar y eliminar clientes.">
-</app-card>
-
-<div class="my-6 flex flex-col md:flex-row gap-4 justify-between">
-  <input #inputBusq type="text" placeholder="Buscar cliente..." 
-         (input)="search(inputBusq)"
-         class="border border-gray-300 rounded-lg px-4 py-2 w-full md:w-80 focus:outline-none focus:ring-2 focus:ring-blue-500">
-
-  <button (click)="openNew()" 
-          class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
-    Nuevo Cliente
-  </button>
+<div class="my-6 flex justify-between gap-4">
+  <input #busc type="text" placeholder="Buscar cliente..." (input)="search(busc)" class="border rounded px-4 py-2 w-64">
+  <button (click)="openNew()" class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700">+ Nuevo Cliente</button>
 </div>
 
-<!-- Tabla reutilizable -->
 <app-data-table [data]="clientes" [columns]="columns">
   <ng-template #actions let-row>
-    <button (click)="openView(row)" title="Ver detalles" class="text-blue-600 hover:text-blue-800 mr-3">
-      Ver
-    </button>
-    <button (click)="openEdit(row)" title="Editar" class="text-yellow-600 hover:text-yellow-800 mr-3">
-      Editar
-    </button>
-    <button (click)="delete(row)" title="Eliminar" class="text-red-600 hover:text-red-800">
-      Eliminar
-    </button>
+    <div class="flex gap-2">
+      <button class="text-blue-600 border border-blue-600 px-3 py-1 rounded hover:bg-blue-50" (click)="openView(row)">Ver</button>
+      <button class="text-yellow-600 border border-yellow-600 px-3 py-1 rounded hover:bg-yellow-50" (click)="openEdit(row)">Editar</button>
+      <button class="text-red-600 border border-red-600 px-3 py-1 rounded hover:bg-red-50" (click)="delete(row)">Eliminar</button>
+    </div>
   </ng-template>
 </app-data-table>
 
-<!-- Modal Crear/Editar (el que ya tenías) -->
-<div *ngIf="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-  <!-- ... tu formulario completo de crear/editar ... -->
-  <!-- (lo puedes dejar exactamente como lo tenías antes) -->
-</div>
+<!-- TU MODAL DE DETALLES (sin tocar) -->
+<app-detail-modal [isVisible]="showViewModal" [data]="clienteView" (close)="closeViewModal()"></app-detail-modal>
 
-<!-- MODAL DE DETALLES REUTILIZABLE (¡el nuevo!) -->
-<app-detail-modal
-  [isVisible]="showViewModal"
-  [data]="clienteView"
-  (close)="closeViewModal()">
-</app-detail-modal>
+<!-- MODAL CREAR/EDITAR (100% Angular, sin Bootstrap JS) -->
+<div *ngIf="showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" (click)="closeEditModal()">
+  <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-screen overflow-y-auto" (click)="$event.stopPropagation()">
+    <div class="flex justify-between items-center p-6 border-b bg-blue-600 text-white rounded-t-lg">
+      <h3 class="text-2xl font-bold">{{ editingId ? 'Editar' : 'Nuevo' }} Cliente</h3>
+      <button (click)="closeEditModal()" class="text-3xl">&times;</button>
+    </div>
+
+    <form [formGroup]="formCliente" (ngSubmit)="save()" class="p-6 space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block font-medium mb-1">Nombre *</label>
+          <input class="w-full border rounded px-3 py-2" formControlName="nombre">
+        </div>
+        <div>
+          <label class="block font-medium mb-1">Email *</label>
+          <input class="w-full border rounded px-3 py-2" formControlName="email">
+        </div>
+        <div>
+          <label class="block font-medium mb-1">Teléfono *</label>
+          <input class="w-full border rounded px-3 py-2" formControlName="telefono">
+        </div>
+        <div>
+          <label class="block font-medium mb-1">Dirección</label>
+          <input class="w-full border rounded px-3 py-2" formControlName="direccion">
+        </div>
+        <div class="col-span-2">
+          <label class="block font-medium mb-1">Preferencias (separadas por coma)</label>
+          <input class="w-full border rounded px-3 py-2" formControlName="preferencias" placeholder="Ej: Electricidad, Urgente">
+        </div>
+        <div class="col-span-2 flex items-center gap-3">
+          <input type="checkbox" formControlName="notificaciones" class="w-5 h-5">
+          <label class="font-medium">Recibir notificaciones</label>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 pt-4 border-t">
+        <button type="button" (click)="closeEditModal()" class="px-6 py-2 border rounded hover:bg-gray-100">Cancelar</button>
+        <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+          {{ editingId ? 'Actualizar' : 'Crear' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Component, ElementRef, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 import { Cliente } from '../../models/Cliente.model';
 import { ServClientesJson } from '../../services/cliente-service';
 import { DataTableComponent } from '../shared/data-table/data-table';
@@ -14,21 +14,20 @@ import { DetailModal } from '../shared/detail-modal/detail-modal';
   templateUrl: './crud-clientes.html',
   styleUrls: ['./crud-clientes.css'],
   imports: [
-    CommonModule, 
-    ReactiveFormsModule, 
-    DataTableComponent, 
-    CardComponent, 
-    DetailModal],
+    CommonModule, ReactiveFormsModule, DataTableComponent, CardComponent, DetailModal],
   standalone: true, // Asegurar que sea standalone para las imports
 })
 export class CrudClientes {
-  clientes: Cliente[] = [];
+clientes: Cliente[] = [];
   formCliente!: FormGroup;
   editingId: number | null = null;
 
-  // Control del modal de detalles REUTILIZABLE
-  showViewModal = false;
+  // Modal de detalles (tu DetailModal)
   clienteView: Cliente | null = null;
+  showViewModal = false;
+
+  // Modal de crear/editar (con *ngIf, como tu DetailModal)
+  showEditModal = false;
 
   columns = [
     { field: 'id', header: 'ID' },
@@ -39,7 +38,6 @@ export class CrudClientes {
 
   constructor(
     private servClientes: ServClientesJson,
-    private router: Router,
     private fb: FormBuilder
   ) {
     this.loadClientes();
@@ -48,7 +46,7 @@ export class CrudClientes {
 
   initForm() {
     this.formCliente = this.fb.group({
-      nombre: ['', [Validators.required, Validators.minLength(2)]],
+      nombre: ['', [Validators.required, Validators.min(2)]],
       email: ['', [Validators.required, Validators.email]],
       telefono: ['', Validators.required],
       direccion: [''],
@@ -61,9 +59,9 @@ export class CrudClientes {
     this.servClientes.getClientes().subscribe(data => this.clientes = data);
   }
 
-  // ---- ABRIR MODAL DE DETALLES (usando el componente reutilizable) ----
-  openView(cliente: Cliente) {
-    this.clienteView = cliente;
+  // === MODAL DETALLES (tu DetailModal) ===
+  openView(c: Cliente) {
+    this.clienteView = c;
     this.showViewModal = true;
   }
 
@@ -72,64 +70,58 @@ export class CrudClientes {
     this.clienteView = null;
   }
 
-  // ---- Resto de métodos (new, edit, save, delete, search...) ----
+  // === MODAL CREAR/EDITAR (sin bootstrap) ===
   openNew() {
     this.editingId = null;
     this.formCliente.reset({ notificaciones: false });
-    this.showModal = true;
+    this.showEditModal = true;
   }
 
-  openEdit(cliente: Cliente) {
-    this.editingId = cliente.id || null;
+  openEdit(c: Cliente) {
+    this.editingId = c.id || null;
     this.formCliente.patchValue({
-      ...cliente,
-      preferencias: Array.isArray(cliente.preferencias) ? cliente.preferencias.join(', ') : cliente.preferencias
+      ...c,
+      preferencias: Array.isArray(c.preferencias) ? c.preferencias.join(', ') : c.preferencias
     });
-    this.showModal = true;
+    this.showEditModal = true;
+  }
+
+  closeEditModal() {
+    this.showEditModal = false;
   }
 
   save() {
-    if (this.formCliente.invalid) return alert('Complete los campos requeridos');
+    if (this.formCliente.invalid) return;
 
-    const formData = this.formCliente.value;
     const datos = {
-      ...formData,
-      preferencias: formData.preferencias
-        ? formData.preferencias.split(',').map((p: string) => p.trim()).filter(Boolean)
+      ...this.formCliente.value,
+      preferencias: this.formCliente.value.preferencias
+        ? this.formCliente.value.preferencias.split(',').map((p: string) => p.trim()).filter(Boolean)
         : []
     };
 
     if (this.editingId) {
-      this.servClientes.update({ ...datos, id: this.editingId }).subscribe(() => {
-        this.closeModal();
+      this.servClientes.update({ ...datos, id: this.editingId } as Cliente).subscribe(() => {
+        this.closeEditModal();
         this.loadClientes();
-        alert('Cliente actualizado');
       });
     } else {
-      this.servClientes.create(datos).subscribe(() => {
-        this.closeModal();
+      this.servClientes.create(datos as Cliente).subscribe(() => {
+        this.closeEditModal();
         this.loadClientes();
-        alert('Cliente creado');
       });
     }
   }
 
-  delete(cliente: Cliente) {
-    if (!confirm(`¿Eliminar a ${cliente.nombre}?`)) return;
-    this.servClientes.delete(cliente.id!).subscribe(() => {
-      this.loadClientes();
-      alert('Cliente eliminado');
-    });
+  delete(c: Cliente) {
+    if (confirm(`¿Eliminar a ${c.nombre}?`)) {
+      this.servClientes.delete(c.id!).subscribe(() => this.loadClientes());
+    }
   }
-
-  closeModal() {
-    this.showModal = false;
-  }
-
-  // Variables para el modal de crear/editar (el que ya tenías)
-  showModal = false;
 
   search(input: HTMLInputElement) {
-    this.servClientes.searchClientes(input.value).subscribe(data => this.clientes = data);
+    const q = input.value.trim();
+    if (!q) this.loadClientes();
+    else this.servClientes.searchClientes(q).subscribe(data => this.clientes = data);
   }
 }
