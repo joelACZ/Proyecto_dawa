@@ -1,8 +1,10 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { Resena } from '../../models/Resena.model';
+import { Solicitud } from '../../models/Solicitud.model';
 import { ServResenasJson } from '../../services/resena-service';
-import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { SolicitudService } from '../../services/solicitud-service';
+import { ServClientesJson } from '../../services/cliente-service';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { DataTableComponent } from '../shared/data-table/data-table';
 import { CardComponent } from '../shared/cards/cards';
@@ -15,18 +17,20 @@ declare const bootstrap: any;
   standalone: true,
   templateUrl: './crud-resenas.html',
   styleUrls: ['./crud-resenas.css'],
-  imports: [DataTableComponent, CardComponent, ReactiveFormsModule, CommonModule, DetailModal],
+  imports: [DataTableComponent, CardComponent, ReactiveFormsModule, FormsModule, CommonModule, DetailModal],
 })
-export class CrudResenas {
+export class CrudResenas implements OnInit {
   resenas: Resena[] = [];
+  resenasOriginales: Resena[] = []; // NUEVA: guardar los datos originales
   resenasParaTabla: any[] = [];
   resenaEdit: Resena | null = null;
   modalRef: any;
-<<<<<<< HEAD
-=======
+
+  // Lista de solicitudes y clientes
+  solicitudes: Solicitud[] = [];
+  clientes: any[] = [];
 
   // PARA EL MODAL REUTILIZABLE (DetailModal)
->>>>>>> ff79e5bc15c183482c72ad21682a8316d88e4ed2
   resenaDetalle: Resena | null = null;
   showDetailModal: boolean = false;
 
@@ -35,18 +39,31 @@ export class CrudResenas {
   showNotificationModal = false;
   showErrorModal = false;
   resenaAEliminar: Resena | null = null;
-<<<<<<< HEAD
- 
-  notificationMessage: string = '';
-  errorMessage: string = '';
- 
-=======
   notificationMessage = '';
   errorMessage = '';
 
->>>>>>> ff79e5bc15c183482c72ad21682a8316d88e4ed2
   formResena!: FormGroup;
+
+  // Paginación
+  paginaActual: number = 1;
+  itemsPorPagina: number = 8;
+  totalPaginas: number = 1;
+
+  // Filtros
+  filtroCalificacion: number = 0; // 0 = todas
+  filtroFechaInicio: string = '';
+  filtroFechaFin: string = '';
+
   opcionesCalificacion = [
+    { valor: 1, texto: '1★ - Pésimo servicio' },
+    { valor: 2, texto: '2★ - Mal servicio' },
+    { valor: 3, texto: '3★ - Servicio regular' },
+    { valor: 4, texto: '4★ - Buen servicio' },
+    { valor: 5, texto: '5★ - Excelente servicio' },
+  ];
+
+  opcionesFiltroCalificacion = [
+    { valor: 0, texto: 'Todas las calificaciones' },
     { valor: 1, texto: '1★ - Pésimo servicio' },
     { valor: 2, texto: '2★ - Mal servicio' },
     { valor: 3, texto: '3★ - Servicio regular' },
@@ -58,10 +75,17 @@ export class CrudResenas {
 
   constructor(
     private servResenas: ServResenasJson,
+    private solicitudService: SolicitudService,
+    private clienteService: ServClientesJson,
     private fb: FormBuilder
   ) {
-    this.loadResenas();
     this.inicializarFormulario();
+  }
+
+  ngOnInit() {
+    this.loadResenas();
+    this.loadSolicitudes();
+    this.loadClientes();
   }
 
   ngAfterViewInit() {
@@ -82,32 +106,127 @@ export class CrudResenas {
     this.servResenas.getResenas().subscribe({
       next: (data) => {
         this.resenas = data;
+        this.resenasOriginales = [...data]; // GUARDAR copia de los originales
         this.formatearDatosParaTabla();
       },
-      error: () => this.showError('Error al cargar reseñas')
+      error: (err) => {
+        console.error('Error al cargar reseñas:', err);
+        this.showError('Error al cargar reseñas');
+      }
+    });
+  }
+
+  loadSolicitudes() {
+    this.solicitudService.getSolicitudes().subscribe({
+      next: (data) => {
+        this.solicitudes = data;
+        console.log('Solicitudes cargadas:', this.solicitudes);
+      },
+      error: (err) => {
+        console.error('Error al cargar solicitudes:', err);
+        this.showError('Error al cargar solicitudes');
+      }
+    });
+  }
+
+  loadClientes() {
+    this.clienteService.getClientes().subscribe({
+      next: (data: any[]) => {
+        this.clientes = data;
+        console.log('Clientes cargados:', this.clientes);
+      },
+      error: (err: any) => {
+        console.error('Error al cargar clientes:', err);
+      }
     });
   }
 
   formatearDatosParaTabla() {
-    this.resenasParaTabla = this.resenas.map(r => ({
+    // SIEMPRE partir de los datos originales
+    let resenasAMostrar = [...this.resenasOriginales];
+
+    // Aplicar filtro de calificación
+    if (this.filtroCalificacion > 0) {
+      resenasAMostrar = resenasAMostrar.filter(r => Number(r.calificacion) === Number(this.filtroCalificacion));
+    }
+
+    // Aplicar filtro de rango de fechas
+    if (this.filtroFechaInicio) {
+      const fechaInicio = new Date(this.filtroFechaInicio);
+      resenasAMostrar = resenasAMostrar.filter(r => {
+        const fechaResena = new Date(r.fecha);
+        return fechaResena >= fechaInicio;
+      });
+    }
+
+    if (this.filtroFechaFin) {
+      const fechaFin = new Date(this.filtroFechaFin);
+      fechaFin.setHours(23, 59, 59, 999); // Incluir todo el día
+      resenasAMostrar = resenasAMostrar.filter(r => {
+        const fechaResena = new Date(r.fecha);
+        return fechaResena <= fechaFin;
+      });
+    }
+
+    this.resenasParaTabla = resenasAMostrar.map(r => ({
       ...r,
       calificacionFormateada: `${r.calificacion} ★ - ${this.obtenerTextoCalificacion(r.calificacion)}`,
       anonimaFormateada: r.anonima ? 'Sí' : 'No'
     }));
+    this.calcularPaginacion();
   }
 
   search(input: HTMLInputElement) {
     const param = input.value.trim();
+    
     if (!param) {
-      this.loadResenas();
+      // Si no hay búsqueda, aplicar solo los filtros
+      this.formatearDatosParaTabla();
+      this.paginaActual = 1;
       return;
     }
-    this.servResenas.searchResenas(param).subscribe({
-      next: (data) => {
-        this.resenas = data;
-        this.formatearDatosParaTabla();
-      }
-    });
+
+    // Buscar en los datos originales
+    const resultadosBusqueda = this.resenasOriginales.filter(r =>
+      r.comentario.toLowerCase().includes(param.toLowerCase()) ||
+      String(r.calificacion).includes(param) ||
+      String(r.solicitud_id).includes(param)
+    );
+
+    // Aplicar filtros sobre los resultados de búsqueda
+    let resenasAMostrar = [...resultadosBusqueda];
+
+    // Aplicar filtro de calificación
+    if (this.filtroCalificacion > 0) {
+      resenasAMostrar = resenasAMostrar.filter(r => r.calificacion === this.filtroCalificacion);
+    }
+
+    // Aplicar filtro de rango de fechas
+    if (this.filtroFechaInicio) {
+      const fechaInicio = new Date(this.filtroFechaInicio);
+      resenasAMostrar = resenasAMostrar.filter(r => {
+        const fechaResena = new Date(r.fecha);
+        return fechaResena >= fechaInicio;
+      });
+    }
+
+    if (this.filtroFechaFin) {
+      const fechaFin = new Date(this.filtroFechaFin);
+      fechaFin.setHours(23, 59, 59, 999);
+      resenasAMostrar = resenasAMostrar.filter(r => {
+        const fechaResena = new Date(r.fecha);
+        return fechaResena <= fechaFin;
+      });
+    }
+
+    this.resenasParaTabla = resenasAMostrar.map(r => ({
+      ...r,
+      calificacionFormateada: `${r.calificacion} ★ - ${this.obtenerTextoCalificacion(r.calificacion)}`,
+      anonimaFormateada: r.anonima ? 'Sí' : 'No'
+    }));
+    
+    this.calcularPaginacion();
+    this.paginaActual = 1;
   }
 
   openNew() {
@@ -116,26 +235,9 @@ export class CrudResenas {
     this.modalRef.show();
   }
 
-<<<<<<< HEAD
-  openEdit(resena: any) {
-    this.resenaEdit = {
-      id: resena.id,
-      solicitud_id: resena.solicitud_id,
-      calificacion: resena.calificacion,
-      comentario: resena.comentario,
-      fecha: resena.fecha,
-      anonima: resena.anonima
-    };
-    
-    const fechaFormateada = typeof resena.fecha === 'string'
-      ? resena.fecha
-      : new Date(resena.fecha).toISOString().split('T')[0];
-
-=======
   openEdit(resena: Resena) {
     this.resenaEdit = { ...resena };
     const fecha = typeof resena.fecha === 'string' ? resena.fecha : new Date(resena.fecha).toISOString().split('T')[0];
->>>>>>> ff79e5bc15c183482c72ad21682a8316d88e4ed2
     this.formResena.patchValue({
       solicitud_id: resena.solicitud_id,
       calificacion: resena.calificacion,
@@ -143,10 +245,6 @@ export class CrudResenas {
       fecha: fecha,
       anonima: resena.anonima
     });
-<<<<<<< HEAD
-   
-=======
->>>>>>> ff79e5bc15c183482c72ad21682a8316d88e4ed2
     this.modalRef.show();
   }
 
@@ -158,61 +256,6 @@ export class CrudResenas {
 
     const datos = this.formResena.value;
 
-<<<<<<< HEAD
-    if (this.resenaEdit && this.resenaEdit.id) {
-      // ACTUALIZAR - Mantener ID como string
-      const resenaData: any = {
-        id: String(this.resenaEdit.id),
-        solicitud_id: +datos.solicitud_id,
-        calificacion: +datos.calificacion,
-        comentario: datos.comentario,
-        fecha: datos.fecha,
-        anonima: Boolean(datos.anonima)
-      };
-
-      this.servResenas.update(resenaData).subscribe({
-        next: () => {
-          this.loadResenas();
-          this.modalRef.hide();
-          this.showNotification('Reseña actualizada correctamente');
-        },
-        error: (error) => {
-          console.error('Error actualizando reseña:', error);
-          this.showError('Error al actualizar la reseña.');
-        }
-      });
-    } else {
-      // CREAR - Obtener el ID máximo como string
-      this.servResenas.getResenas().subscribe({
-        next: (resenas) => {
-          const maxId = resenas.length > 0 
-            ? Math.max(...resenas.map(r => parseInt(String(r.id)) || 0)) 
-            : 0;
-          
-          const resenaData: any = {
-            id: String(maxId + 1),
-            solicitud_id: +datos.solicitud_id,
-            calificacion: +datos.calificacion,
-            comentario: datos.comentario,
-            fecha: datos.fecha,
-            anonima: Boolean(datos.anonima)
-          };
-
-          this.servResenas.create(resenaData).subscribe({
-            next: () => {
-              this.loadResenas();
-              this.modalRef.hide();
-              this.showNotification('Reseña creada correctamente');
-            },
-            error: (error) => {
-              console.error('Error creando reseña:', error);
-              this.showError('Error al crear la reseña.');
-            }
-          });
-        },
-        error: (error) => {
-          console.error('Error obteniendo reseñas para ID:', error);
-=======
     if (this.resenaEdit?.id) {
       const updated: Resena = { ...this.resenaEdit, ...datos, calificacion: Number(datos.calificacion) };
       this.servResenas.update(updated).subscribe({
@@ -228,36 +271,11 @@ export class CrudResenas {
           this.loadResenas();
           this.modalRef.hide();
           this.showNotification('Reseña creada');
->>>>>>> ff79e5bc15c183482c72ad21682a8316d88e4ed2
         }
       });
     }
   }
 
-<<<<<<< HEAD
-  view(resena: any) {
-    this.resenaDetalle = {
-      id: resena.id,
-      solicitud_id: resena.solicitud_id,
-      calificacion: resena.calificacion,
-      comentario: resena.comentario,
-      fecha: resena.fecha,
-      anonima: resena.anonima
-    };
-    this.showDetailModal = true;
-  }
-
-  openDeleteModal(resena: any) {
-    this.resenaAEliminar = {
-      id: resena.id,
-      solicitud_id: resena.solicitud_id,
-      calificacion: resena.calificacion,
-      comentario: resena.comentario,
-      fecha: resena.fecha,
-      anonima: resena.anonima
-    };
-=======
-  // ← AQUÍ USAMOS TU MODAL REUTILIZABLE
   view(resena: Resena) {
     this.resenaDetalle = resena;
     this.showDetailModal = true;
@@ -270,34 +288,16 @@ export class CrudResenas {
 
   openDeleteModal(resena: Resena) {
     this.resenaAEliminar = resena;
->>>>>>> ff79e5bc15c183482c72ad21682a8316d88e4ed2
     this.showDeleteModal = true;
   }
 
   confirmDelete() {
-<<<<<<< HEAD
-    if (!this.resenaAEliminar) return;
-
-    const id = this.resenaAEliminar.id;
-    if (!id) return;
-
-    this.servResenas.delete(id as any).subscribe({
-=======
     if (!this.resenaAEliminar?.id) return;
     this.servResenas.delete(this.resenaAEliminar.id).subscribe({
->>>>>>> ff79e5bc15c183482c72ad21682a8316d88e4ed2
       next: () => {
         this.showNotification('Reseña eliminada');
         this.loadResenas();
         this.closeDeleteModal();
-<<<<<<< HEAD
-      },
-      error: (error) => {
-        console.error('Error eliminando reseña:', error);
-        this.showError('Error al eliminar la reseña.');
-        this.closeDeleteModal();
-=======
->>>>>>> ff79e5bc15c183482c72ad21682a8316d88e4ed2
       }
     });
   }
@@ -320,5 +320,55 @@ export class CrudResenas {
   obtenerTextoCalificacion(c: number): string {
     const t = ['', 'Pésimo servicio', 'Mal servicio', 'Servicio regular', 'Buen servicio', 'Excelente servicio'];
     return t[c] || '';
+  }
+
+  getSolicitudDescripcion(solicitudId: number): string {
+    const solicitud = this.solicitudes.find(s => s.id === solicitudId);
+    return solicitud ? solicitud.descripcion : 'N/A';
+  }
+
+  getClienteNombre(clienteId: number): string {
+    const cliente = this.clientes.find(c => c.id === clienteId);
+    return cliente ? cliente.nombre : 'Cliente desconocido';
+  }
+
+  // Métodos de paginación
+  get resenasPaginadas(): any[] {
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    const fin = inicio + this.itemsPorPagina;
+    return this.resenasParaTabla.slice(inicio, fin);
+  }
+
+  calcularPaginacion(): void {
+    this.totalPaginas = Math.ceil(this.resenasParaTabla.length / this.itemsPorPagina);
+    if (this.paginaActual > this.totalPaginas && this.totalPaginas > 0) {
+      this.paginaActual = this.totalPaginas;
+    }
+  }
+
+  cambiarPagina(pagina: number): void {
+    if (pagina >= 1 && pagina <= this.totalPaginas) {
+      this.paginaActual = pagina;
+    }
+  }
+
+  get rangoRegistros(): string {
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina + 1;
+    const fin = Math.min(this.paginaActual * this.itemsPorPagina, this.resenasParaTabla.length);
+    return `${inicio}-${fin} de ${this.resenasParaTabla.length}`;
+  }
+
+  // Métodos de filtrado
+  aplicarFiltros(): void {
+    this.paginaActual = 1; // Resetear a la primera página
+    this.formatearDatosParaTabla();
+  }
+
+  limpiarFiltros(): void {
+    this.filtroCalificacion = 0;
+    this.filtroFechaInicio = '';
+    this.filtroFechaFin = '';
+    this.paginaActual = 1;
+    this.formatearDatosParaTabla();
   }
 }

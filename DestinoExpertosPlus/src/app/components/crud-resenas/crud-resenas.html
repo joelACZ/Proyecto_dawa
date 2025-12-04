@@ -13,7 +13,64 @@
   </button>
 </div>
 
-<app-data-table [data]="resenasParaTabla" [columns]="[
+<!-- FILTROS -->
+<div class="card mb-4">
+  <div class="card-header">
+    <h5 class="mb-0">
+      <i class="bi bi-funnel me-2"></i>Filtros de Búsqueda
+    </h5>
+  </div>
+  <div class="card-body">
+    <div class="row g-3">
+      <!-- Filtro por Calificación -->
+      <div class="col-md-3">
+        <label class="form-label">Calificación</label>
+        <select class="form-select" [(ngModel)]="filtroCalificacion" (change)="aplicarFiltros()">
+          <option *ngFor="let opcion of opcionesFiltroCalificacion" [value]="opcion.valor">
+            {{ opcion.texto }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Filtro por Fecha Inicio -->
+      <div class="col-md-3">
+        <label class="form-label">Fecha Desde</label>
+        <input type="date" class="form-control" [(ngModel)]="filtroFechaInicio" (change)="aplicarFiltros()">
+      </div>
+
+      <!-- Filtro por Fecha Fin -->
+      <div class="col-md-3">
+        <label class="form-label">Fecha Hasta</label>
+        <input type="date" class="form-control" [(ngModel)]="filtroFechaFin" (change)="aplicarFiltros()">
+      </div>
+
+      <!-- Botón Limpiar Filtros -->
+      <div class="col-md-3 d-flex align-items-end">
+        <button class="btn btn-outline-secondary w-100" (click)="limpiarFiltros()">
+          <i class="bi bi-x-circle me-1"></i> Limpiar Filtros
+        </button>
+      </div>
+    </div>
+
+    <!-- Indicadores de filtros activos -->
+    <div class="mt-3" *ngIf="filtroCalificacion > 0 || filtroFechaInicio || filtroFechaFin">
+      <small class="text-muted">
+        <i class="bi bi-info-circle me-1"></i>Filtros activos:
+        <span class="badge bg-primary ms-2" *ngIf="filtroCalificacion > 0">
+          Calificación: {{ filtroCalificacion }} ★
+        </span>
+        <span class="badge bg-primary ms-2" *ngIf="filtroFechaInicio">
+          Desde: {{ filtroFechaInicio }}
+        </span>
+        <span class="badge bg-primary ms-2" *ngIf="filtroFechaFin">
+          Hasta: {{ filtroFechaFin }}
+        </span>
+      </small>
+    </div>
+  </div>
+</div>
+
+<app-data-table [data]="resenasPaginadas" [columns]="[
   { field: 'id', header: 'ID' },
   { field: 'solicitud_id', header: 'Solicitud ID' },
   { field: 'calificacionFormateada', header: 'Calificación' },
@@ -30,54 +87,129 @@
   </ng-template>
 </app-data-table>
 
-<!-- MODAL REUTILIZABLE DE DETALLES (TU DetailModal SIN CAMBIAR NADA) -->
+<!-- PAGINACIÓN -->
+<div class="d-flex justify-content-between align-items-center mt-3" *ngIf="totalPaginas > 1">
+  <div class="text-muted small">
+    Mostrando {{ rangoRegistros }} registros
+  </div>
+  
+  <nav aria-label="Paginación de reseñas">
+    <ul class="pagination mb-0">
+      <!-- Botón Anterior -->
+      <li class="page-item" [class.disabled]="paginaActual === 1">
+        <a class="page-link" href="#" (click)="cambiarPagina(paginaActual - 1); $event.preventDefault()">
+          <i class="bi bi-chevron-left"></i> Anterior
+        </a>
+      </li>
+      
+      <!-- Números de página -->
+      <li class="page-item" *ngFor="let pagina of [].constructor(totalPaginas); let i = index"
+          [class.active]="paginaActual === i + 1">
+        <a class="page-link" href="#" (click)="cambiarPagina(i + 1); $event.preventDefault()">
+          {{ i + 1 }}
+        </a>
+      </li>
+      
+      <!-- Botón Siguiente -->
+      <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+        <a class="page-link" href="#" (click)="cambiarPagina(paginaActual + 1); $event.preventDefault()">
+          Siguiente <i class="bi bi-chevron-right"></i>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+<!-- MODAL REUTILIZABLE DE DETALLES -->
 <app-detail-modal
   [isVisible]="showDetailModal"
   [data]="resenaDetalle"
   (close)="closeDetail()">
 </app-detail-modal>
 
-<!-- Los demás modales (notificación, error, eliminar, crear/editar) se quedan exactamente como los tenías -->
-<!-- (Solo copié los importantes para que no se pierdan) -->
-
-<div *ngIf="showNotificationModal" class="modal fade show d-block" style="background:rgba(0,0,0,0.5)">
+<!-- MODAL DE NOTIFICACIÓN DE ÉXITO -->
+<div *ngIf="showNotificationModal" class="modal fade show d-block notification-modal success" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="btn-close" (click)="showNotificationModal = false"></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-icon">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <h5 class="modal-title mb-3">¡Éxito!</h5>
+        <p class="mb-0">{{ notificationMessage }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" (click)="showNotificationModal = false">
+          Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE ERROR -->
+<div *ngIf="showErrorModal" class="modal fade show d-block notification-modal error" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="btn-close" (click)="showErrorModal = false"></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-icon">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <h5 class="modal-title mb-3">Error</h5>
+        <p class="mb-0">{{ errorMessage }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" (click)="showErrorModal = false">
+          Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE ELIMINAR -->
+<div *ngIf="showDeleteModal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-danger">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          Confirmar Eliminación
+        </h5>
+        <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+      </div>
       <div class="modal-body text-center">
-        <h5>Éxito</h5>
-        <p>{{ notificationMessage }}</p>
-        <button class="btn btn-success" (click)="showNotificationModal = false">Aceptar</button>
+        <div class="mb-4">
+          <i class="bi bi-trash3-fill text-danger" style="font-size: 3rem;"></i>
+        </div>
+        <h6 class="mb-3">¿Está seguro de eliminar la reseña #{{ resenaAEliminar?.id }}?</h6>
+        <div class="alert alert-light border">
+          <p class="mb-1"><strong>Comentario:</strong></p>
+          <p class="mb-0 text-muted">"{{ resenaAEliminar?.comentario }}"</p>
+        </div>
+        <p class="text-muted small mt-3">
+          Esta acción no se puede deshacer.
+        </p>
+      </div>
+      <div class="modal-footer border-0 justify-content-center">
+        <button type="button" class="btn btn-secondary me-3" (click)="closeDeleteModal()">
+          <i class="bi bi-x-circle me-1"></i> Cancelar
+        </button>
+        <button type="button" class="btn btn-danger" (click)="confirmDelete()">
+          <i class="bi bi-trash3 me-1"></i> Sí, eliminar
+        </button>
       </div>
     </div>
   </div>
 </div>
 
-<div *ngIf="showErrorModal" class="modal fade show d-block" style="background:rgba(0,0,0,0.5)">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-body text-center text-danger">
-        <h5>Error</h5>
-        <p>{{ errorMessage }}</p>
-        <button class="btn btn-danger" (click)="showErrorModal = false">Aceptar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div *ngIf="showDeleteModal" class="modal fade show d-block" style="background:rgba(0,0,0,0.5)">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-body text-center">
-        <h5 class="text-danger">¿Eliminar reseña #{{ resenaAEliminar?.id }}?</h5>
-        <p>"{{ resenaAEliminar?.comentario }}"</p>
-        <button class="btn btn-secondary me-2" (click)="closeDeleteModal()">Cancelar</button>
-        <button class="btn btn-danger" (click)="confirmDelete()">Eliminar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal crear/editar (Bootstrap) -->
+<!-- MODAL CREAR/EDITAR -->
 <div class="modal fade" id="resenaModal" #resenaModal>
   <div class="modal-dialog">
     <div class="modal-content">
@@ -85,36 +217,99 @@
         <h5 class="modal-title">{{ resenaEdit ? 'Editar' : 'Nueva' }} Reseña</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <form [formGroup]="formResena" (ngSubmit)="save()">
+      <form [formGroup]="formResena">
         <div class="modal-body">
-          <!-- Tus campos del formulario (igual que antes) -->
+          
+          <!-- CAMPO: Solicitud con validaciones -->
           <div class="mb-3">
-            <label>ID Solicitud *</label>
-            <input type="number" class="form-control" formControlName="solicitud_id">
+            <label class="form-label">Solicitud *</label>
+            <select class="form-select fw-bold" formControlName="solicitud_id">
+              <option value="">Seleccionar solicitud...</option>
+              <option *ngFor="let solicitud of solicitudes" [value]="solicitud.id">
+                #{{ solicitud.id }} - {{ getClienteNombre(solicitud.cliente_id) }}
+              </option>
+            </select>
+            <span class="error">
+              @if (formResena.get('solicitud_id')?.invalid && 
+                  (formResena.get('solicitud_id')?.dirty || formResena.get('solicitud_id')?.touched)) {
+                @if (formResena.get('solicitud_id')?.errors?.['required']) {
+                  Debe seleccionar una solicitud.
+                }
+                @if (formResena.get('solicitud_id')?.errors?.['min']) {
+                  Debe seleccionar una solicitud válida.
+                }
+              }
+            </span>
           </div>
+
+          <!-- CAMPO: Calificación con validaciones -->
           <div class="mb-3">
-            <label>Calificación *</label>
+            <label class="form-label">Calificación *</label>
             <select class="form-select" formControlName="calificacion">
               <option value="">Seleccionar</option>
               <option *ngFor="let o of opcionesCalificacion" [value]="o.valor">{{ o.texto }}</option>
             </select>
+            <span class="error">
+              @if (formResena.get('calificacion')?.invalid && 
+                  (formResena.get('calificacion')?.dirty || formResena.get('calificacion')?.touched)) {
+                @if (formResena.get('calificacion')?.errors?.['required']) {
+                  La calificación es obligatoria.
+                }
+                @if (formResena.get('calificacion')?.errors?.['min'] || formResena.get('calificacion')?.errors?.['max']) {
+                  La calificación debe estar entre 1 y 5 estrellas.
+                }
+              }
+            </span>
           </div>
+
+          <!-- CAMPO: Comentario con validaciones -->
           <div class="mb-3">
-            <label>Comentario *</label>
-            <textarea class="form-control" rows="4" formControlName="comentario"></textarea>
+            <label class="form-label">Comentario *</label>
+            <textarea class="form-control" rows="4" formControlName="comentario" 
+                      placeholder="Escriba su comentario aquí..."></textarea>
+            <span class="error">
+              @if (formResena.get('comentario')?.invalid && 
+                  (formResena.get('comentario')?.dirty || formResena.get('comentario')?.touched)) {
+                @if (formResena.get('comentario')?.errors?.['required']) {
+                  El comentario es obligatorio.
+                }
+                @if (formResena.get('comentario')?.errors?.['minlength']) {
+                  El comentario debe tener al menos 10 caracteres.
+                }
+                @if (formResena.get('comentario')?.errors?.['maxlength']) {
+                  El comentario no debe exceder los 500 caracteres.
+                }
+              }
+            </span>
+            <small class="form-text text-muted">
+              {{ formResena.get('comentario')?.value?.length || 0 }}/500 caracteres
+            </small>
           </div>
+
+          <!-- CAMPO: Fecha con validaciones -->
           <div class="mb-3">
-            <label>Fecha *</label>
+            <label class="form-label">Fecha *</label>
             <input type="date" class="form-control" formControlName="fecha">
+            <span class="error">
+              @if (formResena.get('fecha')?.invalid && 
+                  (formResena.get('fecha')?.dirty || formResena.get('fecha')?.touched)) {
+                @if (formResena.get('fecha')?.errors?.['required']) {
+                  La fecha es obligatoria.
+                }
+              }
+            </span>
           </div>
+
+          <!-- CAMPO: Anónima (checkbox) -->
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" formControlName="anonima">
-            <label class="form-check-label">Anónima</label>
+            <input class="form-check-input" type="checkbox" formControlName="anonima" id="checkAnonima">
+            <label class="form-check-label" for="checkAnonima">Reseña anónima</label>
           </div>
         </div>
+
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">{{ resenaEdit ? 'Actualizar' : 'Guardar' }}</button>
+          <button type="button" class="btn btn-primary" (click)="save()">{{ resenaEdit ? 'Actualizar' : 'Guardar' }}</button>
         </div>
       </form>
     </div>
