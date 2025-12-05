@@ -158,9 +158,14 @@ export class CrudServicios implements OnInit {
   }
 
   columns = [
-    { field: 'id', header: 'ID' },
-    { field: 'nombre', header: 'Nombre' },
-    { field: 'email', header: 'Email' },
-    { field: 'telefono', header: 'Teléfono' }
-  ];
+  { field: 'id', header: 'ID' },
+  { field: 'nombre', header: 'Nombre' },
+  { field: 'categoria', header: 'Categoría' },
+  { field: 'descripcion', header: 'Descripción' },
+  { field: 'precioBase', header: 'Precio Base' },
+  { field: 'duracionEstimada', header: 'Duración (min)' },
+  { field: 'profesional_id', header: 'ID Profesional' },
+  { field: 'activo', header: 'Activo' }
+];
+
 }

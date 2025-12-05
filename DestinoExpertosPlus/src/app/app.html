@@ -1,53 +1,93 @@
-<!-- CONTENEDOR PRINCIPAL -->
+
 <div class="d-flex min-vh-100 bg-light">
 
-   <!-- ===== SIDEBAR ===== -->
-   <aside class="bg-dark text-white p-4" style="width: 260px;">
-      <h1 class="h4 fw-bold mb-4">Plataforma de Servicios</h1>
 
-      <nav class="d-flex flex-column gap-2">
+<aside class="bg-dark text-white p-4" style="width: 280px;">
+   <h1 class="h2 fw-bold mb-5" style="font-size: 1.8rem;">Plataforma de Servicios</h1>
 
-         <!-- Clientes -->
-         <a routerLink="crud-clientes" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-            class="nav-link-custom d-flex align-items-center p-2 rounded text-white text-decoration-none">
-            <i class="bi bi-people me-2"></i>
-            Clientes
-         </a>
+   <nav class="d-flex flex-column gap-3">
 
-         <!-- Servicios -->
-         <a routerLink="crud-servicios" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-            class="nav-link-custom d-flex align-items-center p-2 rounded text-white text-decoration-none">
-            <i class="bi bi-briefcase me-2"></i>
-            Servicios
-         </a>
+      
+      <a routerLink="crud-clientes" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+         class="nav-link-custom d-flex align-items-center p-3 rounded text-white text-decoration-none"
+         style="font-size: 1.15rem;">
+         <i class="bi bi-people me-3" style="font-size: 1.3rem;"></i>
+         Clientes
+      </a>
 
-         <!-- Reseñas -->
-         <a routerLink="crud-resenas" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-            class="nav-link-custom d-flex align-items-center p-2 rounded text-white text-decoration-none">
-            <i class="bi bi-star me-2"></i>
-            Reseñas
-         </a>
+      
+      <a routerLink="crud-servicios" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+         class="nav-link-custom d-flex align-items-center p-3 rounded text-white text-decoration-none"
+         style="font-size: 1.15rem;">
+         <i class="bi bi-briefcase me-3" style="font-size: 1.3rem;"></i>
+         Servicios
+      </a>
 
-         <!-- Profesionales -->
-         <a routerLink="crud-profesionales" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-            class="nav-link-custom d-flex align-items-center p-2 rounded text-white text-decoration-none">
-            <i class="bi bi-person-badge me-2"></i>
-            Profesionales
-         </a>
+      
+      <a routerLink="crud-resenas" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+         class="nav-link-custom d-flex align-items-center p-3 rounded text-white text-decoration-none"
+         style="font-size: 1.15rem;">
+         <i class="bi bi-star me-3" style="font-size: 1.3rem;"></i>
+         Reseñas
+      </a>
 
-         <!-- Solicitudes -->
-         <a routerLink="crud-solicitudes" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-            class="nav-link-custom d-flex align-items-center p-2 rounded text-white text-decoration-none">
-            <i class="bi bi-journal-text me-2"></i>
-            Solicitudes
-         </a>
+      
+      <a routerLink="crud-profesionales" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+         class="nav-link-custom d-flex align-items-center p-3 rounded text-white text-decoration-none"
+         style="font-size: 1.15rem;">
+         <i class="bi bi-person-badge me-3" style="font-size: 1.3rem;"></i>
+         Profesionales
+      </a>
 
-      </nav>
-   </aside>
+      
+      <a routerLink="crud-solicitudes" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+         class="nav-link-custom d-flex align-items-center p-3 rounded text-white text-decoration-none"
+         style="font-size: 1.15rem;">
+         <i class="bi bi-journal-text me-3" style="font-size: 1.3rem;"></i>
+         Solicitudes
+      </a>
 
-   <!-- ===== CONTENIDO PRINCIPAL ===== -->
-   <main class="flex-grow-1 p-4" style="background-color: rgb(7, 193, 255, 0.767);">
-      <router-outlet></router-outlet>
-   </main>
+   </nav>
+</aside>
+
+   
+   <main class="flex-grow-1 p-4" style="background: linear-gradient(0.25turn, #05c1ff, #3dd2ff, #70d7ff, #8fdaff, #b3e4ff);">
+  <router-outlet></router-outlet>
+</main>
 
 </div>
+
+
+<style>
+
+aside {
+   min-height: 100vh;
+   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.nav-link-custom {
+   transition: all 0.3s ease;
+   font-weight: 500;
+   background: rgba(255, 255, 255, 0.05);
+   border-left: 4px solid transparent;
+}
+
+.nav-link-custom:hover {
+   background: rgba(255, 255, 255, 0.1);
+   transform: translateX(5px);
+   border-left-color: #70d7ff;
+}
+
+.nav-link-custom.active {
+   background: linear-gradient(90deg, rgba(112, 215, 255, 0.2), rgba(112, 215, 255, 0.1));
+   border-left-color: #70d7ff;
+   font-weight: 600;
+   box-shadow: 0 4px 12px rgba(112, 215, 255, 0.15);
+}
+
+
+.nav-link-custom i {
+   min-width: 24px;
+   text-align: center;
+}
+</style>

@@ -30,11 +30,15 @@ clientes: Cliente[] = [];
   showEditModal = false;
 
   columns = [
-    { field: 'id', header: 'ID' },
-    { field: 'nombre', header: 'Nombre' },
-    { field: 'email', header: 'Email' },
-    { field: 'telefono', header: 'Teléfono' }
-  ];
+  { field: 'id', header: 'ID' },
+  { field: 'nombre', header: 'Nombre' },
+  { field: 'email', header: 'Email' },
+  { field: 'telefono', header: 'Teléfono' },
+  { field: 'direccion', header: 'Dirección' },
+  { field: 'preferencias', header: 'Preferencias' },
+  { field: 'notificaciones', header: 'Notificaciones' }
+];
+
 
   constructor(
     private servClientes: ServClientesJson,
