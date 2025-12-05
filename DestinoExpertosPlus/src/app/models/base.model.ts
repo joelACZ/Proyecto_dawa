@@ -11,7 +11,7 @@ export interface WithTimestamps {
 export interface WithContactInfo {
   nombre: string;
   email: string;
-  telefono: string;
+  telefono: number;
 }
 
 export interface WithLocation {
