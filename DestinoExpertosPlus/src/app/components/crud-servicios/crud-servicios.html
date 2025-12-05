@@ -1,149 +1,137 @@
+<!-- CARD PRINCIPAL -->
 <app-card
   title="Gestión de Servicios"
   subtitle="Administra los servicios ofrecidos en la plataforma"
-  content="Aquí puedes crear, editar y eliminar servicios, así como gestionar sus detalles y asignaciones a profesionales." >
-</app-card> 
+  content="Aquí puedes crear, editar y eliminar servicios, así como gestionar sus detalles y asignaciones a profesionales.">
+</app-card>
 
-<div>
+<!-- BUSCADOR + NUEVO -->
+<div class="flex items-center gap-2 my-4">
   <input
+    #buscador
     type="text"
     placeholder="Buscar servicios..."
-    #txtBuscar
-    (input)="search(txtBuscar)"
-  />
-  <button 
-    (click)="create()">
-    + Nuevo Servicio
+    class="border p-2 rounded w-full md:w-64"
+    (input)="search(buscador)"
+  >
+
+  <button (click)="create()">
+    <i class="bi bi-plus-circle"></i> agregar
   </button>
 </div>
 
-<app-data-table 
-  [data]="servicios" 
-  [columns]="[
-    { field: 'id', header: 'ID' },
-    { field: 'nombre', header: 'Nombre' },
-    { field: 'categoria', header: 'Categoría' },
-    { field: 'descripcion', header: 'Descripción' },
-    { field: 'precioBase', header: 'Precio Base' },
-    { field: 'duracionEstimada', header: 'Duración' },
-    { field: 'profesional_id', header: 'Profesional ID' },
-    { field: 'activo', header: 'Activo' }
-  ]" >
+<!-- TABLA REUTILIZABLE -->
+<app-data-table [data]="servicios" [columns]="columns">
   <ng-template #actions let-row>
-    <button (click)="edit(row)">Editar</button>
-    <button (click)="delete(row)">Eliminar</button>
+    <div class="flex gap-2">
+
+      <button (click)="openView(row)" class="text-blue-600">
+        <i class="bi bi-eye"></i>
+      </button>
+
+      <button (click)="edit(row)" class="text-yellow-600">
+        <i class="bi bi-pencil"></i>
+      </button>
+
+      <button (click)="delete(row)" class="text-red-600">
+        <i class="bi bi-trash"></i>
+      </button>
+
+    </div>
   </ng-template>
 </app-data-table>
 
-<div *ngIf="showModal">
-  <div>
-    <div>
-      <h3>
+<!-- MODAL: VER SERVICIO -->
+<app-detail-modal
+  [isVisible]="showViewModal"
+  [data]="servicioView"
+  (close)="closeViewModal()">
+</app-detail-modal>
+
+<!-- MODAL: CREAR / EDITAR SERVICIO -->
+<div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+
+    <div class="modal-header flex justify-between items-center">
+      <h3 class="flex items-center gap-2">
+        <i class="bi" 
+           [class.bi-pencil]="editingId"
+           [class.bi-plus-circle]="!editingId"></i>
+
         {{ editingId ? 'Editar Servicio' : 'Nuevo Servicio' }}
       </h3>
-      <button 
-        (click)="closeModal()">
-        &times;
+
+      <button class="close-btn" (click)="closeModal()">
+        <i class="bi bi-x-lg"></i>
       </button>
     </div>
 
     <form [formGroup]="formServicio" (ngSubmit)="save()">
-      <div>
-        <label>Nombre *</label>
-        <input 
-          type="text" 
-          formControlName="nombre"
-          placeholder="Ingrese el nombre del servicio">
-        <div *ngIf="formServicio.get('nombre')?.invalid && formServicio.get('nombre')?.touched">
-          <span *ngIf="formServicio.get('nombre')?.errors?.['required']">El nombre es requerido</span>
-          <span *ngIf="formServicio.get('nombre')?.errors?.['minlength']">Mínimo 3 caracteres</span>
+
+      <div class="grid gap-3">
+
+        <div>
+          <label><i class="bi bi-file-earmark-text"></i> Nombre *</label>
+          <input formControlName="nombre" class="input">
         </div>
-      </div>
 
-      <div>
-        <label>Categoría *</label>
-        <select 
-          formControlName="categoria"
-        >
-          <option value="" disabled>Seleccione una categoría</option>
-          <option *ngFor="let c of categorias" [value]="c">{{ c }}</option>
-        </select>
-        <div *ngIf="formServicio.get('categoria')?.invalid && formServicio.get('categoria')?.touched">
-          Debe seleccionar una categoría
+        <div>
+          <label><i class="bi bi-list-ul"></i> Categoría *</label>
+          <select formControlName="categoria" class="input">
+            <option value="" disabled selected>Seleccione</option>
+            <option *ngFor="let c of categorias" [value]="c">
+              {{ c }}
+            </option>
+          </select>
         </div>
-      </div>
 
-      <div>
-        <label>Descripción *</label>
-        <textarea 
-          formControlName="descripcion"
-          rows="3"
-          placeholder="Ingrese la descripción del servicio"
-        ></textarea>
-        <div *ngIf="formServicio.get('descripcion')?.invalid && formServicio.get('descripcion')?.touched">
-          La descripción es requerida
+        <div>
+          <label><i class="bi bi-card-text"></i> Descripción *</label>
+          <textarea formControlName="descripcion" rows="2" class="input"></textarea>
         </div>
-      </div>
 
-      <div>
-        <label>Precio Base *</label>
-        <input 
-          type="number"
-          formControlName="precioBase"
-          placeholder="Ej: 25.50">
-        <div *ngIf="formServicio.get('precioBase')?.invalid && formServicio.get('precioBase')?.touched">
-          <span *ngIf="formServicio.get('precioBase')?.errors?.['required']">El precio base es obligatorio</span>
-          <span *ngIf="formServicio.get('precioBase')?.errors?.['min']">No puede ser menor que 0</span>
+        <div>
+          <label><i class="bi bi-cash-coin"></i> Precio Base *</label>
+          <input formControlName="precioBase" type="number" class="input">
         </div>
-      </div>
 
-      <div>
-        <label>Duración Estimada (min) *</label>
-        <input 
-          type="number"
-          formControlName="duracionEstimada"
-          placeholder="Ej: 60">
-        <div *ngIf="formServicio.get('duracionEstimada')?.invalid && formServicio.get('duracionEstimada')?.touched">
-          Debe ingresar una duración válida
+        <div>
+          <label><i class="bi bi-hourglass-split"></i> Duración (min) *</label>
+          <input formControlName="duracionEstimada" type="number" class="input">
         </div>
-      </div>
 
-      <div>
-        <label>Profesional *</label>
-        <select 
-          formControlName="profesional_id"
-        >
-          <option value="" disabled>Seleccione un profesional</option>
-          <option *ngFor="let p of profesionales" [value]="p.id">
-            {{ p.nombre }}
-          </option>
-        </select>
-        <div *ngIf="formServicio.get('profesional_id')?.invalid && formServicio.get('profesional_id')?.touched">
-          Debe seleccionar un profesional
+        <div>
+          <label><i class="bi bi-person-badge"></i> Profesional *</label>
+          <select formControlName="profesional_id" class="input">
+            <option value="" disabled selected>Seleccione</option>
+            <option *ngFor="let p of profesionales" [value]="p.id">
+              {{ p.nombre }}
+            </option>
+          </select>
         </div>
+
+        <div class="flex items-center gap-2">
+          <input type="checkbox" formControlName="activo">
+          <label><i class="bi bi-check2-square"></i> Servicio Activo</label>
+        </div>
+
       </div>
 
-      <div>
-        <input 
-          type="checkbox" 
-          id="activo"
-          formControlName="activo">
-        <label for="activo">
-          Servicio Activo
-        </label>
-      </div>
+      <!-- BOTONES -->
+      <div class="flex justify-between mt-4">
 
-      <div>
-        <button 
-          type="button"
-          (click)="closeModal()">
-          Cancelar
+        <button type="button" class="btn-cancel" (click)="closeModal()">
+          <i class="bi bi-x-circle"></i> Cancelar
         </button>
-        <button 
-          type="submit"
-          [disabled]="formServicio.invalid">
+
+        <button type="submit" class="btn-submit">
+          <i class="bi" 
+             [class.bi-check-circle]="!editingId"
+             [class.bi-arrow-clockwise]="editingId"></i>
+
           {{ editingId ? 'Actualizar' : 'Crear' }}
         </button>
+
       </div>
     </form>
   </div>
