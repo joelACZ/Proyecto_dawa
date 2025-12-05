@@ -1,45 +1,53 @@
-<div class="flex min-h-screen bg-gray-100">
+<!-- CONTENEDOR PRINCIPAL -->
+<div class="d-flex min-vh-100 bg-light">
 
-  <!-- SIDEBAR -->
-  <aside class="w-64 bg-gray-800 text-white p-5 space-y-4">
-      <h1 class="text-xl font-bold mb-6">Plataforma de Servicios</h1>
+   <!-- ===== SIDEBAR ===== -->
+   <aside class="bg-dark text-white p-4" style="width: 260px;">
+      <h1 class="h4 fw-bold mb-4">Plataforma de Servicios</h1>
 
-      <nav class="flex flex-col space-y-3">
-          <a routerLink="crud-clientes" 
-             routerLinkActive="bg-gray-700"
-             class="px-3 py-2 rounded hover:bg-gray-700 transition">
-             Gestión de Clientes
-          </a>
-          
-          <a routerLink="crud-servicios" 
-             routerLinkActive="bg-gray-700"
-             class="px-3 py-2 rounded hover:bg-gray-700 transition">
-             Gestión de Servicios
-          </a>
+      <nav class="d-flex flex-column gap-2">
 
-          <a routerLink="crud-resenas" 
-             routerLinkActive="bg-gray-700"
-             class="px-3 py-2 rounded hover:bg-gray-700 transition">
-             Gestión de Reseñas
-          </a>
+         <!-- Clientes -->
+         <a routerLink="crud-clientes" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+            class="nav-link-custom d-flex align-items-center p-2 rounded text-white text-decoration-none">
+            <i class="bi bi-people me-2"></i>
+            Clientes
+         </a>
 
-          <a routerLink="crud-profesionales" 
-             routerLinkActive="bg-gray-700"
-             class="px-3 py-2 rounded hover:bg-gray-700 transition">
-             Gestión de Profesionales
-          </a>
+         <!-- Servicios -->
+         <a routerLink="crud-servicios" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+            class="nav-link-custom d-flex align-items-center p-2 rounded text-white text-decoration-none">
+            <i class="bi bi-briefcase me-2"></i>
+            Servicios
+         </a>
 
-          <a routerLink="crud-solicitudes" 
-             routerLinkActive="bg-gray-700"
-             class="px-3 py-2 rounded hover:bg-gray-700 transition">
-             Gestión de Solicitudes
-          </a>
+         <!-- Reseñas -->
+         <a routerLink="crud-resenas" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+            class="nav-link-custom d-flex align-items-center p-2 rounded text-white text-decoration-none">
+            <i class="bi bi-star me-2"></i>
+            Reseñas
+         </a>
+
+         <!-- Profesionales -->
+         <a routerLink="crud-profesionales" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+            class="nav-link-custom d-flex align-items-center p-2 rounded text-white text-decoration-none">
+            <i class="bi bi-person-badge me-2"></i>
+            Profesionales
+         </a>
+
+         <!-- Solicitudes -->
+         <a routerLink="crud-solicitudes" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+            class="nav-link-custom d-flex align-items-center p-2 rounded text-white text-decoration-none">
+            <i class="bi bi-journal-text me-2"></i>
+            Solicitudes
+         </a>
+
       </nav>
-  </aside>
+   </aside>
 
-  <!-- CONTENIDO A LA DERECHA -->
-  <main class="flex-1 p-8" style="background-color: rgb(59, 132, 178);">
-    <router-outlet></router-outlet>
-</main>
+   <!-- ===== CONTENIDO PRINCIPAL ===== -->
+   <main class="flex-grow-1 p-4" style="background-color: rgb(7, 193, 255, 0.767);">
+      <router-outlet></router-outlet>
+   </main>
 
 </div>

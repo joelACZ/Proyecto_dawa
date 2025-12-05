@@ -15,18 +15,18 @@ import { DetailModal } from '../shared/detail-modal/detail-modal';
   styleUrls: ['./crud-clientes.css'],
   imports: [
     CommonModule, ReactiveFormsModule, DataTableComponent, CardComponent, DetailModal],
-  standalone: true, // Asegurar que sea standalone para las imports
+  standalone: true,
 })
 export class CrudClientes {
 clientes: Cliente[] = [];
   formCliente!: FormGroup;
   editingId: number | null = null;
 
-  // Modal de detalles (tu DetailModal)
+
   clienteView: Cliente | null = null;
   showViewModal = false;
 
-  // Modal de crear/editar (con *ngIf, como tu DetailModal)
+
   showEditModal = false;
 
   columns = [
@@ -59,7 +59,7 @@ clientes: Cliente[] = [];
     this.servClientes.getClientes().subscribe(data => this.clientes = data);
   }
 
-  // === MODAL DETALLES (tu DetailModal) ===
+
   openView(c: Cliente) {
     this.clienteView = c;
     this.showViewModal = true;
@@ -70,7 +70,7 @@ clientes: Cliente[] = [];
     this.clienteView = null;
   }
 
-  // === MODAL CREAR/EDITAR (sin bootstrap) ===
+
   openNew() {
     this.editingId = null;
     this.formCliente.reset({ notificaciones: false });
@@ -124,4 +124,6 @@ clientes: Cliente[] = [];
     if (!q) this.loadClientes();
     else this.servClientes.searchClientes(q).subscribe(data => this.clientes = data);
   }
+
+  
 }
