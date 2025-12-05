@@ -8,7 +8,7 @@ import { Servicio } from '../../models/Servicio.model';
 import { ServServiciosJson } from '../../services/servicio-service';
 import { SolicitudService } from '../../services/solicitud-service';
 import { ServClientesJson } from '../../services/cliente-service';
-import { ProfesionalService } from '../../services/profesionales-service'; // Necesitarás crear este servicio
+import { ServProfesionalesJson } from '../../services/profesionales-service'; // Necesitarás crear este servicio
 
 @Component({
   selector: 'app-crud-solicitudes',

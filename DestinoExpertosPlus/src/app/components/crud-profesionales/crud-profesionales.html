@@ -1,1 +1,239 @@
-<p>crud-profesionales works!</p>
+<h1 class="text-3xl font-bold mb-6 text-gray-800">Gestión de Profesionales</h1>
+
+<app-card title="Profesionales" subtitle="Administra tu equipo de profesionales"></app-card>
+
+<div class="my-8 bg-white rounded-lg shadow p-6">
+  <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+    <div class="relative w-full md:w-auto">
+      <input #busc type="text" 
+             placeholder="Buscar por nombre, especialidad, oficio..." 
+             (input)="search(busc)" 
+             class="border border-gray-300 rounded-lg px-4 py-3 w-full md:w-96 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+      <span class="absolute right-3 top-3 text-gray-400">
+        🔍
+      </span>
+    </div>
+    <button (click)="openNew()" 
+            class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-md hover:shadow-lg flex items-center gap-2 whitespace-nowrap">
+      <span class="text-xl">+</span> Nuevo Profesional
+    </button>
+  </div>
+
+  <app-data-table [data]="profesionales" [columns]="columns">
+    <ng-template #actions let-row>
+      <div class="flex flex-wrap gap-2">
+        <button class="text-blue-600 hover:text-blue-800 transition-colors" 
+                (click)="openView(row)" 
+                title="Ver detalles">
+          👁️ Ver
+        </button>
+        <button class="text-yellow-600 hover:text-yellow-800 transition-colors" 
+                (click)="openEdit(row)" 
+                title="Editar">
+          ✏️ Editar
+        </button>
+        <button class="text-green-600 hover:text-green-800 transition-colors" 
+                (click)="toggleDisponibilidad(row)" 
+                title="Cambiar disponibilidad">
+          {{ row.disponibilidad ? '⏸️ Desactivar' : '▶️ Activar' }}
+        </button>
+        <button class="text-red-600 hover:text-red-800 transition-colors" 
+                (click)="delete(row)" 
+                title="Eliminar">
+          🗑️ Eliminar
+        </button>
+      </div>
+    </ng-template>
+    
+    <ng-template #cell let-row let-field="field">
+      <ng-container [ngSwitch]="field">
+        <span *ngSwitchCase="'disponibilidad'" 
+              class="px-3 py-1 rounded-full text-xs font-semibold"
+              [ngClass]="getDisponibilidadClass(row[field])">
+          {{ getDisponibilidadText(row[field]) }}
+        </span>
+        <span *ngSwitchCase="'experiencia'">
+          <span class="font-semibold">{{ row[field] }}</span> años
+        </span>
+        <span *ngSwitchDefault>{{ row[field] }}</span>
+      </ng-container>
+    </ng-template>
+  </app-data-table>
+
+  <div *ngIf="profesionales.length === 0" class="text-center py-12 text-gray-500">
+    <div class="text-6xl mb-4">👨‍🔧</div>
+    <h3 class="text-xl font-semibold mb-2">No hay profesionales registrados</h3>
+    <p class="mb-6">Comienza agregando tu primer profesional al equipo.</p>
+    <button (click)="openNew()" 
+            class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+      + Agregar Primer Profesional
+    </button>
+  </div>
+</div>
+
+<!-- MODAL DE DETALLES -->
+<app-detail-modal [isVisible]="showViewModal" [data]="profesionalView" (close)="closeViewModal()"></app-detail-modal>
+
+<!-- MODAL CREAR/EDITAR -->
+<div *ngIf="showEditModal" 
+     class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300"
+     (click)="closeEditModal()">
+  
+  <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden transform transition-transform duration-300 scale-100"
+       (click)="$event.stopPropagation()">
+    
+    <!-- Header del modal -->
+    <div class="flex justify-between items-center p-6 border-b bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+      <div>
+        <h3 class="text-2xl font-bold">{{ editingId ? 'Editar' : 'Nuevo' }} Profesional</h3>
+        <p class="text-blue-100 mt-1">Completa todos los campos obligatorios (*)</p>
+      </div>
+      <button (click)="closeEditModal()" 
+              class="text-3xl hover:text-blue-200 transition-colors p-2 -mr-2">
+        &times;
+      </button>
+    </div>
+
+    <!-- Formulario -->
+    <form [formGroup]="formProfesional" (ngSubmit)="save()" class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Columna 1 -->
+        <div class="space-y-5">
+          <!-- Nombre -->
+          <div>
+            <label class="block font-semibold text-gray-700 mb-2">
+              Nombre completo *
+              <span class="text-red-500 ml-1" *ngIf="nombre?.invalid && nombre?.touched">✱</span>
+            </label>
+            <input type="text" 
+                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                   formControlName="nombre"
+                   placeholder="Ej: Juan Pérez García">
+            <div *ngIf="nombre?.invalid && nombre?.touched" class="text-red-600 text-sm mt-1">
+              <span *ngIf="nombre?.errors?.['required']">El nombre es obligatorio</span>
+              <span *ngIf="nombre?.errors?.['minlength']">Mínimo 2 caracteres</span>
+            </div>
+          </div>
+
+          <!-- Especialidad -->
+          <div>
+            <label class="block font-semibold text-gray-700 mb-2">
+              Especialidad principal *
+              <span class="text-red-500 ml-1" *ngIf="especialidad?.invalid && especialidad?.touched">✱</span>
+            </label>
+            <input type="text" 
+                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                   formControlName="especialidad"
+                   placeholder="Ej: Fontanería, Electricidad">
+            <div *ngIf="especialidad?.invalid && especialidad?.touched" class="text-red-600 text-sm mt-1">
+              <span *ngIf="especialidad?.errors?.['required']">La especialidad es obligatoria</span>
+            </div>
+          </div>
+
+          <!-- Teléfono -->
+          <div>
+            <label class="block font-semibold text-gray-700 mb-2">
+              Teléfono *
+              <span class="text-red-500 ml-1" *ngIf="telefono?.invalid && telefono?.touched">✱</span>
+            </label>
+            <input type="tel" 
+                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                   formControlName="telefono"
+                   placeholder="Ej: 600123456">
+            <div *ngIf="telefono?.invalid && telefono?.touched" class="text-red-600 text-sm mt-1">
+              <span *ngIf="telefono?.errors?.['required']">El teléfono es obligatorio</span>
+              <span *ngIf="telefono?.errors?.['pattern']">Formato inválido (9+ números)</span>
+            </div>
+          </div>
+
+          <!-- Experiencia -->
+          <div>
+            <label class="block font-semibold text-gray-700 mb-2">
+              Años de experiencia *
+              <span class="text-red-500 ml-1" *ngIf="experiencia?.invalid && experiencia?.touched">✱</span>
+            </label>
+            <div class="flex items-center gap-3">
+              <input type="number" 
+                     class="w-32 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                     formControlName="experiencia"
+                     min="0" max="50">
+              <span class="text-gray-600">años</span>
+            </div>
+            <div *ngIf="experiencia?.invalid && experiencia?.touched" class="text-red-600 text-sm mt-1">
+              <span *ngIf="experiencia?.errors?.['required']">La experiencia es obligatoria</span>
+              <span *ngIf="experiencia?.errors?.['min']">Mínimo 0 años</span>
+              <span *ngIf="experiencia?.errors?.['max']">Máximo 50 años</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Columna 2 -->
+        <div class="space-y-5">
+          <!-- Email -->
+          <div>
+            <label class="block font-semibold text-gray-700 mb-2">
+              Email *
+              <span class="text-red-500 ml-1" *ngIf="email?.invalid && email?.touched">✱</span>
+            </label>
+            <input type="email" 
+                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                   formControlName="email"
+                   placeholder="Ej: profesional@empresa.com">
+            <div *ngIf="email?.invalid && email?.touched" class="text-red-600 text-sm mt-1">
+              <span *ngIf="email?.errors?.['required']">El email es obligatorio</span>
+              <span *ngIf="email?.errors?.['email']">Formato de email inválido</span>
+            </div>
+          </div>
+
+          <!-- Ubicación -->
+          <div>
+            <label class="block font-semibold text-gray-700 mb-2">Ubicación</label>
+            <input type="text" 
+                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                   formControlName="ubicacion"
+                   placeholder="Ej: Madrid Centro, Barcelona">
+          </div>
+
+          <!-- Oficios (multiples) -->
+          <div>
+            <label class="block font-semibold text-gray-700 mb-2">Oficios secundarios</label>
+            <input type="text" 
+                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                   formControlName="oficios"
+                   placeholder="Separados por coma: gas, calefacción, domótica">
+            <p class="text-gray-500 text-sm mt-1">Separa cada oficio con una coma</p>
+          </div>
+
+          <!-- Disponibilidad -->
+          <div class="pt-4">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" 
+                     formControlName="disponibilidad"
+                     class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500">
+              <span class="font-semibold text-gray-700">Profesional disponible actualmente</span>
+            </label>
+            <p class="text-gray-500 text-sm mt-2 ml-8">
+              Cuando está desactivado, no aparecerá en las búsquedas de clientes
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="flex justify-end gap-3 pt-8 mt-8 border-t">
+        <button type="button" 
+                (click)="closeEditModal()"
+                class="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+          Cancelar
+        </button>
+        <button type="submit" 
+                [disabled]="formProfesional.invalid"
+                [ngClass]="{'opacity-50 cursor-not-allowed': formProfesional.invalid}"
+                class="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-md">
+          {{ editingId ? '💾 Actualizar' : '✨ Crear' }} Profesional
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
