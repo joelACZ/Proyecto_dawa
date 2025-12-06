@@ -1,115 +1,368 @@
 <app-card
   title="Gestión de Profesionales"
   subtitle="Administra los profesionales disponibles en la plataforma"
-  content="Aquí puedes crear, editar y eliminar profesionales, así como gestionar sus detalles y certificaciones">
+  content="Aquí puedes visualizar, editar y eliminar profesionales, así como gestionar sus detalles, certificaciones y disponibilidad.">
 </app-card>
 
-<div>
-  <input #busq type="text" placeholder="Buscar profesional..." (input)="search(busq)"/>
-  <button (click)="openNew()">
-    <i class="bi bi-person-plus"></i> agregar
+<!-- BUSCADOR Y BOTONES -->
+<div class="mb-4 mt-4 flex justify-between items-center gap-2">
+  <input type="text" placeholder="Buscar profesionales..." class="border p-2 rounded w-full md:w-64" 
+         #txtBuscar (input)="search(txtBuscar)" />
+  
+  <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition" 
+          (click)="openNew()">
+    + Nuevo Profesional
+  </button>
+  
+  <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition">
+    <i class="bi bi-list-ul me-1"></i> Exportar Lista
   </button>
 </div>
 
-<app-data-table [data]="profesionales" [columns]="columns">
+<!-- FILTROS -->
+<div class="card mb-4">
+  <div class="card-header">
+    <h5 class="mb-0">
+      <i class="bi bi-funnel me-2"></i>Filtros de Búsqueda
+    </h5>
+  </div>
+  <div class="card-body">
+    <div class="row g-3">
+      <!-- Filtro por Especialidad -->
+      <div class="col-md-4">
+        <label class="form-label">Especialidad</label>
+        <input type="text" class="form-control" placeholder="Buscar por especialidad..."
+               [(ngModel)]="filtroEspecialidad" (input)="aplicarFiltros()" />
+      </div>
+
+      <!-- Filtro por Experiencia -->
+      <div class="col-md-4">
+        <label class="form-label">Experiencia mínima (años)</label>
+        <input type="number" class="form-control" min="0" max="50" 
+               [(ngModel)]="filtroExperienciaMin" (input)="aplicarFiltros()" />
+      </div>
+
+      <!-- Filtro por Disponibilidad -->
+      <div class="col-md-4">
+        <label class="form-label">Disponibilidad</label>
+        <select class="form-select" [(ngModel)]="filtroDisponibilidad" (change)="aplicarFiltros()">
+          <option value="">Todos</option>
+          <option value="true">Disponibles</option>
+          <option value="false">No disponibles</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Botón Limpiar Filtros -->
+    <div class="row mt-3">
+      <div class="col-12">
+        <button class="btn btn-outline-secondary w-100" (click)="limpiarFiltros()">
+          <i class="bi bi-x-circle me-1"></i> Limpiar Filtros
+        </button>
+      </div>
+    </div>
+
+    <!-- Indicadores de filtros activos -->
+    <div class="mt-3" *ngIf="filtroEspecialidad || filtroExperienciaMin > 0 || filtroDisponibilidad !== null">
+      <small class="text-muted">
+        <i class="bi bi-info-circle me-1"></i>Filtros activos:
+        <span class="badge bg-primary ms-2" *ngIf="filtroEspecialidad">
+          Especialidad: {{ filtroEspecialidad }}
+        </span>
+        <span class="badge bg-primary ms-2" *ngIf="filtroExperienciaMin > 0">
+          Experiencia ≥ {{ filtroExperienciaMin }} años
+        </span>
+        <span class="badge bg-primary ms-2" *ngIf="filtroDisponibilidad === 'true'">
+          Disponibles
+        </span>
+        <span class="badge bg-primary ms-2" *ngIf="filtroDisponibilidad === 'false'">
+          No disponibles
+        </span>
+      </small>
+    </div>
+  </div>
+</div>
+
+<!-- TABLA -->
+<app-data-table [data]="profesionalesPaginados" [columns]="[
+  { field: 'id', header: 'ID' },
+  { field: 'nombre', header: 'Nombre' },
+  { field: 'especialidad', header: 'Especialidad' },
+  { field: 'email', header: 'Email' },
+  { field: 'telefono', header: 'Teléfono' },
+  { field: 'ubicacionFormateada', header: 'Ubicación' },
+  { field: 'oficiosFormateados', header: 'Oficios' },
+  { field: 'experienciaFormateada', header: 'Experiencia' },
+  { field: 'disponibilidadFormateada', header: 'Disponible' }
+]">
   <ng-template #actions let-row>
-    <div class="flex gap-2">
-      <button (click)="openView(row)" class="btn action-btn unified" title="Ver">
-        <i class="bi bi-eye"></i>
-      </button>
-      <button (click)="openEdit(row)" class="btn action-btn unified" title="Editar">
-        <i class="bi bi-pencil"></i>
-      </button>
-      <button (click)="delete(row)" class="btn action-btn unified" title="Eliminar">
-        <i class="bi bi-trash"></i>
-      </button>
+    <div class="flex space-x-2">
+      <button class="text-blue-600 border border-blue-600 px-3 py-1 rounded hover:bg-blue-50" 
+              (click)="view(row)">Ver</button>
+      <button class="text-yellow-600 border border-yellow-600 px-3 py-1 rounded hover:bg-yellow-50" 
+              (click)="openEdit(row)">Editar</button>
+      <button class="text-red-600 border border-red-600 px-3 py-1 rounded hover:bg-red-50" 
+              (click)="openDeleteModal(row)">Eliminar</button>
     </div>
   </ng-template>
 </app-data-table>
 
-<app-detail-modal [isVisible]="showViewModal" [data]="profesionalView" (close)="closeViewModal()"></app-detail-modal>
+<!-- PAGINACIÓN -->
+<div class="d-flex justify-content-between align-items-center mt-3" *ngIf="totalPaginas > 1">
+  <div class="text-muted small">
+    Mostrando {{ rangoRegistros }} registros
+  </div>
 
-<!-- Modal formulario (crear / editar) -->
-<div *ngIf="showEditModal" class="fixed inset-0 flex items-center justify-center bg-black/40" (click)="closeEditModal()">
-  <div class="bg-white rounded-lg w-full max-w-2xl p-4" (click)="$event.stopPropagation()">
-    <div class="flex justify-between items-center mb-4">
-      <h3 class="text-lg font-semibold">
-        <i class="bi" [class.bi-pencil]="editingId" [class.bi-person-plus]="!editingId"></i>
-        {{ editingId ? 'Editar' : 'Nuevo' }} Profesional
-      </h3>
-      <button (click)="closeEditModal()" class="text-xl"><i class="bi bi-x-lg"></i></button>
+  <nav aria-label="Paginación de profesionales">
+    <ul class="pagination mb-0">
+      <!-- Botón Anterior -->
+      <li class="page-item" [class.disabled]="paginaActual === 1">
+        <a class="page-link" href="#" (click)="cambiarPagina(paginaActual - 1); $event.preventDefault()">
+          <i class="bi bi-chevron-left"></i> Anterior
+        </a>
+      </li>
+
+      <!-- Números de página -->
+      <li class="page-item" *ngFor="let pagina of [].constructor(totalPaginas); let i = index"
+          [class.active]="paginaActual === i + 1">
+        <a class="page-link" href="#" (click)="cambiarPagina(i + 1); $event.preventDefault()">
+          {{ i + 1 }}
+        </a>
+      </li>
+
+      <!-- Botón Siguiente -->
+      <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+        <a class="page-link" href="#" (click)="cambiarPagina(paginaActual + 1); $event.preventDefault()">
+          Siguiente <i class="bi bi-chevron-right"></i>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+<!-- MODAL REUTILIZABLE DE DETALLES -->
+<app-detail-modal
+  [isVisible]="showDetailModal"
+  [data]="profesionalDetalle"
+  (close)="closeDetail()">
+</app-detail-modal>
+
+<!-- MODAL DE NOTIFICACIÓN DE ÉXITO -->
+<div *ngIf="showNotificationModal" class="modal fade show d-block notification-modal success" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="btn-close" (click)="showNotificationModal = false"></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-icon">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <h5 class="modal-title mb-3">¡Éxito!</h5>
+        <p class="mb-0">{{ notificationMessage }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" (click)="showNotificationModal = false">
+          Aceptar
+        </button>
+      </div>
     </div>
+  </div>
+</div>
 
-    <form [formGroup]="formProfesional" (ngSubmit)="save()" class="space-y-4">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="block mb-1"><i class="bi bi-person"></i> Nombre *</label>
-          <input formControlName="nombre" class="w-full border p-2 rounded" />
-          <div *ngIf="formProfesional.get('nombre')?.invalid && formProfesional.get('nombre')?.touched" class="text-red-500 text-sm">
-            Nombre es requerido (mínimo 2 caracteres)
-          </div>
-        </div>
-
-        <div>
-          <label class="block mb-1"><i class="bi bi-briefcase"></i> Especialidad *</label>
-          <input formControlName="especialidad" placeholder="Ej: Electricidad, Plomería" class="w-full border p-2 rounded" />
-          <div *ngIf="formProfesional.get('especialidad')?.invalid && formProfesional.get('especialidad')?.touched" class="text-red-500 text-sm">
-            Especialidad es requerida
-          </div>
-        </div>
-
-        <div>
-          <label class="block mb-1"><i class="bi bi-envelope"></i> Email *</label>
-          <input formControlName="email" type="email" class="w-full border p-2 rounded" />
-          <div *ngIf="formProfesional.get('email')?.invalid && formProfesional.get('email')?.touched" class="text-red-500 text-sm">
-            Email válido es requerido
-          </div>
-        </div>
-
-        <div>
-          <label class="block mb-1"><i class="bi bi-telephone"></i> Teléfono *</label>
-          <input formControlName="telefono" class="w-full border p-2 rounded" />
-          <div *ngIf="formProfesional.get('telefono')?.invalid && formProfesional.get('telefono')?.touched" class="text-red-500 text-sm">
-            Teléfono válido es requerido (mínimo 9 números)
-          </div>
-        </div>
-
-        <div class="md:col-span-2">
-          <label class="block mb-1"><i class="bi bi-geo-alt"></i> Ubicación</label>
-          <input formControlName="ubicacion" placeholder="Ej: Ciudad, Dirección" class="w-full border p-2 rounded" />
-        </div>
-
-        <div class="md:col-span-2">
-          <label class="block mb-1"><i class="bi bi-tools"></i> Oficios (separados por coma)</label>
-          <input formControlName="oficios" placeholder="Ej: Electricista, Fontanero, Carpintero" class="w-full border p-2 rounded" />
-        </div>
-
-        <div>
-          <label class="block mb-1"><i class="bi bi-clock"></i> Experiencia (años) *</label>
-          <input formControlName="experiencia" type="number" min="0" max="50" class="w-full border p-2 rounded" />
-          <div *ngIf="formProfesional.get('experiencia')?.invalid && formProfesional.get('experiencia')?.touched" class="text-red-500 text-sm">
-            Experiencia válida es requerida (0-50 años)
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <input type="checkbox" formControlName="disponibilidad" id="disponibilidad-checkbox" class="w-4 h-4" />
-          <label for="disponibilidad-checkbox" class="cursor-pointer">
-            <i class="bi bi-calendar-check"></i> Disponibilidad
-          </label>
-        </div>
+<!-- MODAL DE ERROR -->
+<div *ngIf="showErrorModal" class="modal fade show d-block notification-modal error" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="btn-close" (click)="showErrorModal = false"></button>
       </div>
-
-      <div class="flex justify-end gap-2 mt-4">
-        <button type="button" (click)="closeEditModal()" class="px-4 py-2 rounded border flex items-center gap-2">
-          <i class="bi bi-x-circle"></i> Cancelar
-        </button>
-        <button type="submit" [disabled]="formProfesional.invalid" 
-                class="px-4 py-2 rounded bg-primary text-white flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
-          <i class="bi" [class.bi-check-circle]="!editingId" [class.bi-arrow-clockwise]="editingId"></i>
-          {{ editingId ? 'Actualizar' : 'Crear' }}
+      <div class="modal-body">
+        <div class="modal-icon">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <h5 class="modal-title mb-3">Error</h5>
+        <p class="mb-0">{{ errorMessage }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" (click)="showErrorModal = false">
+          Aceptar
         </button>
       </div>
-    </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE ELIMINAR -->
+<div *ngIf="showDeleteModal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-danger">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          Confirmar Eliminación
+        </h5>
+        <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+      </div>
+      <div class="modal-body text-center">
+        <div class="mb-4">
+          <i class="bi bi-trash3-fill text-danger" style="font-size: 3rem;"></i>
+        </div>
+        <h6 class="mb-3">¿Está seguro de eliminar al profesional #{{ profesional_a_Eliminar?.id }}?</h6>
+        <div class="alert alert-light border">
+          <p class="mb-1"><strong>Profesional:</strong></p>
+          <p class="mb-0 text-muted">{{ profesional_a_Eliminar?.nombre }} - {{ profesional_a_Eliminar?.especialidad }}</p>
+        </div>
+        <p class="text-muted small mt-3">
+          Esta acción no se puede deshacer. El profesional ya no estará disponible para asignar servicios.
+        </p>
+      </div>
+      <div class="modal-footer border-0 justify-content-center">
+        <button type="button" class="btn btn-secondary me-3" (click)="closeDeleteModal()">
+          <i class="bi bi-x-circle me-1"></i> Cancelar
+        </button>
+        <button type="button" class="btn btn-danger" (click)="confirmDelete()">
+          <i class="bi bi-trash3 me-1"></i> Sí, eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CREAR/EDITAR -->
+<div class="modal fade" id="profesionalModal" #profesionalModal>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ profesionalEdit ? 'Editar' : 'Nuevo' }} Profesional</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form [formGroup]="formProfesional">
+        <div class="modal-body">
+          <!-- CAMPO: Nombre con validaciones -->
+          <div class="mb-3">
+            <label class="form-label">Nombre *</label>
+            <input type="text" class="form-control" formControlName="nombre" placeholder="Nombre completo">
+            <span class="error">
+              @if (formProfesional.get('nombre')?.invalid &&
+                  (formProfesional.get('nombre')?.dirty || formProfesional.get('nombre')?.touched)) {
+                @if (formProfesional.get('nombre')?.errors?.['required']) {
+                  El nombre es obligatorio.
+                }
+                @if (formProfesional.get('nombre')?.errors?.['minlength']) {
+                  El nombre debe tener al menos 2 caracteres.
+                }
+              }
+            </span>
+          </div>
+
+          <!-- CAMPO: Especialidad con validaciones -->
+          <div class="mb-3">
+            <label class="form-label">Especialidad *</label>
+            <input type="text" class="form-control" formControlName="especialidad" 
+                   placeholder="Ej: Electricidad, Plomería, Carpintería">
+            <span class="error">
+              @if (formProfesional.get('especialidad')?.invalid &&
+                  (formProfesional.get('especialidad')?.dirty || formProfesional.get('especialidad')?.touched)) {
+                @if (formProfesional.get('especialidad')?.errors?.['required']) {
+                  La especialidad es obligatoria.
+                }
+                @if (formProfesional.get('especialidad')?.errors?.['minlength']) {
+                  La especialidad debe tener al menos 2 caracteres.
+                }
+              }
+            </span>
+          </div>
+
+          <!-- CAMPO: Email con validaciones -->
+          <div class="mb-3">
+            <label class="form-label">Email *</label>
+            <input type="email" class="form-control" formControlName="email" placeholder="correo@ejemplo.com">
+            <span class="error">
+              @if (formProfesional.get('email')?.invalid &&
+                  (formProfesional.get('email')?.dirty || formProfesional.get('email')?.touched)) {
+                @if (formProfesional.get('email')?.errors?.['required']) {
+                  El email es obligatorio.
+                }
+                @if (formProfesional.get('email')?.errors?.['email']) {
+                  Ingrese un email válido.
+                }
+              }
+            </span>
+          </div>
+
+          <!-- CAMPO: Teléfono con validaciones -->
+          <div class="mb-3">
+            <label class="form-label">Teléfono *</label>
+            <input type="tel" class="form-control" formControlName="telefono" placeholder="123456789">
+            <span class="error">
+              @if (formProfesional.get('telefono')?.invalid &&
+                  (formProfesional.get('telefono')?.dirty || formProfesional.get('telefono')?.touched)) {
+                @if (formProfesional.get('telefono')?.errors?.['required']) {
+                  El teléfono es obligatorio.
+                }
+                @if (formProfesional.get('telefono')?.errors?.['pattern']) {
+                  Ingrese un número de teléfono válido (mínimo 9 dígitos).
+                }
+              }
+            </span>
+          </div>
+
+          <!-- CAMPO: Ubicación -->
+          <div class="mb-3">
+            <label class="form-label">Ubicación</label>
+            <input type="text" class="form-control" formControlName="ubicacion" 
+                   placeholder="Ej: Ciudad, Dirección, Barrio">
+          </div>
+
+          <!-- CAMPO: Oficios -->
+          <div class="mb-3">
+            <label class="form-label">Oficios</label>
+            <input type="text" class="form-control" formControlName="oficios" 
+                   placeholder="Ej: Electricista, Fontanero, Carpintero">
+            <small class="form-text text-muted">
+              Separe los oficios con comas
+            </small>
+          </div>
+
+          <!-- CAMPO: Experiencia con validaciones -->
+          <div class="mb-3">
+            <label class="form-label">Experiencia (años) *</label>
+            <div class="input-group">
+              <input type="number" class="form-control" formControlName="experiencia" min="0" max="50">
+              <span class="input-group-text">años</span>
+            </div>
+            <span class="error">
+              @if (formProfesional.get('experiencia')?.invalid &&
+                  (formProfesional.get('experiencia')?.dirty || formProfesional.get('experiencia')?.touched)) {
+                @if (formProfesional.get('experiencia')?.errors?.['required']) {
+                  La experiencia es obligatoria.
+                }
+                @if (formProfesional.get('experiencia')?.errors?.['min']) {
+                  La experiencia no puede ser negativa.
+                }
+                @if (formProfesional.get('experiencia')?.errors?.['max']) {
+                  La experiencia no puede superar los 50 años.
+                }
+              }
+            </span>
+          </div>
+
+          <!-- CAMPO: Disponibilidad (checkbox) -->
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" formControlName="disponibilidad" id="checkDisponibilidad">
+            <label class="form-check-label" for="checkDisponibilidad">
+              Profesional disponible para asignar servicios
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">Cancelar</button>
+          <button type="button" class="btn btn-primary" (click)="save()">
+            {{ profesionalEdit ? 'Actualizar' : 'Guardar' }}
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>

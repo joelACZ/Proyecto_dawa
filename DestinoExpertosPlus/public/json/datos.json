@@ -12,8 +12,12 @@
         "Reparaciones",
         "Mantenimiento"
       ],
-      "experiencia": 6,
-      "disponibilidad": true
+      "experiencia": 5,
+      "disponibilidad": true,
+      "ubicacionFormateada": "Quito",
+      "oficiosFormateados": "Instalaciones, Reparaciones, Mantenimiento",
+      "experienciaFormateada": "6 años",
+      "disponibilidadFormateada": "Sí"
     },
     {
       "id": "2",
@@ -32,16 +36,6 @@
     }
   ],
   "servicios": [
-    {
-      "id": "1",
-      "nombre": "Instalación Eléctrica",
-      "categoria": "Electricidad",
-      "descripcion": "Instalación de cableado, lámparas y tomacorrientes.",
-      "precioBase": 35,
-      "duracionEstimada": 60,
-      "profesional_id": 1,
-      "activo": true
-    },
     {
       "id": "2",
       "nombre": "Reparación de Tuberías",
@@ -68,13 +62,15 @@
       "id": "1",
       "nombre": "Javier López",
       "email": "javier.lopez@example.com",
-      "telefono": "0973332211",
+      "telefono": "09733322116",
       "direccion": "Cuenca",
       "preferencias": [
         "Electricidad",
         "Urgente"
       ],
-      "notificaciones": true
+      "notificaciones": true,
+      "preferenciasFormateadas": "Electricidad, Urgente",
+      "notificacionesFormateada": "No"
     },
     {
       "id": "2",
@@ -115,19 +111,23 @@
   "resenas": [
     {
       "id": "4",
-      "solicitud_id": 7,
+      "solicitud_id": "1",
       "calificacion": 1,
       "comentario": "excelentess",
       "fecha": "2025-12-18",
-      "anonima": false
+      "anonima": false,
+      "calificacionFormateada": "1 ★ - Pésimo servicio",
+      "anonimaFormateada": "No"
     },
     {
       "id": "5",
-      "solicitud_id": 3,
-      "calificacion": 4,
+      "solicitud_id": "1",
+      "calificacion": 2,
       "comentario": "eeeeeeeeeeeee",
       "fecha": "2025-12-08",
-      "anonima": true
+      "anonima": true,
+      "calificacionFormateada": "1 ★ - Pésimo servicio",
+      "anonimaFormateada": "Sí"
     },
     {
       "id": "6",
@@ -135,14 +135,6 @@
       "calificacion": 1,
       "comentario": "aaaaaaaaaaa",
       "fecha": "2025-12-01",
-      "anonima": true
-    },
-    {
-      "id": "7",
-      "solicitud_id": 345,
-      "calificacion": 3,
-      "comentario": "5555555555555555",
-      "fecha": "2025-12-08",
       "anonima": true
     }
   ]

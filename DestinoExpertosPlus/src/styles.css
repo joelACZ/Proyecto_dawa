@@ -200,8 +200,10 @@
 
 .cell-content {
   height: 100%;
-  display: flex;
-  align-items: center;
+  display: block;          /* ← evita que flex rompa la fila */
+  white-space: nowrap;     /* ← evita saltos de línea */
+  overflow: hidden;        /* ← oculta exceso */
+  text-overflow: ellipsis; /* ← coloca ... */
 }
 
 .data-table-container .data-table tbody tr:nth-child(even) td {
