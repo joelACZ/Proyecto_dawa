@@ -18,6 +18,7 @@ import { ServClientesJson } from '../../services/cliente-service';
 import { DataTableComponent } from '../shared/data-table/data-table';
 import { CardComponent } from '../shared/cards/cards';
 import { DetailModal } from "../shared/detail-modal/detail-modal";
+import { Router } from '@angular/router';
 
 // Bootstrap (externa)
 declare const bootstrap: any;
@@ -103,7 +104,8 @@ export class CrudResenas implements OnInit {
     private servResenas: ServResenasJson,
     private solicitudService: SolicitudService,
     private clienteService: ServClientesJson,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private router: Router
   ) {
     this.inicializarFormulario();
   }
@@ -417,5 +419,10 @@ export class CrudResenas implements OnInit {
   showError(msg: string) {
     this.errorMessage = msg;
     this.showErrorModal = true;
+  }
+
+
+  verListaResenas(): void {
+    this.router.navigate(['/resena-list']);
   }
 }

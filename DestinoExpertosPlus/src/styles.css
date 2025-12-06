@@ -19,8 +19,8 @@
   cursor: pointer;
   
   /* Gradiente moderno con brillo */
-  background: linear-gradient(145deg, #05c1ff, #05c1ff);
-  border: 1px solid #05c1ff;
+  background: linear-gradient(145deg, #2a9bc0, #2a9bc0);
+  border: 1px solid #2a9bc0;
   box-shadow: 
     0 4px 12px rgba(0, 0, 0, 0.08),
     0 2px 4px rgba(0, 0, 0, 0.05);
@@ -159,7 +159,7 @@
 
 .data-table-container {
   padding: 10px;
-  background-color: #3dd2ff;
+  background-color: #2a9bc0;
   border-radius: 10px;
 }
 
@@ -175,7 +175,7 @@
 }
 
 .data-table-container .data-table thead th {
-  background: #05c1ff;
+  background: #52abc7;
   color: white;
   padding: 0.5rem;
   font-weight: 600;

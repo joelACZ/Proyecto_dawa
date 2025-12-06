@@ -5,16 +5,16 @@ import { CrudResenas } from './components/crud-resenas/crud-resenas';
 import { CrudServicios } from './components/crud-servicios/crud-servicios';
 import { CrudSolicitudesComponent } from './components/crud-solicitudes/crud-solicitudes';
 import { ResenaListComponent } from './components/resena-list/resena-list';
-import { App } from './app';
+import { MenuComponent } from './components/menu/menu.';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'menu', pathMatch: 'full' },
-  { path: 'menu', component: App }, // Ruta vacía que mostrará el menú principal
   { path: 'crud-clientes', component: CrudClientes },
   { path: 'crud-profesionales', component: CrudProfesionales },
   { path: 'crud-resenas', component: CrudResenas },
   { path: 'crud-servicios', component: CrudServicios },
   { path: 'crud-solicitudes', component: CrudSolicitudesComponent },
   { path: 'resena-list', component: ResenaListComponent },
+  { path: 'menu', component: MenuComponent }, 
   { path: '**', redirectTo: 'menu' }
 ];

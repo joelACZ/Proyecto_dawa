@@ -17,6 +17,7 @@ interface ResenaConDetalles extends Resena {
   imports: [CommonModule],
   templateUrl: './resena-list.html',
   styleUrls: ['./resena-list.css']
+  
 })
 export class ResenaListComponent implements OnInit {
   resenas: ResenaConDetalles[] = [];
