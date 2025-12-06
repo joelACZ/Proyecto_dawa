@@ -1,45 +1,170 @@
-<div class="flex min-h-screen bg-gray-100">
+<div class="main-container">
+  <!-- MENÚ PRINCIPAL (se muestra solo cuando showSidebar = false) -->
+  <div *ngIf="!showSidebar" class="menu-principal">
+    
+    <!-- HEADER -->
+    <header class="menu-header">
+      <div class="header-content">
+        <div class="logo-section">
+          <i class="fas fa-plane-departure"></i>
+          <h1>Plataforma de Servicios de <span>Oficios Locales </span></h1>
+        </div>
+        <div class="header-tagline">
+          <p>Sistema de Gestión Profesional de Servicios</p>
+        </div>
+      </div>
+    </header>
 
-  <!-- SIDEBAR -->
-  <aside class="w-64 bg-gray-800 text-white p-5 space-y-4">
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+      <h2>Bienvenido al Sistema de Gestión</h2>
+      <p>Seleccione un módulo para comenzar</p>
+    </div>
+
+    <!-- Modules Grid -->
+    <div class="modules-container">
+      <div class="modules-grid">
+        <!-- Tarjeta Clientes -->
+        <div class="module-card" (click)="navigateTo('crud-clientes')">
+          <div class="module-icon bg-blue">
+            <img src="img/Clientes.png" alt="Clientes">
+          </div>
+          <h3>Clientes</h3>
+          <p>Gestión de Clientes</p>
+        </div>
+
+        <!-- Tarjeta Servicios -->
+        <div class="module-card" (click)="navigateTo('crud-servicios')">
+          <div class="module-icon bg-orange">
+            <img src="img/Servicio.png" alt="Servicios">
+          </div>
+          <h3>Servicios</h3>
+          <p>Gestión de Servicios</p>
+        </div>
+
+        <!-- Tarjeta Reseñas -->
+        <div class="module-card" (click)="navigateTo('crud-resenas')">
+          <div class="module-icon bg-purple">
+            <img src="img/Reseña.png" alt="Reseñas">
+          </div>
+          <h3>Reseñas</h3>
+          <p>Gestión de Reseñas</p>
+        </div>
+
+        <!-- Tarjeta Profesionales -->
+        <div class="module-card" (click)="navigateTo('crud-profesionales')">
+          <div class="module-icon bg-green">
+            <img src="img/Profesional.png" alt="Profesionales">
+          </div>
+          <h3>Profesionales</h3>
+          <p>Gestión de Profesionales</p>
+        </div>
+
+        <!-- Tarjeta Solicitudes -->
+        <div class="module-card" (click)="navigateTo('crud-solicitudes')">
+          <div class="module-icon bg-red">
+            <img src="img/Solicitudes.png" alt="Solicitudes">
+          </div>
+          <h3>Solicitudes</h3>
+          <p>Gestión de Solicitudes</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="menu-footer">
+      <div class="footer-content">
+        <div class="footer-section">
+          <div class="footer-brand">
+            <i class="fas fa-plane-departure"></i>
+            <h3>DestinoExpertosPlus</h3>
+          </div>
+          <p class="footer-tagline">Gestión profesional de servicios de oficinas locales</p>
+        </div>
+
+        <div class="footer-section">
+          <h4>Enlaces Rápidos</h4>
+          <ul>
+            <li><a href="#"><i class="fas fa-users"></i> Clientes</a></li>
+            <li><a href="#"><i class="fas fa-briefcase"></i> Servicios</a></li>
+            <li><a href="#"><i class="fas fa-star"></i> Reseñas</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h4>Contacto</h4>
+          <ul>
+            <li><i class="fas fa-envelope"></i> info@destinoexpertos.com</li>
+            <li><i class="fas fa-phone"></i> +593 99 999 9999</li>
+            <li><i class="fas fa-map-marker-alt"></i> Guayaquil, Ecuador</li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h4>Síguenos</h4>
+          <div class="social-icons">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2025 DestinoExpertosPlus - Todos los derechos reservados</p>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- LAYOUT CON SIDEBAR (se muestra cuando showSidebar = true) -->
+  <div *ngIf="showSidebar" class="flex min-h-screen bg-gray-100">
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-gray-800 text-white p-5 space-y-4 sidebar">
+      <!-- Botón Volver al Menú - Esquina superior derecha -->
+      <button class="btn-volver-menu" (click)="navigateTo('menu')">
+        ← Volver al Menú
+      </button>
+
       <h1 class="text-xl font-bold mb-6">Plataforma de Servicios</h1>
 
       <nav class="flex flex-col space-y-3">
-          <a routerLink="crud-clientes" 
-             routerLinkActive="bg-gray-700"
-             class="px-3 py-2 rounded hover:bg-gray-700 transition">
-             Gestión de Clientes
-          </a>
-          
-          <a routerLink="crud-servicios" 
-             routerLinkActive="bg-gray-700"
-             class="px-3 py-2 rounded hover:bg-gray-700 transition">
-             Gestión de Servicios
-          </a>
+        <a routerLink="/crud-clientes" 
+           routerLinkActive="bg-gray-700"
+           class="px-3 py-2 rounded hover:bg-gray-700 transition">
+           Gestión de Clientes
+        </a>
+        
+        <a routerLink="/crud-servicios" 
+           routerLinkActive="bg-gray-700"
+           class="px-3 py-2 rounded hover:bg-gray-700 transition">
+           Gestión de Servicios
+        </a>
 
-          <a routerLink="crud-resenas" 
-             routerLinkActive="bg-gray-700"
-             class="px-3 py-2 rounded hover:bg-gray-700 transition">
-             Gestión de Reseñas
-          </a>
+        <a routerLink="/crud-resenas" 
+           routerLinkActive="bg-gray-700"
+           class="px-3 py-2 rounded hover:bg-gray-700 transition">
+           Gestión de Reseñas
+        </a>
 
-          <a routerLink="crud-profesionales" 
-             routerLinkActive="bg-gray-700"
-             class="px-3 py-2 rounded hover:bg-gray-700 transition">
-             Gestión de Profesionales
-          </a>
+        <a routerLink="/crud-profesionales" 
+           routerLinkActive="bg-gray-700"
+           class="px-3 py-2 rounded hover:bg-gray-700 transition">
+           Gestión de Profesionales
+        </a>
 
-          <a routerLink="crud-solicitudes" 
-             routerLinkActive="bg-gray-700"
-             class="px-3 py-2 rounded hover:bg-gray-700 transition">
-             Gestión de Solicitudes
-          </a>
+        <a routerLink="/crud-solicitudes" 
+           routerLinkActive="bg-gray-700"
+           class="px-3 py-2 rounded hover:bg-gray-700 transition">
+           Gestión de Solicitudes
+        </a>
       </nav>
-  </aside>
+    </aside>
 
-  <!-- CONTENIDO A LA DERECHA -->
-  <main class="flex-1 p-8" style="background-color: rgb(59, 132, 178);">
-    <router-outlet></router-outlet>
-</main>
-
+    <!-- CONTENIDO A LA DERECHA -->
+    <main class="flex-1 p-8" style="background-color: rgb(59, 132, 178);">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
 </div>

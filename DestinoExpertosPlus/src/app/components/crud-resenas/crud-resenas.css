@@ -150,3 +150,38 @@
 .page-link i {
   font-size: 0.875rem;
 }
+
+/* Estilos para el contenedor principal de la gestión de reseñas */
+.review-management-background {
+  /* Establece la posición relativa para que el pseudo-elemento se posicione correctamente */
+  position: relative;
+  /* Asegura que el contenido se superponga al fondo */
+  z-index: 1; 
+  /* Asegúrate de que el contenedor ocupe el espacio deseado (ej. ancho completo) */
+  /* min-height: 100vh; /* Opcional: si quieres que ocupe toda la altura de la vista */
+}
+
+/* Pseudo-elemento para el fondo de imagen con opacidad */
+.review-management-background::before {
+  /* El pseudo-elemento es esencial para aplicar la opacidad SÓLO a la imagen */
+  content: "";
+  /* Posicionamiento absoluto para cubrir todo el contenedor padre */
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* Ruta de la imagen: ajusta la ruta si es necesario */
+background-image: url('/img/reseña-Background.jpg');
+  /* Configuración de la imagen de fondo */
+  background-size: cover; /* Asegura que la imagen cubra todo el fondo */
+  background-repeat: no-repeat;
+  background-position: center center;
+  
+  /* Aplicar la transparencia del 50% usando la propiedad opacity */
+  /* Los valores van de 0.0 (transparente) a 1.0 (opaco) */
+  opacity: 0.5; /* <-- Esto establece el 50% de transparencia */
+  
+  /* Mover el fondo detrás del contenido */
+  z-index: 0; 
+}
