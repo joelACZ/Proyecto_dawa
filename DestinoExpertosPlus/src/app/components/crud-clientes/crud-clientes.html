@@ -1,86 +1,268 @@
-<app-card title="Gestión de Clientes" subtitle="Administra los clientes ofrecidos en la plataforma"
-  content="Aquí puedes crear, editar y eliminar clientes, así como gestionar sus detalles">
+<app-card
+  title="Gestión de Clientes"
+  subtitle="Administra los clientes registrados en la plataforma"
+  content="Aquí puedes visualizar, editar y eliminar clientes, así como gestionar sus datos personales y preferencias.">
 </app-card>
 
-<div>
-  <input #busc type="text" placeholder="Buscar cliente..." (input)="search(busc)">
-  <button (click)="openNew()">
-    <i class="bi bi-person-plus"></i> agregar
+<!-- BUSCADOR Y BOTONES -->
+<div class="mb-4 mt-4 flex justify-between items-center gap-2">
+  <input type="text" placeholder="Buscar clientes..." class="border p-2 rounded w-full md:w-64" 
+         #txtBuscar (input)="search(txtBuscar)" />
+  
+  <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition" 
+          (click)="openNew()">
+    + Nuevo Cliente
   </button>
 </div>
 
-<app-data-table [data]="clientes" [columns]="columns">
+<!-- FILTROS -->
+<div class="card mb-4" *ngIf="false"> <!-- Oculto por ahora, pero estructura lista -->
+  <div class="card-header">
+    <h5 class="mb-0">
+      <i class="bi bi-funnel me-2"></i>Filtros de Búsqueda
+    </h5>
+  </div>
+  <div class="card-body">
+    <!-- Aquí puedes agregar filtros específicos para clientes si los necesitas -->
+  </div>
+</div>
+
+<!-- TABLA -->
+<app-data-table [data]="clientesPaginados" [columns]="[
+  { field: 'id', header: 'ID' },
+  { field: 'nombre', header: 'Nombre' },
+  { field: 'email', header: 'Email' },
+  { field: 'telefono', header: 'Teléfono' },
+  { field: 'direccion', header: 'Dirección' },
+  { field: 'preferenciasFormateadas', header: 'Preferencias' },
+  { field: 'notificacionesFormateada', header: 'Notificaciones' }
+]">
   <ng-template #actions let-row>
-    
-    <div class="d-flex gap-2">
-      <button (click)="openView(row)" class="btn action-btn unified" title="Ver detalles">
-        <i class="bi bi-eye"></i>
-      </button>
-
-      <button (click)="openEdit(row)" class="btn action-btn unified" title="Editar">
-        <i class="bi bi-pencil"></i>
-      </button>
-
-      <button (click)="delete(row)" class="btn action-btn unified" title="Eliminar">
-        <i class="bi bi-trash"></i>
-        <span class="badge-alert"></span>
-      </button>
+    <div class="flex space-x-2">
+      <button class="text-blue-600 border border-blue-600 px-3 py-1 rounded hover:bg-blue-50" 
+              (click)="view(row)">Ver</button>
+      <button class="text-yellow-600 border border-yellow-600 px-3 py-1 rounded hover:bg-yellow-50" 
+              (click)="openEdit(row)">Editar</button>
+      <button class="text-red-600 border border-red-600 px-3 py-1 rounded hover:bg-red-50" 
+              (click)="openDeleteModal(row)">Eliminar</button>
     </div>
-
   </ng-template>
 </app-data-table>
 
-<app-detail-modal [isVisible]="showViewModal" [data]="clienteView" (close)="closeViewModal()"></app-detail-modal>
+<!-- PAGINACIÓN -->
+<div class="d-flex justify-content-between align-items-center mt-3" *ngIf="totalPaginas > 1">
+  <div class="text-muted small">
+    Mostrando {{ rangoRegistros }} registros
+  </div>
 
-<div *ngIf="showEditModal" (click)="closeEditModal()">
-  <div (click)="$event.stopPropagation()">
-    <div>
-      <h3>
-        <i class="bi" [class.bi-pencil]="editingId" [class.bi-person-plus]="!editingId"></i>
-        {{ editingId ? 'Editar' : 'Nuevo' }} Cliente
-      </h3>
-      <button (click)="closeEditModal()">
-        <i class="bi bi-x-lg"></i>
-      </button>
+  <nav aria-label="Paginación de clientes">
+    <ul class="pagination mb-0">
+      <!-- Botón Anterior -->
+      <li class="page-item" [class.disabled]="paginaActual === 1">
+        <a class="page-link" href="#" (click)="cambiarPagina(paginaActual - 1); $event.preventDefault()">
+          <i class="bi bi-chevron-left"></i> Anterior
+        </a>
+      </li>
+
+      <!-- Números de página -->
+      <li class="page-item" *ngFor="let pagina of [].constructor(totalPaginas); let i = index"
+          [class.active]="paginaActual === i + 1">
+        <a class="page-link" href="#" (click)="cambiarPagina(i + 1); $event.preventDefault()">
+          {{ i + 1 }}
+        </a>
+      </li>
+
+      <!-- Botón Siguiente -->
+      <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+        <a class="page-link" href="#" (click)="cambiarPagina(paginaActual + 1); $event.preventDefault()">
+          Siguiente <i class="bi bi-chevron-right"></i>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+<!-- MODAL REUTILIZABLE DE DETALLES -->
+<app-detail-modal
+  [isVisible]="showDetailModal"
+  [data]="clienteDetalle"
+  (close)="closeDetail()">
+</app-detail-modal>
+
+<!-- MODAL DE NOTIFICACIÓN DE ÉXITO -->
+<div *ngIf="showNotificationModal" class="modal fade show d-block notification-modal success" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="btn-close" (click)="showNotificationModal = false"></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-icon">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <h5 class="modal-title mb-3">¡Éxito!</h5>
+        <p class="mb-0">{{ notificationMessage }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" (click)="showNotificationModal = false">
+          Aceptar
+        </button>
+      </div>
     </div>
+  </div>
+</div>
 
-    <form [formGroup]="formCliente" (ngSubmit)="save()">
-      <div>
-        <div>
-          <label><i class="bi bi-person"></i> Nombre *</label>
-          <input formControlName="nombre">
-        </div>
-        <div>
-          <label><i class="bi bi-envelope"></i> Email *</label>
-          <input formControlName="email">
-        </div>
-        <div>
-          <label><i class="bi bi-telephone"></i> Teléfono *</label>
-          <input formControlName="telefono">
-        </div>
-        <div>
-          <label><i class="bi bi-geo-alt"></i> Dirección</label>
-          <input formControlName="direccion">
-        </div>
-        <div>
-          <label><i class="bi bi-tags"></i> Preferencias (separadas por coma)</label>
-          <input formControlName="preferencias" placeholder="Ej: Electricidad, Urgente">
-        </div>
-        <div>
-          <input type="checkbox" formControlName="notificaciones">
-          <label><i class="bi bi-bell"></i> Recibir notificaciones</label>
-        </div>
+<!-- MODAL DE ERROR -->
+<div *ngIf="showErrorModal" class="modal fade show d-block notification-modal error" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="btn-close" (click)="showErrorModal = false"></button>
       </div>
-
-      <div>
-        <button type="button" (click)="closeEditModal()">
-          <i class="bi bi-x-circle"></i> Cancelar
-        </button>
-        <button type="submit">
-          <i class="bi" [class.bi-check-circle]="!editingId" [class.bi-arrow-clockwise]="editingId"></i>
-          {{ editingId ? 'Actualizar' : 'Crear' }}
+      <div class="modal-body">
+        <div class="modal-icon">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <h5 class="modal-title mb-3">Error</h5>
+        <p class="mb-0">{{ errorMessage }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" (click)="showErrorModal = false">
+          Aceptar
         </button>
       </div>
-    </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE ELIMINAR -->
+<div *ngIf="showDeleteModal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-danger">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          Confirmar Eliminación
+        </h5>
+        <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+      </div>
+      <div class="modal-body text-center">
+        <div class="mb-4">
+          <i class="bi bi-trash3-fill text-danger" style="font-size: 3rem;"></i>
+        </div>
+        <h6 class="mb-3">¿Está seguro de eliminar al cliente #{{ cliente_a_Eliminar?.id }}?</h6>
+        <div class="alert alert-light border">
+          <p class="mb-1"><strong>Cliente:</strong></p>
+          <p class="mb-0 text-muted">{{ cliente_a_Eliminar?.nombre }} ({{ cliente_a_Eliminar?.email }})</p>
+        </div>
+        <p class="text-muted small mt-3">
+          Esta acción no se puede deshacer.
+        </p>
+      </div>
+      <div class="modal-footer border-0 justify-content-center">
+        <button type="button" class="btn btn-secondary me-3" (click)="closeDeleteModal()">
+          <i class="bi bi-x-circle me-1"></i> Cancelar
+        </button>
+        <button type="button" class="btn btn-danger" (click)="confirmDelete()">
+          <i class="bi bi-trash3 me-1"></i> Sí, eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CREAR/EDITAR -->
+<div class="modal fade" id="clienteModal" #clienteModal>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ clienteEdit ? 'Editar' : 'Nuevo' }} Cliente</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form [formGroup]="formCliente">
+        <div class="modal-body">
+          <!-- CAMPO: Nombre con validaciones -->
+          <div class="mb-3">
+            <label class="form-label">Nombre *</label>
+            <input type="text" class="form-control" formControlName="nombre" placeholder="Nombre completo">
+            <span class="error">
+              @if (formCliente.get('nombre')?.invalid &&
+                  (formCliente.get('nombre')?.dirty || formCliente.get('nombre')?.touched)) {
+                @if (formCliente.get('nombre')?.errors?.['required']) {
+                  El nombre es obligatorio.
+                }
+                @if (formCliente.get('nombre')?.errors?.['minlength']) {
+                  El nombre debe tener al menos 2 caracteres.
+                }
+              }
+            </span>
+          </div>
+
+          <!-- CAMPO: Email con validaciones -->
+          <div class="mb-3">
+            <label class="form-label">Email *</label>
+            <input type="email" class="form-control" formControlName="email" placeholder="correo@ejemplo.com">
+            <span class="error">
+              @if (formCliente.get('email')?.invalid &&
+                  (formCliente.get('email')?.dirty || formCliente.get('email')?.touched)) {
+                @if (formCliente.get('email')?.errors?.['required']) {
+                  El email es obligatorio.
+                }
+                @if (formCliente.get('email')?.errors?.['email']) {
+                  Ingrese un email válido.
+                }
+              }
+            </span>
+          </div>
+
+          <!-- CAMPO: Teléfono con validaciones -->
+          <div class="mb-3">
+            <label class="form-label">Teléfono *</label>
+            <input type="tel" class="form-control" formControlName="telefono" placeholder="1234567890">
+            <span class="error">
+              @if (formCliente.get('telefono')?.invalid &&
+                  (formCliente.get('telefono')?.dirty || formCliente.get('telefono')?.touched)) {
+                @if (formCliente.get('telefono')?.errors?.['required']) {
+                  El teléfono es obligatorio.
+                }
+                @if (formCliente.get('telefono')?.errors?.['pattern']) {
+                  Ingrese un número de teléfono válido.
+                }
+              }
+            </span>
+          </div>
+
+          <!-- CAMPO: Dirección -->
+          <div class="mb-3">
+            <label class="form-label">Dirección</label>
+            <input type="text" class="form-control" formControlName="direccion" placeholder="Dirección completa">
+          </div>
+
+          <!-- CAMPO: Preferencias -->
+          <div class="mb-3">
+            <label class="form-label">Preferencias</label>
+            <input type="text" class="form-control" formControlName="preferencias" 
+                   placeholder="Ej: Electricidad, Plomería, Urgente">
+            <small class="form-text text-muted">
+              Separe las preferencias con comas
+            </small>
+          </div>
+
+          <!-- CAMPO: Notificaciones (checkbox) -->
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" formControlName="notificaciones" id="checkNotificaciones">
+            <label class="form-check-label" for="checkNotificaciones">
+              Recibir notificaciones
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">Cancelar</button>
+          <button type="button" class="btn btn-primary" (click)="save()">
+            {{ clienteEdit ? 'Actualizar' : 'Guardar' }}
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
