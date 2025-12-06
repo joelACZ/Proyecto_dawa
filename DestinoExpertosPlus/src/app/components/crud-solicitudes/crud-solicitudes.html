@@ -36,10 +36,9 @@
             <label class="form-label">Profesional *</label>
             <select class="form-select" [(ngModel)]="nuevaSolicitud.profesional_id" name="profesional_id" required>
               <option value="0">Seleccionar profesional...</option>
-              <!-- Aquí deberías cargar profesionales reales -->
-              <option value="1">Profesional 1</option>
-              <option value="2">Profesional 2</option>
-              <option value="3">Profesional 3</option>
+              <option *ngFor="let profesional of profesionales" [value]="profesional.id">
+                {{ profesional.nombre }} ({{ profesional.telefono }})
+              </option>
             </select>
           </div>
 

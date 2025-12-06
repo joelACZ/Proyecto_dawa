@@ -24,15 +24,15 @@
   <ng-template #actions let-row>
     <div class="flex gap-2">
 
-      <button (click)="openView(row)" class="text-blue-600">
+      <button (click)="openView(row)" class="btn action-btn unified" title="Ver">
         <i class="bi bi-eye"></i>
       </button>
 
-      <button (click)="edit(row)" class="text-yellow-600">
+      <button (click)="edit(row)" class="btn action-btn unified" title="Editar">
         <i class="bi bi-pencil"></i>
       </button>
 
-      <button (click)="delete(row)" class="text-red-600">
+      <button (click)="delete(row)" class="btn action-btn unified" title="Eliminar">
         <i class="bi bi-trash"></i>
       </button>
 
@@ -102,11 +102,10 @@
         <div>
           <label><i class="bi bi-person-badge"></i> Profesional *</label>
           <select formControlName="profesional_id" class="input">
-            <option value="" disabled selected>Seleccione</option>
-            <option *ngFor="let p of profesionales" [value]="p.id">
-              {{ p.nombre }}
-            </option>
-          </select>
+              <option value="0">Seleccionar profesional...</option>
+              <option *ngFor="let profesional of profesionales" [value]="profesional.id">
+                {{ profesional.nombre }} ({{ profesional.telefono }})
+            </select>
         </div>
 
         <div class="flex items-center gap-2">

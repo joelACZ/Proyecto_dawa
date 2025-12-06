@@ -14,13 +14,13 @@
 <app-data-table [data]="profesionales" [columns]="columns">
   <ng-template #actions let-row>
     <div class="flex gap-2">
-      <button (click)="openView(row)" title="Ver">
+      <button (click)="openView(row)" class="btn action-btn unified" title="Ver">
         <i class="bi bi-eye"></i>
       </button>
-      <button (click)="openEdit(row)" title="Editar">
+      <button (click)="openEdit(row)" class="btn action-btn unified" title="Editar">
         <i class="bi bi-pencil"></i>
       </button>
-      <button (click)="delete(row)" title="Eliminar">
+      <button (click)="delete(row)" class="btn action-btn unified" title="Eliminar">
         <i class="bi bi-trash"></i>
       </button>
     </div>

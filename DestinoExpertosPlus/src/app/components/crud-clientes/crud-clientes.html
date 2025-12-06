@@ -1,6 +1,4 @@
-<app-card
-  title="Gestión de Clientes"
-  subtitle="Administra los clientes ofrecidos en la plataforma"
+<app-card title="Gestión de Clientes" subtitle="Administra los clientes ofrecidos en la plataforma"
   content="Aquí puedes crear, editar y eliminar clientes, así como gestionar sus detalles">
 </app-card>
 
@@ -13,17 +11,22 @@
 
 <app-data-table [data]="clientes" [columns]="columns">
   <ng-template #actions let-row>
-    <div>
-      <button (click)="openView(row)">
+    
+    <div class="d-flex gap-2">
+      <button (click)="openView(row)" class="btn action-btn unified" title="Ver detalles">
         <i class="bi bi-eye"></i>
       </button>
-      <button (click)="openEdit(row)">
+
+      <button (click)="openEdit(row)" class="btn action-btn unified" title="Editar">
         <i class="bi bi-pencil"></i>
       </button>
-      <button (click)="delete(row)">
+
+      <button (click)="delete(row)" class="btn action-btn unified" title="Eliminar">
         <i class="bi bi-trash"></i>
+        <span class="badge-alert"></span>
       </button>
     </div>
+
   </ng-template>
 </app-data-table>
 

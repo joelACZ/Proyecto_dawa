@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';  '@angular/forms';
 import { Solicitud, SolicitudCreate, EstadoSolicitud, NivelUrgencia } from '../../models/Solicitud.model';
 import { Cliente } from '../../models/Cliente.model';
 import { Profesional } from '../../models/Profesional.model';
@@ -12,7 +12,7 @@ import { ServProfesionalesJson } from '../../services/profesionales-service'; //
 
 @Component({
   selector: 'app-crud-solicitudes',
-  imports: [CommonModule, FormsModule], // SOLO componentes, directivas y pipes - NO servicios
+  imports: [CommonModule, ReactiveFormsModule, FormsModule], // SOLO componentes, directivas y pipes - NO servicios
   templateUrl: './crud-solicitudes.html', // Verifica la extensión
   styleUrl: './crud-solicitudes.css',
 })
@@ -62,9 +62,9 @@ export class CrudSolicitudesComponent implements OnInit {
   
   constructor(
     private solicitudesService: SolicitudService,
-    private clientesService: ServClientesJson, // Servicio CORRECTO para clientes
-
-    private serviciosService: ServServiciosJson // Servicio CORRECTO para servicios
+    private clientesService: ServClientesJson,
+    private profesionalesService: ServProfesionalesJson,
+    private serviciosService: ServServiciosJson 
   ) {}
 
   ngOnInit(): void {
@@ -101,14 +101,14 @@ export class CrudSolicitudesComponent implements OnInit {
     });
     
     // Cargar profesionales - Necesitas implementar este servicio
-    // this.profesionalesService.getProfesionales().subscribe({
-    //   next: (data: Profesional[]) => {
-    //     this.profesionales = data;
-    //   },
-    //   error: (error: any) => {
-    //     console.error('Error al cargar profesionales:', error);
-    //   }
-    // });
+    this.profesionalesService.getProfesionales().subscribe({
+       next: (data: Profesional[]) => {
+         this.profesionales = data;
+       },
+       error: (error: any) => {
+         console.error('Error al cargar profesionales:', error);
+       }
+    });
     
     // Cargar servicios
     this.serviciosService.getServicios().subscribe({
