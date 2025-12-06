@@ -1,0 +1,50 @@
+/* SIDEBAR */
+.sidebar {
+  min-height: 100vh;
+  width: 280px;
+  box-shadow: 3px 0 15px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(180deg, #1a2b3c 0%, #2c3e50 100%);
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+}
+
+/* CONTENIDO */
+.main-with-sidebar {
+  margin-left: 280px;
+  background: linear-gradient(135deg, #2a9bc0 0%, #a2c4d8 100%);
+  min-height: 100vh;
+}
+
+/* NAVLINKS */
+.nav-link-custom {
+  transition: all 0.3s ease;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 4px solid transparent;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  color: white !important;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.nav-link-custom:hover {
+  background: rgba(112, 215, 255, 0.2);
+  transform: translateX(8px);
+  border-left-color: #70d7ff;
+}
+
+.nav-link-custom.active {
+  background: linear-gradient(90deg, rgba(112, 215, 255, 0.3), rgba(112, 215, 255, 0.1));
+  border-left-color: #70d7ff;
+  font-weight: 600;
+}
+
+.nav-link-custom i {
+  min-width: 24px;
+  text-align: center;
+  font-size: 1.3rem;
+}

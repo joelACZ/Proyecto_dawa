@@ -16,7 +16,7 @@ import { ServClientesJson } from '../../services/cliente-service';
 
 // Componentes compartidos
 import { DataTableComponent } from '../shared/data-table/data-table';
-import { CardComponent } from '../shared/cards/cards';
+import { Cards } from '../shared/cards/cards';
 import { DetailModal } from "../shared/detail-modal/detail-modal";
 import { Router } from '@angular/router';
 
@@ -28,7 +28,7 @@ declare const bootstrap: any;
   standalone: true,
   templateUrl: './crud-resenas.html',
   styleUrls: ['./crud-resenas.css'],
-  imports: [DataTableComponent, CardComponent, ReactiveFormsModule, FormsModule, CommonModule, DetailModal],
+  imports: [DataTableComponent, Cards, ReactiveFormsModule, FormsModule, CommonModule, DetailModal],
 })
 export class CrudResenas implements OnInit {
 

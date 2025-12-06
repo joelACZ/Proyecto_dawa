@@ -1,40 +1,37 @@
-import { Component, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterModule, RouterOutlet } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { CardComponent } from './components/shared/cards/cards';
-import { DataTableComponent } from './components/shared/data-table/data-table';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { filter, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
-    RouterOutlet, 
-    RouterLink, 
-    RouterLinkActive, 
-    RouterModule,
     CommonModule,
-
+    RouterModule
   ],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {
-  protected readonly title = signal('DestinoExpertosPlus');
+export class App implements OnInit, OnDestroy {
   showSidebar = false;
+  private routerSubscription!: Subscription;
 
-  constructor(private router: Router) {
-    // Detectar cambios de ruta para mostrar/ocultar sidebar
-    this.router.events
+  constructor(private router: Router) {}
+
+  ngOnInit() {
+    this.routerSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe((event: any) => {
-        // Mostrar sidebar solo si NO estamos en el menu o ruta raíz
-        this.showSidebar = !event.url.includes('/menu') && event.url !== '/' && event.url !== '';
+      .subscribe((event: NavigationEnd) => {
+        // 🔥 OCULTAR sidebar solo en /menu
+        this.showSidebar = !event.urlAfterRedirects.includes('/menu');
       });
   }
 
-  navigateTo(route: string) {
-    this.router.navigate([route]);
+  ngOnDestroy() {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
   }
 }

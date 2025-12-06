@@ -5,7 +5,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { Cliente } from '../../models/Cliente.model';
 import { ServClientesJson } from '../../services/cliente-service';
 import { DataTableComponent } from '../shared/data-table/data-table';
-import { CardComponent } from '../shared/cards/cards';
+import { Cards } from '../shared/cards/cards';
 import { DetailModal } from '../shared/detail-modal/detail-modal';
 
 
@@ -14,7 +14,7 @@ import { DetailModal } from '../shared/detail-modal/detail-modal';
   templateUrl: './crud-clientes.html',
   styleUrls: ['./crud-clientes.css'],
   imports: [
-    CommonModule, ReactiveFormsModule, DataTableComponent, CardComponent, DetailModal],
+    CommonModule, ReactiveFormsModule, DataTableComponent, Cards, DetailModal],
   standalone: true,
 })
 export class CrudClientes {

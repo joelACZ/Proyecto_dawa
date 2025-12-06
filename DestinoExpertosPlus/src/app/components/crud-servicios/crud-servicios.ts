@@ -11,7 +11,7 @@ import { ServServiciosJson } from '../../services/servicio-service';
 import { ServProfesionalesJson } from '../../services/profesionales-service';
 
 import { DataTableComponent } from '../shared/data-table/data-table';
-import { CardComponent } from '../shared/cards/cards';
+import { Cards } from '../shared/cards/cards';
 import { DetailModal } from '../shared/detail-modal/detail-modal';
 
 @Component({
@@ -23,7 +23,7 @@ import { DetailModal } from '../shared/detail-modal/detail-modal';
     CommonModule,
     ReactiveFormsModule,
     DataTableComponent,
-    CardComponent,
+    Cards,
     DetailModal
   ],
 })

@@ -1,101 +1,24 @@
+<div class="d-flex min-vh-100">
+  <!-- SIDEBAR -->
+  @if (showSidebar) {
+    <aside class="bg-dark text-white p-4 sidebar">
+      <h1 class="h2 fw-bold mb-5">Plataforma</h1>
+      <nav class="d-flex flex-column gap-3">
+        <a routerLink="/menu" class="nav-link-custom active">
+          <i class="bi bi-house-door me-3"></i> Menú Principal
+        </a>
+        <hr class="border-secondary">
+        <a routerLink="/crud-clientes" class="nav-link-custom"> <i class="bi bi-people me-3"></i> Clientes </a>
+        <a routerLink="/crud-servicios" class="nav-link-custom"> <i class="bi bi-briefcase me-3"></i> Servicios </a>
+        <a routerLink="/crud-resenas" class="nav-link-custom"> <i class="bi bi-star me-3"></i> Reseñas </a>
+        <a routerLink="/crud-profesionales" class="nav-link-custom"> <i class="bi bi-person-badge me-3"></i> Profesionales </a>
+        <a routerLink="/crud-solicitudes" class="nav-link-custom"> <i class="bi bi-journal-text me-3"></i> Solicitudes </a>
+      </nav>
+    </aside>
+  }
 
-<div class="d-flex min-vh-100 bg-light">
-
-<aside class="bg-dark text-white p-4" style="width: 280px;">
-   <h1 class="h2 fw-bold mb-5" style="font-size: 1.8rem;">Plataforma de Servicios</h1>
-
-   <nav class="d-flex flex-column gap-3">
-
-      <a routerLink="menu" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-         class="nav-link-custom d-flex align-items-center p-3 rounded text-white text-decoration-none"
-         style="font-size: 1.15rem;">
-         <i class="bi bi-people me-3" style="font-size: 1.3rem;"></i>
-         menu
-      </a>
-
-
-      <a routerLink="crud-clientes" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-         class="nav-link-custom d-flex align-items-center p-3 rounded text-white text-decoration-none"
-         style="font-size: 1.15rem;">
-         <i class="bi bi-people me-3" style="font-size: 1.3rem;"></i>
-         Clientes
-      </a>
-
-      
-      <a routerLink="crud-servicios" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-         class="nav-link-custom d-flex align-items-center p-3 rounded text-white text-decoration-none"
-         style="font-size: 1.15rem;">
-         <i class="bi bi-briefcase me-3" style="font-size: 1.3rem;"></i>
-         Servicios
-      </a>
-
-      
-      <a routerLink="crud-resenas" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-         class="nav-link-custom d-flex align-items-center p-3 rounded text-white text-decoration-none"
-         style="font-size: 1.15rem;">
-         <i class="bi bi-star me-3" style="font-size: 1.3rem;"></i>
-         Reseñas
-      </a>
-
-      
-      <a routerLink="crud-profesionales" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-         class="nav-link-custom d-flex align-items-center p-3 rounded text-white text-decoration-none"
-         style="font-size: 1.15rem;">
-         <i class="bi bi-person-badge me-3" style="font-size: 1.3rem;"></i>
-         Profesionales
-      </a>
-
-      
-      <a routerLink="crud-solicitudes" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-         class="nav-link-custom d-flex align-items-center p-3 rounded text-white text-decoration-none"
-         style="font-size: 1.15rem;">
-         <i class="bi bi-journal-text me-3" style="font-size: 1.3rem;"></i>
-         Solicitudes
-      </a>
-
-   </nav>
-
-   
-</aside>
-
-   
-   <main class="flex-grow-1 p-4" style="background: linear-gradient(0.25turn, #2a9bc0, #52abc7, #72b5cf, #88bad3, #a2c4d8);">
-  <router-outlet></router-outlet>
-</main>
-
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="flex-grow-1 p-0" [class.main-with-sidebar]="showSidebar">
+    <router-outlet></router-outlet>
+  </main>
 </div>
-
-
-<style>
-
-aside {
-   min-height: 100vh;
-   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.2);
-}
-
-.nav-link-custom {
-   transition: all 0.3s ease;
-   font-weight: 500;
-   background: rgba(255, 255, 255, 0.05);
-   border-left: 4px solid transparent;
-}
-
-.nav-link-custom:hover {
-   background: rgba(255, 255, 255, 0.1);
-   transform: translateX(5px);
-   border-left-color: #70d7ff;
-}
-
-.nav-link-custom.active {
-   background: linear-gradient(90deg, rgba(112, 215, 255, 0.2), rgba(112, 215, 255, 0.1));
-   border-left-color: #70d7ff;
-   font-weight: 600;
-   box-shadow: 0 4px 12px rgba(112, 215, 255, 0.15);
-}
-
-
-.nav-link-custom i {
-   min-width: 24px;
-   text-align: center;
-}
-</style>
