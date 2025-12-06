@@ -7,7 +7,6 @@
 
   <!-- Encabezado -->
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Gestión de Solicitudes</h2>
     <button class="btn btn-primary" (click)="resetFormulario()" [disabled]="cargando">
       {{ modoEdicion ? 'Cancelar Edición' : 'Nueva Solicitud' }}
     </button>
@@ -37,10 +36,9 @@
             <label class="form-label">Profesional *</label>
             <select class="form-select" [(ngModel)]="nuevaSolicitud.profesional_id" name="profesional_id" required>
               <option value="0">Seleccionar profesional...</option>
-              <!-- Aquí deberías cargar profesionales reales -->
-              <option value="1">Profesional 1</option>
-              <option value="2">Profesional 2</option>
-              <option value="3">Profesional 3</option>
+              <option *ngFor="let profesional of profesionales" [value]="profesional.id">
+                {{ profesional.nombre }} ({{ profesional.telefono }})
+              </option>
             </select>
           </div>
 
@@ -58,16 +56,15 @@
           <!-- Descripción -->
           <div class="col-12">
             <label class="form-label">Descripción *</label>
-            <textarea class="form-control" [(ngModel)]="nuevaSolicitud.descripcion" 
-                     name="descripcion" rows="3" required
-                     placeholder="Describe la solicitud..."></textarea>
+            <textarea class="form-control" [(ngModel)]="nuevaSolicitud.descripcion" name="descripcion" rows="3" required
+              placeholder="Describe la solicitud..."></textarea>
           </div>
 
           <!-- Ubicación -->
           <div class="col-md-6">
             <label class="form-label">Ubicación *</label>
-            <input type="text" class="form-control" [(ngModel)]="nuevaSolicitud.ubicacion" 
-                   name="ubicacion" required placeholder="Dirección del servicio">
+            <input type="text" class="form-control" [(ngModel)]="nuevaSolicitud.ubicacion" name="ubicacion" required
+              placeholder="Dirección del servicio">
           </div>
 
           <!-- Estado -->
@@ -83,10 +80,8 @@
           <!-- Urgencia -->
           <div class="col-md-3">
             <div class="form-check mt-4">
-              <input class="form-check-input" type="checkbox" 
-                     [(ngModel)]="nuevaSolicitud.urgencia" 
-                     name="urgencia" (change)="toggleUrgencia()"
-                     id="urgenciaCheck">
+              <input class="form-check-input" type="checkbox" [(ngModel)]="nuevaSolicitud.urgencia" name="urgencia"
+                (change)="toggleUrgencia()" id="urgenciaCheck">
               <label class="form-check-label" for="urgenciaCheck">
                 Solicitud Urgente
               </label>
@@ -130,8 +125,8 @@
         <!-- Búsqueda general -->
         <div class="col-md-4">
           <label class="form-label">Buscar</label>
-          <input type="text" class="form-control" [(ngModel)]="filtroBusqueda" 
-                 placeholder="Descripción, ubicación o estado...">
+          <input type="text" class="form-control" [(ngModel)]="filtroBusqueda"
+            placeholder="Descripción, ubicación o estado...">
         </div>
 
         <!-- Filtro por estado -->
@@ -182,7 +177,7 @@
       <h5>Solicitudes ({{ solicitudesFiltradas.length }})</h5>
       <span *ngIf="cargando" class="spinner-border spinner-border-sm"></span>
     </div>
-    
+
     <div class="table-responsive">
       <table class="table table-hover mb-0">
         <thead>
@@ -217,8 +212,7 @@
                 {{ getServicioNombre(solicitud.servicio_id) }}
               </span>
             </td>
-            <td class="text-truncate" style="max-width: 200px;" 
-                [title]="solicitud.descripcion">
+            <td class="text-truncate" style="max-width: 200px;" [title]="solicitud.descripcion">
               {{ solicitud.descripcion }}
             </td>
             <td class="text-truncate" style="max-width: 150px;">
@@ -240,25 +234,20 @@
             <td>{{ formatearFecha(solicitud.fecha) }}</td>
             <td>
               <div class="btn-group btn-group-sm" role="group">
-                <button class="btn btn-outline-primary" 
-                        (click)="seleccionarSolicitud(solicitud)"
-                        title="Editar">
+                <button class="btn btn-outline-primary" (click)="seleccionarSolicitud(solicitud)" title="Editar">
                   ✏️
                 </button>
-                <button class="btn btn-outline-danger" 
-                        (click)="eliminarSolicitud(solicitud.id)"
-                        title="Eliminar">
+                <button class="btn btn-outline-danger" (click)="eliminarSolicitud(solicitud.id)" title="Eliminar">
                   🗑️
                 </button>
                 <div class="btn-group btn-group-sm" role="group">
-                  <button type="button" class="btn btn-outline-secondary dropdown-toggle" 
-                          data-bs-toggle="dropdown" aria-expanded="false">
+                  <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"
+                    aria-expanded="false">
                     Estado
                   </button>
                   <ul class="dropdown-menu">
                     <li *ngFor="let estado of estadosSolicitud">
-                      <a class="dropdown-item" href="#" 
-                         (click)="cambiarEstado(solicitud, estado)">
+                      <a class="dropdown-item" href="#" (click)="cambiarEstado(solicitud, estado)">
                         {{ estado.replace('_', ' ') | titlecase }}
                       </a>
                     </li>
@@ -283,14 +272,14 @@
           <li class="page-item" [class.disabled]="paginaActual === 1">
             <a class="page-link" href="#" (click)="cambiarPagina(paginaActual - 1)">Anterior</a>
           </li>
-          
+
           <li class="page-item" *ngFor="let pagina of [].constructor(totalPaginas); let i = index"
-              [class.active]="paginaActual === i + 1">
+            [class.active]="paginaActual === i + 1">
             <a class="page-link" href="#" (click)="cambiarPagina(i + 1)">
               {{ i + 1 }}
             </a>
           </li>
-          
+
           <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
             <a class="page-link" href="#" (click)="cambiarPagina(paginaActual + 1)">Siguiente</a>
           </li>
@@ -299,5 +288,5 @@
     </div>
   </div>
 
-  
+
 </div>

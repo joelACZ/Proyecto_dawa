@@ -1,1 +1,115 @@
-<p>crud-profesionales works!</p>
+<app-card
+  title="Gestión de Profesionales"
+  subtitle="Administra los profesionales disponibles en la plataforma"
+  content="Aquí puedes crear, editar y eliminar profesionales, así como gestionar sus detalles y certificaciones">
+</app-card>
+
+<div>
+  <input #busq type="text" placeholder="Buscar profesional..." (input)="search(busq)"/>
+  <button (click)="openNew()">
+    <i class="bi bi-person-plus"></i> agregar
+  </button>
+</div>
+
+<app-data-table [data]="profesionales" [columns]="columns">
+  <ng-template #actions let-row>
+    <div class="flex gap-2">
+      <button (click)="openView(row)" class="btn action-btn unified" title="Ver">
+        <i class="bi bi-eye"></i>
+      </button>
+      <button (click)="openEdit(row)" class="btn action-btn unified" title="Editar">
+        <i class="bi bi-pencil"></i>
+      </button>
+      <button (click)="delete(row)" class="btn action-btn unified" title="Eliminar">
+        <i class="bi bi-trash"></i>
+      </button>
+    </div>
+  </ng-template>
+</app-data-table>
+
+<app-detail-modal [isVisible]="showViewModal" [data]="profesionalView" (close)="closeViewModal()"></app-detail-modal>
+
+<!-- Modal formulario (crear / editar) -->
+<div *ngIf="showEditModal" class="fixed inset-0 flex items-center justify-center bg-black/40" (click)="closeEditModal()">
+  <div class="bg-white rounded-lg w-full max-w-2xl p-4" (click)="$event.stopPropagation()">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold">
+        <i class="bi" [class.bi-pencil]="editingId" [class.bi-person-plus]="!editingId"></i>
+        {{ editingId ? 'Editar' : 'Nuevo' }} Profesional
+      </h3>
+      <button (click)="closeEditModal()" class="text-xl"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    <form [formGroup]="formProfesional" (ngSubmit)="save()" class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block mb-1"><i class="bi bi-person"></i> Nombre *</label>
+          <input formControlName="nombre" class="w-full border p-2 rounded" />
+          <div *ngIf="formProfesional.get('nombre')?.invalid && formProfesional.get('nombre')?.touched" class="text-red-500 text-sm">
+            Nombre es requerido (mínimo 2 caracteres)
+          </div>
+        </div>
+
+        <div>
+          <label class="block mb-1"><i class="bi bi-briefcase"></i> Especialidad *</label>
+          <input formControlName="especialidad" placeholder="Ej: Electricidad, Plomería" class="w-full border p-2 rounded" />
+          <div *ngIf="formProfesional.get('especialidad')?.invalid && formProfesional.get('especialidad')?.touched" class="text-red-500 text-sm">
+            Especialidad es requerida
+          </div>
+        </div>
+
+        <div>
+          <label class="block mb-1"><i class="bi bi-envelope"></i> Email *</label>
+          <input formControlName="email" type="email" class="w-full border p-2 rounded" />
+          <div *ngIf="formProfesional.get('email')?.invalid && formProfesional.get('email')?.touched" class="text-red-500 text-sm">
+            Email válido es requerido
+          </div>
+        </div>
+
+        <div>
+          <label class="block mb-1"><i class="bi bi-telephone"></i> Teléfono *</label>
+          <input formControlName="telefono" class="w-full border p-2 rounded" />
+          <div *ngIf="formProfesional.get('telefono')?.invalid && formProfesional.get('telefono')?.touched" class="text-red-500 text-sm">
+            Teléfono válido es requerido (mínimo 9 números)
+          </div>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block mb-1"><i class="bi bi-geo-alt"></i> Ubicación</label>
+          <input formControlName="ubicacion" placeholder="Ej: Ciudad, Dirección" class="w-full border p-2 rounded" />
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block mb-1"><i class="bi bi-tools"></i> Oficios (separados por coma)</label>
+          <input formControlName="oficios" placeholder="Ej: Electricista, Fontanero, Carpintero" class="w-full border p-2 rounded" />
+        </div>
+
+        <div>
+          <label class="block mb-1"><i class="bi bi-clock"></i> Experiencia (años) *</label>
+          <input formControlName="experiencia" type="number" min="0" max="50" class="w-full border p-2 rounded" />
+          <div *ngIf="formProfesional.get('experiencia')?.invalid && formProfesional.get('experiencia')?.touched" class="text-red-500 text-sm">
+            Experiencia válida es requerida (0-50 años)
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <input type="checkbox" formControlName="disponibilidad" id="disponibilidad-checkbox" class="w-4 h-4" />
+          <label for="disponibilidad-checkbox" class="cursor-pointer">
+            <i class="bi bi-calendar-check"></i> Disponibilidad
+          </label>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 mt-4">
+        <button type="button" (click)="closeEditModal()" class="px-4 py-2 rounded border flex items-center gap-2">
+          <i class="bi bi-x-circle"></i> Cancelar
+        </button>
+        <button type="submit" [disabled]="formProfesional.invalid" 
+                class="px-4 py-2 rounded bg-primary text-white flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+          <i class="bi" [class.bi-check-circle]="!editingId" [class.bi-arrow-clockwise]="editingId"></i>
+          {{ editingId ? 'Actualizar' : 'Crear' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

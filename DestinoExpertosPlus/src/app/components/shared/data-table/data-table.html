@@ -1,34 +1,34 @@
-<div class="overflow-x-auto">
-  <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-    <thead class="bg-gray-100 border-b">
+<div class="data-table-container">
+  <table class="data-table">
+    <thead>
       <tr>
-        <th *ngFor="let col of columns" class="px-6 py-3 text-left text-gray-700 font-semibold">
+        <th *ngFor="let col of columns">
           {{ col.header }}
         </th>
-        <th class="px-6 py-3 text-left text-gray-700 font-semibold">
-          Acciones
-        </th>
+        <th>Acciones</th>
       </tr>
     </thead>
-
     <tbody>
-      <tr *ngFor="let row of data" class="border-b hover:bg-gray-50">
-        <td *ngFor="let col of columns" class="px-6 py-3">
-          {{ row[col.field] }}
+      <tr *ngFor="let row of data">
+        <td *ngFor="let col of columns">
+          <div class="cell-content">
+            {{ row[col.field] }}
+          </div>
         </td>
-
-        <!-- Botones externos usando ng-content -->
-        <td class="px-6 py-3">
-          <ng-container 
-            [ngTemplateOutlet]="actionsTemplate" 
-            [ngTemplateOutletContext]="{ $implicit: row }">
-          </ng-container>
+        <td>
+          <div class="cell-content">
+            <ng-container
+              [ngTemplateOutlet]="actionsTemplate"
+              [ngTemplateOutletContext]="{ $implicit: row }">
+            </ng-container>
+          </div>
         </td>
       </tr>
-
       <tr *ngIf="data.length === 0">
-        <td [attr.colspan]="columns.length + 1" class="p-4 text-center text-gray-500">
-          No hay datos disponibles
+        <td [attr.colspan]="columns.length + 1">
+          <div class="cell-content">
+            No hay datos disponibles
+          </div>
         </td>
       </tr>
     </tbody>
