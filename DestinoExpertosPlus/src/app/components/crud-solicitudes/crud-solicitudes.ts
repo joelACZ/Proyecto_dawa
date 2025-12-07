@@ -84,7 +84,7 @@ export class CrudSolicitudesComponent implements OnInit {
     Promise.all([
       this.servicioClientes.obtenerTodos().toPromise(),
       this.servicioProfesionales.obtenerTodos().toPromise(),
-      this.servicioServicios.getServicios().toPromise(),
+      this.servicioServicios.obtenerTodos().toPromise(),
       this.cargarSolicitudes()
     ]).finally(() => {
       this.cargando = false;

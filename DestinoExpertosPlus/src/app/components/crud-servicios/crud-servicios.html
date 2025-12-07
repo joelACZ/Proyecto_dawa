@@ -12,14 +12,14 @@
     placeholder="Buscar servicios..." 
     class="border p-2 rounded w-full md:w-64" 
     #txtBuscar 
-    (input)="search(txtBuscar)" 
+    (input)="buscarServicios(txtBuscar)" 
   />
 
   <div style="margin-left: auto;">
-    <!-- Botón claro: misma lógica (click)="openNew()" -->
+    <!-- Botón claro: misma lógica (click)="abrirNuevo()" -->
     <button 
       class="btn btn-light border font-weight-bold py-2 px-4 rounded transition"
-      (click)="openNew()">
+      (click)="abrirNuevo()">
       <i class="bi bi-tools"></i> <i class="bi bi-plus"></i> Nuevo Servicio
     </button>
   </div>
@@ -83,7 +83,7 @@
 </div>
 
 <!-- TABLA -->
-<app-data-table [data]="serviciosPaginados" [columns]="[
+<app-data-table [data]="obtenerServiciosPaginados" [columns]="[
   { field: 'id', header: 'ID' },
   { field: 'nombre', header: 'Nombre' },
   { field: 'categoria', header: 'Categoría' },
@@ -95,13 +95,13 @@
 ]">
   <ng-template #actions let-row>
     <div class="flex space-x-2">
-      <button  (click)="view(row)"class="btn action-btn unified">
+      <button  (click)="verDetalle(row)"class="btn action-btn unified">
             <i class="bi bi-eye"></i>
             </button>
-      <button (click)="openEdit(row)" class="btn action-btn unified">
+      <button (click)="abrirEdicion(row)" class="btn action-btn unified">
         <i class="bi bi-pencil"></i>
       </button>
-      <button (click)="openDeleteModal(row)"class="btn action-btn unified">
+      <button (click)="abrirModalEliminar(row)"class="btn action-btn unified">
         <i class="bi bi-trash"></i>
       </button>
     </div>
@@ -111,7 +111,7 @@
 <!-- PAGINACIÓN -->
 <div class="d-flex justify-content-between align-items-center mt-3" *ngIf="totalPaginas > 1">
   <div class="text-muted small">
-    Mostrando {{ rangoRegistros }} registros
+    Mostrando {{ obtenerRangoRegistros }} registros
   </div>
 
   <nav aria-label="Paginación de servicios">
@@ -143,27 +143,27 @@
 
 <!-- MODAL REUTILIZABLE DE DETALLES -->
 <app-detail-modal
-  [isVisible]="showDetailModal"
+  [isVisible]="mostrarModalDetalle"
   [data]="servicioDetalle"
-  (close)="closeDetail()">
+  (close)="cerrarDetalle()">
 </app-detail-modal>
 
 <!-- MODAL DE NOTIFICACIÓN DE ÉXITO -->
-<div *ngIf="showNotificationModal" class="modal fade show d-block notification-modal success" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+<div *ngIf="mostrarModalNotificacion" class="modal fade show d-block notification-modal success" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="btn-close" (click)="showNotificationModal = false"></button>
+        <button type="button" class="btn-close" (click)="mostrarModalNotificacion = false"></button>
       </div>
       <div class="modal-body">
         <div class="modal-icon">
           <i class="bi bi-check-circle-fill"></i>
         </div>
         <h5 class="modal-title mb-3">¡Éxito!</h5>
-        <p class="mb-0">{{ notificationMessage }}</p>
+        <p class="mb-0">{{ mensajeNotificacion }}</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-success" (click)="showNotificationModal = false">
+        <button type="button" class="btn btn-success" (click)="mostrarModalNotificacion = false">
           Aceptar
         </button>
       </div>
@@ -172,21 +172,21 @@
 </div>
 
 <!-- MODAL DE ERROR -->
-<div *ngIf="showErrorModal" class="modal fade show d-block notification-modal error" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+<div *ngIf="mostrarModalError" class="modal fade show d-block notification-modal error" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="btn-close" (click)="showErrorModal = false"></button>
+        <button type="button" class="btn-close" (click)="mostrarModalError = false"></button>
       </div>
       <div class="modal-body">
         <div class="modal-icon">
           <i class="bi bi-exclamation-triangle-fill"></i>
         </div>
         <h5 class="modal-title mb-3">Error</h5>
-        <p class="mb-0">{{ errorMessage }}</p>
+        <p class="mb-0">{{ mensajeError }}</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger" (click)="showErrorModal = false">
+        <button type="button" class="btn btn-danger" (click)="mostrarModalError = false">
           Aceptar
         </button>
       </div>
@@ -195,7 +195,7 @@
 </div>
 
 <!-- MODAL DE ELIMINAR -->
-<div *ngIf="showDeleteModal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+<div *ngIf="mostrarModalEliminar" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header border-0">
@@ -203,26 +203,26 @@
           <i class="bi bi-exclamation-triangle me-2"></i>
           Confirmar Eliminación
         </h5>
-        <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+        <button type="button" class="btn-close" (click)="cerrarModalEliminar()"></button>
       </div>
       <div class="modal-body text-center">
         <div class="mb-4">
           <i class="bi bi-trash3-fill text-danger" style="font-size: 3rem;"></i>
         </div>
-        <h6 class="mb-3">¿Está seguro de eliminar el servicio #{{ servicio_a_Eliminar?.id }}?</h6>
+        <h6 class="mb-3">¿Está seguro de eliminar el servicio #{{ servicioAEliminar?.id }}?</h6>
         <div class="alert alert-light border">
           <p class="mb-1"><strong>Servicio:</strong></p>
-          <p class="mb-0 text-muted">{{ servicio_a_Eliminar?.nombre }}</p>
+          <p class="mb-0 text-muted">{{ servicioAEliminar?.nombre }}</p>
         </div>
         <p class="text-muted small mt-3">
           Esta acción no se puede deshacer.
         </p>
       </div>
       <div class="modal-footer border-0 justify-content-center">
-        <button type="button" class="btn btn-secondary me-3" (click)="closeDeleteModal()">
+        <button type="button" class="btn btn-secondary me-3" (click)="cerrarModalEliminar()">
           <i class="bi bi-x-circle me-1"></i> Cancelar
         </button>
-        <button type="button" class="btn btn-danger" (click)="confirmDelete()">
+        <button type="button" class="btn btn-danger" (click)="confirmarEliminacion()">
           <i class="bi bi-trash3 me-1"></i> Sí, eliminar
         </button>
       </div>
@@ -231,26 +231,26 @@
 </div>
 
 <!-- MODAL CREAR/EDITAR -->
-<div class="modal fade" id="servicioModal" #servicioModal>
+<div class="modal fade" id="servicioModal" #modalServicio>
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">{{ servicioEdit ? 'Editar' : 'Nuevo' }} Servicio</h5>
+        <h5 class="modal-title">{{ servicioEnEdicion ? 'Editar' : 'Nuevo' }} Servicio</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <form [formGroup]="formServicio">
+      <form [formGroup]="formularioServicio">
         <div class="modal-body">
           <!-- CAMPO: Nombre con validaciones -->
           <div class="mb-3">
             <label class="form-label">Nombre *</label>
             <input type="text" class="form-control" formControlName="nombre" placeholder="Nombre del servicio">
             <span class="error">
-              @if (formServicio.get('nombre')?.invalid &&
-                  (formServicio.get('nombre')?.dirty || formServicio.get('nombre')?.touched)) {
-                @if (formServicio.get('nombre')?.errors?.['required']) {
+              @if (formularioServicio.get('nombre')?.invalid &&
+                  (formularioServicio.get('nombre')?.dirty || formularioServicio.get('nombre')?.touched)) {
+                @if (formularioServicio.get('nombre')?.errors?.['required']) {
                   El nombre es obligatorio.
                 }
-                @if (formServicio.get('nombre')?.errors?.['minlength']) {
+                @if (formularioServicio.get('nombre')?.errors?.['minlength']) {
                   El nombre debe tener al menos 3 caracteres.
                 }
               }
@@ -267,9 +267,9 @@
               </option>
             </select>
             <span class="error">
-              @if (formServicio.get('categoria')?.invalid &&
-                  (formServicio.get('categoria')?.dirty || formServicio.get('categoria')?.touched)) {
-                @if (formServicio.get('categoria')?.errors?.['required']) {
+              @if (formularioServicio.get('categoria')?.invalid &&
+                  (formularioServicio.get('categoria')?.dirty || formularioServicio.get('categoria')?.touched)) {
+                @if (formularioServicio.get('categoria')?.errors?.['required']) {
                   La categoría es obligatoria.
                 }
               }
@@ -282,12 +282,12 @@
             <textarea class="form-control" rows="3" formControlName="descripcion" 
                       placeholder="Descripción del servicio..."></textarea>
             <span class="error">
-              @if (formServicio.get('descripcion')?.invalid &&
-                  (formServicio.get('descripcion')?.dirty || formServicio.get('descripcion')?.touched)) {
-                @if (formServicio.get('descripcion')?.errors?.['required']) {
+              @if (formularioServicio.get('descripcion')?.invalid &&
+                  (formularioServicio.get('descripcion')?.dirty || formularioServicio.get('descripcion')?.touched)) {
+                @if (formularioServicio.get('descripcion')?.errors?.['required']) {
                   La descripción es obligatoria.
                 }
-                @if (formServicio.get('descripcion')?.errors?.['minlength']) {
+                @if (formularioServicio.get('descripcion')?.errors?.['minlength']) {
                   La descripción debe tener al menos 5 caracteres.
                 }
               }
@@ -302,12 +302,12 @@
               <input type="number" class="form-control" formControlName="precioBase" step="0.01" min="0">
             </div>
             <span class="error">
-              @if (formServicio.get('precioBase')?.invalid &&
-                  (formServicio.get('precioBase')?.dirty || formServicio.get('precioBase')?.touched)) {
-                @if (formServicio.get('precioBase')?.errors?.['required']) {
+              @if (formularioServicio.get('precioBase')?.invalid &&
+                  (formularioServicio.get('precioBase')?.dirty || formularioServicio.get('precioBase')?.touched)) {
+                @if (formularioServicio.get('precioBase')?.errors?.['required']) {
                   El precio base es obligatorio.
                 }
-                @if (formServicio.get('precioBase')?.errors?.['min']) {
+                @if (formularioServicio.get('precioBase')?.errors?.['min']) {
                   El precio debe ser mayor o igual a 0.
                 }
               }
@@ -322,12 +322,12 @@
               <span class="input-group-text">min</span>
             </div>
             <span class="error">
-              @if (formServicio.get('duracionEstimada')?.invalid &&
-                  (formServicio.get('duracionEstimada')?.dirty || formServicio.get('duracionEstimada')?.touched)) {
-                @if (formServicio.get('duracionEstimada')?.errors?.['required']) {
+              @if (formularioServicio.get('duracionEstimada')?.invalid &&
+                  (formularioServicio.get('duracionEstimada')?.dirty || formularioServicio.get('duracionEstimada')?.touched)) {
+                @if (formularioServicio.get('duracionEstimada')?.errors?.['required']) {
                   La duración es obligatoria.
                 }
-                @if (formServicio.get('duracionEstimada')?.errors?.['min']) {
+                @if (formularioServicio.get('duracionEstimada')?.errors?.['min']) {
                   La duración debe ser al menos 1 minuto.
                 }
               }
@@ -344,9 +344,9 @@
               </option>
             </select>
             <span class="error">
-              @if (formServicio.get('profesional_id')?.invalid &&
-                  (formServicio.get('profesional_id')?.dirty || formServicio.get('profesional_id')?.touched)) {
-                @if (formServicio.get('profesional_id')?.errors?.['required']) {
+              @if (formularioServicio.get('profesional_id')?.invalid &&
+                  (formularioServicio.get('profesional_id')?.dirty || formularioServicio.get('profesional_id')?.touched)) {
+                @if (formularioServicio.get('profesional_id')?.errors?.['required']) {
                   Debe seleccionar un profesional.
                 }
               }
@@ -362,9 +362,9 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">Cancelar</button>
-          <button type="button" class="btn btn-primary" (click)="save()">
-            {{ servicioEdit ? 'Actualizar' : 'Guardar' }}
+          <button type="button" class="btn btn-secondary" (click)="cerrarModalPrincipal()">Cancelar</button>
+          <button type="button" class="btn btn-primary" (click)="guardarServicio()">
+            {{ servicioEnEdicion ? 'Actualizar' : 'Guardar' }}
           </button>
         </div>
       </form>
