@@ -1,53 +1,32 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, map } from 'rxjs';
-import { Cliente } from '../models/Cliente.model';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ServClientesJson {
+  private readonly urlBase = 'http://localhost:3000/clientes';
 
-  private clientesUrl = 'http://localhost:3000/clientes';
+  constructor(private clienteHttp: HttpClient) {}
 
-  constructor(private http: HttpClient) {}
-
-  // GET: obtener todos
-  getClientes(): Observable<Cliente[]> {
-    return this.http.get<Cliente[]>(this.clientesUrl);
+  obtenerTodos(): Observable<any[]> {
+    return this.clienteHttp.get<any[]>(this.urlBase);
   }
 
-  // GET: por ID
-  getClienteById(id: number): Observable<Cliente> {
-    return this.http.get<Cliente>(`${this.clientesUrl}/${id}`);
+  obtenerPorId(identificador: number): Observable<any> {
+    return this.clienteHttp.get<any>(`${this.urlBase}/${identificador}`);
   }
 
-  // SEARCH: búsqueda por nombre o email
-  searchClientes(param: string): Observable<Cliente[]> {
-    return this.http.get<Cliente[]>(this.clientesUrl).pipe(
-      map(clientes =>
-        clientes.filter(c =>
-          c.nombre.toLowerCase().includes(param.toLowerCase()) ||
-          c.email.toLowerCase().includes(param.toLowerCase())
-        )
-      )
-    );
+  crear(datosCliente: any): Observable<any> {
+    return this.clienteHttp.post<any>(this.urlBase, datosCliente);
   }
 
-  // POST: crear
-  create(cliente: Cliente): Observable<Cliente> {
-    return this.http.post<Cliente>(this.clientesUrl, cliente);
+  actualizar(identificador: number, datosCliente: any): Observable<any> {
+    return this.clienteHttp.put<any>(`${this.urlBase}/${identificador}`, datosCliente);
   }
 
-  // PUT: actualizar
-  update(cliente: Cliente): Observable<Cliente> {
-    const url = `${this.clientesUrl}/${cliente.id}`;
-    return this.http.put<Cliente>(url, cliente);
-  }
-
-  // DELETE: eliminar
-  delete(id: number): Observable<Cliente> {
-    const url = `${this.clientesUrl}/${id}`;
-    return this.http.delete<Cliente>(url);
+  eliminar(identificador: number): Observable<any> {
+    return this.clienteHttp.delete<any>(`${this.urlBase}/${identificador}`);
   }
 }

@@ -41,7 +41,7 @@ export class ResenaListComponent implements OnInit {
     this.servResenas.getResenas().subscribe({
       next: (resenas) => {
         // Cargar clientes y solicitudes para obtener nombres
-        this.clienteService.getClientes().subscribe({
+        this.clienteService.obtenerTodos().subscribe({
           next: (clientes) => {
             this.solicitudService.SolicitudesobtenerTodas().subscribe({
               next: (solicitudes) => {

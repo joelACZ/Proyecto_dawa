@@ -30,30 +30,30 @@ export class CrudSolicitudesComponent implements OnInit {
 
   // ==================== DATOS DEL FORMULARIO ====================
   formulario: {
-  cliente_id: number;
-  profesional_id: number;
-  servicio_id: number;
-  estado: string;
-  descripcion: string;
-  ubicacion: string;
-  urgencia: boolean;
-  nivelUrgencia?: string; 
-} = {
-  cliente_id: 0,
-  profesional_id: 0,
-  servicio_id: 0,
-  estado: 'pendiente',
-  descripcion: '',
-  ubicacion: '',
-  urgencia: false,
-  nivelUrgencia: undefined
-};
+    cliente_id: number;
+    profesional_id: number;
+    servicio_id: number;
+    estado: string;
+    descripcion: string;
+    ubicacion: string;
+    urgencia: boolean;
+    nivelUrgencia?: string;
+  } = {
+      cliente_id: 0,
+      profesional_id: 0,
+      servicio_id: 0,
+      estado: 'pendiente',
+      descripcion: '',
+      ubicacion: '',
+      urgencia: false,
+      nivelUrgencia: undefined
+    };
 
   // ==================== ESTADO DE UI ====================
   modoEdicion = false;
   cargando = false;
   mensaje: { texto: string; tipo: 'success' | 'error' | 'info' } | null = null;
-  
+
   // Paginación
   paginaActual = 1;
   itemsPorPagina = 10;
@@ -69,7 +69,7 @@ export class CrudSolicitudesComponent implements OnInit {
     private servicioClientes: ServClientesJson,
     private servicioProfesionales: ServProfesionalesJson,
     private servicioServicios: ServServiciosJson
-  ) {}
+  ) { }
 
   // ==================== CICLO DE VIDA ====================
   ngOnInit(): void {
@@ -79,10 +79,10 @@ export class CrudSolicitudesComponent implements OnInit {
   // ==================== INICIALIZACIÓN ====================
   private inicializarComponente(): void {
     this.cargando = true;
-    
+
     // Cargar datos maestros y solicitudes en paralelo
     Promise.all([
-      this.servicioClientes.getClientes().toPromise(),
+      this.servicioClientes.obtenerTodos().toPromise(),
       this.servicioProfesionales.getProfesionales().toPromise(),
       this.servicioServicios.getServicios().toPromise(),
       this.cargarSolicitudes()
@@ -98,7 +98,7 @@ export class CrudSolicitudesComponent implements OnInit {
         this.itemsPorPagina,
         this.construirFiltros()
       ).toPromise();
-      
+
       this.solicitudes = respuesta?.datos || [];
       this.totalItems = respuesta?.total || 0;
       this.totalPaginas = respuesta?.totalPaginas || 1;
@@ -140,7 +140,7 @@ export class CrudSolicitudesComponent implements OnInit {
   // ==================== PAGINACIÓN ====================
   cambiarPagina(pagina: number): void {
     if (pagina < 1 || pagina > this.totalPaginas) return;
-    
+
     this.paginaActual = pagina;
     this.cargarSolicitudes();
   }
@@ -179,7 +179,7 @@ export class CrudSolicitudesComponent implements OnInit {
       next: (actualizada) => {
         const index = this.solicitudes.findIndex(s => s.id === actualizada.id);
         if (index !== -1) this.solicitudes[index] = actualizada;
-        
+
         this.resetearFormulario();
         this.mostrarMensaje('Solicitud actualizada exitosamente', 'success');
         this.cargando = false;
@@ -228,18 +228,18 @@ export class CrudSolicitudesComponent implements OnInit {
   // ==================== VALIDACIÓN Y RESET ====================
   private validarFormulario(): boolean {
     const f = this.formulario;
-    
-    if (!f.cliente_id || !f.profesional_id || !f.servicio_id || 
-        !f.descripcion?.trim() || !f.ubicacion?.trim()) {
+
+    if (!f.cliente_id || !f.profesional_id || !f.servicio_id ||
+      !f.descripcion?.trim() || !f.ubicacion?.trim()) {
       this.mostrarMensaje('Complete todos los campos obligatorios', 'error');
       return false;
     }
-    
+
     if (f.urgencia && !f.nivelUrgencia) {
       this.mostrarMensaje('Seleccione nivel de urgencia', 'error');
       return false;
     }
-    
+
     return true;
   }
 
@@ -311,16 +311,17 @@ export class CrudSolicitudesComponent implements OnInit {
     return this.servicios.find(s => s.id === id)?.nombre || `Servicio #${id}`;
   }
 
-    // ==================== MÉTODOS PARA ESTADÍSTICAS ====================
-  getSolicitudesPendientes(): number {
+  // ==================== MÉTODOS PARA ESTADÍSTICAS ====================
+
+  contarSolicitudesPendientes(): number {
     return this.solicitudes.filter(s => s.estado === 'pendiente').length;
   }
 
-  getSolicitudesUrgentes(): number {
+  contarSolicitudesUrgentes(): number {
     return this.solicitudes.filter(s => s.urgencia).length;
   }
 
-  getSolicitudesCompletadas(): number {
+  contarSolicitudesCompletadas(): number {
     return this.solicitudes.filter(s => s.estado === 'completada').length;
   }
 }

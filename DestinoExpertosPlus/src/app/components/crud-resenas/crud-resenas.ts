@@ -195,7 +195,7 @@ export class CrudResenas implements OnInit {
   }
 
   loadClientes() {
-    this.clienteService.getClientes().subscribe({
+    this.clienteService.obtenerTodos().subscribe({
       next: (data: any[]) => {
         this.clientes = data;
       },

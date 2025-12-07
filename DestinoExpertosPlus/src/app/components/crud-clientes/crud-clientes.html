@@ -7,10 +7,10 @@
 <!-- BUSCADOR Y BOTONES -->
 <div class="mb-4 mt-4 flex justify-between items-center gap-2">
   <input type="text" placeholder="Buscar clientes..." class="border p-2 rounded w-full md:w-64" 
-         #txtBuscar (input)="search(txtBuscar)" />
+         #txtBuscar (input)="buscarClientes(txtBuscar)" />
   
   <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition" 
-          (click)="openNew()">
+          (click)="abrirModalNuevo()">
     + Nuevo Cliente
   </button>
 </div>
@@ -28,7 +28,7 @@
 </div>
 
 <!-- TABLA -->
-<app-data-table [data]="clientesPaginados" [columns]="[
+<app-data-table [data]="obtenerClientesPaginados" [columns]="[
   { field: 'id', header: 'ID' },
   { field: 'nombre', header: 'Nombre' },
   { field: 'email', header: 'Email' },
@@ -40,11 +40,11 @@
   <ng-template #actions let-row>
     <div class="flex space-x-2">
       <button class="text-blue-600 border border-blue-600 px-3 py-1 rounded hover:bg-blue-50" 
-              (click)="view(row)">Ver</button>
+              (click)="verDetalleCliente(row)">Ver</button>
       <button class="text-yellow-600 border border-yellow-600 px-3 py-1 rounded hover:bg-yellow-50" 
-              (click)="openEdit(row)">Editar</button>
+              (click)="abrirModalEdicion(row)">Editar</button>
       <button class="text-red-600 border border-red-600 px-3 py-1 rounded hover:bg-red-50" 
-              (click)="openDeleteModal(row)">Eliminar</button>
+              (click)="abrirModalEliminacion(row)">Eliminar</button>
     </div>
   </ng-template>
 </app-data-table>
@@ -52,7 +52,7 @@
 <!-- PAGINACIÓN -->
 <div class="d-flex justify-content-between align-items-center mt-3" *ngIf="totalPaginas > 1">
   <div class="text-muted small">
-    Mostrando {{ rangoRegistros }} registros
+    Mostrando {{ obtenerRangoRegistros }} registros
   </div>
 
   <nav aria-label="Paginación de clientes">
@@ -84,27 +84,27 @@
 
 <!-- MODAL REUTILIZABLE DE DETALLES -->
 <app-detail-modal
-  [isVisible]="showDetailModal"
+  [isVisible]="mostrarModalDetalle"
   [data]="clienteDetalle"
-  (close)="closeDetail()">
+  (close)="cerrarModalDetalle()">
 </app-detail-modal>
 
 <!-- MODAL DE NOTIFICACIÓN DE ÉXITO -->
-<div *ngIf="showNotificationModal" class="modal fade show d-block notification-modal success" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+<div *ngIf="mostrarModalNotificacion" class="modal fade show d-block notification-modal success" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="btn-close" (click)="showNotificationModal = false"></button>
+        <button type="button" class="btn-close" (click)="mostrarModalNotificacion = false"></button>
       </div>
       <div class="modal-body">
         <div class="modal-icon">
           <i class="bi bi-check-circle-fill"></i>
         </div>
         <h5 class="modal-title mb-3">¡Éxito!</h5>
-        <p class="mb-0">{{ notificationMessage }}</p>
+        <p class="mb-0">{{ mensajeNotificacion }}</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-success" (click)="showNotificationModal = false">
+        <button type="button" class="btn btn-success" (click)="mostrarModalNotificacion = false">
           Aceptar
         </button>
       </div>
@@ -113,21 +113,21 @@
 </div>
 
 <!-- MODAL DE ERROR -->
-<div *ngIf="showErrorModal" class="modal fade show d-block notification-modal error" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+<div *ngIf="mostrarModalError" class="modal fade show d-block notification-modal error" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="btn-close" (click)="showErrorModal = false"></button>
+        <button type="button" class="btn-close" (click)="mostrarModalError = false"></button>
       </div>
       <div class="modal-body">
         <div class="modal-icon">
           <i class="bi bi-exclamation-triangle-fill"></i>
         </div>
         <h5 class="modal-title mb-3">Error</h5>
-        <p class="mb-0">{{ errorMessage }}</p>
+        <p class="mb-0">{{ mensajeError }}</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger" (click)="showErrorModal = false">
+        <button type="button" class="btn btn-danger" (click)="mostrarModalError = false">
           Aceptar
         </button>
       </div>
@@ -136,7 +136,7 @@
 </div>
 
 <!-- MODAL DE ELIMINAR -->
-<div *ngIf="showDeleteModal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+<div *ngIf="mostrarModalEliminar" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header border-0">
@@ -144,26 +144,26 @@
           <i class="bi bi-exclamation-triangle me-2"></i>
           Confirmar Eliminación
         </h5>
-        <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+        <button type="button" class="btn-close" (click)="cerrarModalEliminacion()"></button>
       </div>
       <div class="modal-body text-center">
         <div class="mb-4">
           <i class="bi bi-trash3-fill text-danger" style="font-size: 3rem;"></i>
         </div>
-        <h6 class="mb-3">¿Está seguro de eliminar al cliente #{{ cliente_a_Eliminar?.id }}?</h6>
+        <h6 class="mb-3">¿Está seguro de eliminar al cliente #{{ clienteAEliminar?.id }}?</h6>
         <div class="alert alert-light border">
           <p class="mb-1"><strong>Cliente:</strong></p>
-          <p class="mb-0 text-muted">{{ cliente_a_Eliminar?.nombre }} ({{ cliente_a_Eliminar?.email }})</p>
+          <p class="mb-0 text-muted">{{ clienteAEliminar?.nombre }} ({{ clienteAEliminar?.email }})</p>
         </div>
         <p class="text-muted small mt-3">
           Esta acción no se puede deshacer.
         </p>
       </div>
       <div class="modal-footer border-0 justify-content-center">
-        <button type="button" class="btn btn-secondary me-3" (click)="closeDeleteModal()">
+        <button type="button" class="btn btn-secondary me-3" (click)="cerrarModalEliminacion()">
           <i class="bi bi-x-circle me-1"></i> Cancelar
         </button>
-        <button type="button" class="btn btn-danger" (click)="confirmDelete()">
+        <button type="button" class="btn btn-danger" (click)="confirmarEliminacion()">
           <i class="bi bi-trash3 me-1"></i> Sí, eliminar
         </button>
       </div>
@@ -176,22 +176,22 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">{{ clienteEdit ? 'Editar' : 'Nuevo' }} Cliente</h5>
+        <h5 class="modal-title">{{ clienteEnEdicion ? 'Editar' : 'Nuevo' }} Cliente</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <form [formGroup]="formCliente">
+      <form [formGroup]="formularioCliente">
         <div class="modal-body">
           <!-- CAMPO: Nombre con validaciones -->
           <div class="mb-3">
             <label class="form-label">Nombre *</label>
             <input type="text" class="form-control" formControlName="nombre" placeholder="Nombre completo">
             <span class="error">
-              @if (formCliente.get('nombre')?.invalid &&
-                  (formCliente.get('nombre')?.dirty || formCliente.get('nombre')?.touched)) {
-                @if (formCliente.get('nombre')?.errors?.['required']) {
+              @if (formularioCliente.get('nombre')?.invalid &&
+                  (formularioCliente.get('nombre')?.dirty || formularioCliente.get('nombre')?.touched)) {
+                @if (formularioCliente.get('nombre')?.errors?.['required']) {
                   El nombre es obligatorio.
                 }
-                @if (formCliente.get('nombre')?.errors?.['minlength']) {
+                @if (formularioCliente.get('nombre')?.errors?.['minlength']) {
                   El nombre debe tener al menos 2 caracteres.
                 }
               }
@@ -203,12 +203,12 @@
             <label class="form-label">Email *</label>
             <input type="email" class="form-control" formControlName="email" placeholder="correo@ejemplo.com">
             <span class="error">
-              @if (formCliente.get('email')?.invalid &&
-                  (formCliente.get('email')?.dirty || formCliente.get('email')?.touched)) {
-                @if (formCliente.get('email')?.errors?.['required']) {
+              @if (formularioCliente.get('email')?.invalid &&
+                  (formularioCliente.get('email')?.dirty || formularioCliente.get('email')?.touched)) {
+                @if (formularioCliente.get('email')?.errors?.['required']) {
                   El email es obligatorio.
                 }
-                @if (formCliente.get('email')?.errors?.['email']) {
+                @if (formularioCliente.get('email')?.errors?.['email']) {
                   Ingrese un email válido.
                 }
               }
@@ -220,12 +220,12 @@
             <label class="form-label">Teléfono *</label>
             <input type="tel" class="form-control" formControlName="telefono" placeholder="1234567890">
             <span class="error">
-              @if (formCliente.get('telefono')?.invalid &&
-                  (formCliente.get('telefono')?.dirty || formCliente.get('telefono')?.touched)) {
-                @if (formCliente.get('telefono')?.errors?.['required']) {
+              @if (formularioCliente.get('telefono')?.invalid &&
+                  (formularioCliente.get('telefono')?.dirty || formularioCliente.get('telefono')?.touched)) {
+                @if (formularioCliente.get('telefono')?.errors?.['required']) {
                   El teléfono es obligatorio.
                 }
-                @if (formCliente.get('telefono')?.errors?.['pattern']) {
+                @if (formularioCliente.get('telefono')?.errors?.['pattern']) {
                   Ingrese un número de teléfono válido.
                 }
               }
@@ -257,9 +257,9 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">Cancelar</button>
-          <button type="button" class="btn btn-primary" (click)="save()">
-            {{ clienteEdit ? 'Actualizar' : 'Guardar' }}
+          <button type="button" class="btn btn-secondary" (click)="cerrarModalPrincipal()">Cancelar</button>
+          <button type="button" class="btn btn-primary" (click)="guardarCliente()">
+            {{ clienteEnEdicion ? 'Actualizar' : 'Guardar' }}
           </button>
         </div>
       </form>
