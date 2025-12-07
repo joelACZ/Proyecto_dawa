@@ -1,7 +1,6 @@
-import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Profesional } from '../../models/Profesional.model';
 import { ServProfesionalesJson } from '../../services/profesionales-service';
 import { DataTableComponent } from '../shared/data-table/data-table';
 import { CardComponent } from '../shared/cards/cards';
@@ -16,78 +15,44 @@ declare const bootstrap: any;
   styleUrls: ['./crud-profesionales.css'],
   imports: [DataTableComponent, CardComponent, ReactiveFormsModule, FormsModule, CommonModule, DetailModal],
 })
-export class CrudProfesionales implements OnInit {
-  // ============================================
-  // SECCIÓN 1: PROPIEDADES DE DATOS Y ESTADO
-  // ============================================
-  profesionales: Profesional[] = [];
-  profesionalesParaTabla: any[] = [];
-  profesionalEdit: Profesional | null = null;
+export class CrudProfesionales implements OnInit, AfterViewInit {
+  private listaProfesionalesOriginales: any[] = []; // CACHE INTERNO - Datos crudos del servidor
+  profesionalesParaTabla: any[] = []; // Datos transformados para la vista
+  profesionalEnEdicion: any = null; // Estado temporal para edición
   modalRef: any;
-
-  // ============================================
-  // SECCIÓN 2: PROPIEDADES DE MODALES
-  // ============================================
-  profesionalDetalle: Profesional | null = null;
-  showDetailModal: boolean = false;
-  showDeleteModal = false;
-  showNotificationModal = false;
-  showErrorModal = false;
-  profesional_a_Eliminar: Profesional | null = null;
-  notificationMessage = '';
-  errorMessage = '';
-
-  // ============================================
-  // SECCIÓN 3: PROPIEDADES DE FORMULARIO
-  // ============================================
-  formProfesional!: FormGroup;
-
-  // ============================================
-  // SECCIÓN 4: PROPIEDADES DE PAGINACIÓN
-  // ============================================
+  profesionalDetalle: any = null;
+  mostrarModalDetalle: boolean = false;
+  mostrarModalEliminar = false;
+  mostrarModalNotificacion = false;
+  mostrarModalError = false;
+  profesionalAEliminar: any = null;
+  mensajeNotificacion = '';
+  mensajeError = '';
+  formularioProfesional!: FormGroup;
   paginaActual: number = 1;
   itemsPorPagina: number = 8;
   totalPaginas: number = 1;
-
-  // ============================================
-  // SECCIÓN 5: PROPIEDADES DE FILTRADO
-  // ============================================
   filtroEspecialidad: string = '';
   filtroExperienciaMin: number = 0;
   filtroDisponibilidad: string | null = null;
-
-  // ============================================
-  // SECCIÓN 6: OPCIONES Y CONFIGURACIONES
-  // ============================================
-  @ViewChild('profesionalModal') modalElement!: ElementRef;
-
-  // ============================================
-  // SECCIÓN 7: CONSTRUCTOR E INICIALIZACIÓN
-  // ============================================
+  @ViewChild('modalProfesional') elementoModal!: ElementRef;
   constructor(
-    private servProfesionales: ServProfesionalesJson,
-    private fb: FormBuilder
+    private servicioProfesionales: ServProfesionalesJson,
+    private constructorFormularios: FormBuilder
   ) {
     this.inicializarFormulario();
   }
-
   ngOnInit() {
     this.cargarDatosIniciales();
   }
-
-  private cargarDatosIniciales(): void {
-    this.loadProfesionales();
+  public cargarDatosIniciales(): void {
+    this.cargarProfesionales();
   }
-
   ngAfterViewInit() {
-    this.modalRef = new bootstrap.Modal(this.modalElement.nativeElement);
+    this.modalRef = new bootstrap.Modal(this.elementoModal.nativeElement);
   }
-
-  // ============================================
-  // SECCIÓN 8: MÉTODOS DE FORMULARIO
-  // ============================================
-  inicializarFormulario() {
-    this.formProfesional = this.fb.group({
+  public inicializarFormulario() {
+    this.formularioProfesional = this.constructorFormularios.group({
       nombre: ['', [Validators.required, Validators.minLength(2)]],
       especialidad: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
@@ -98,287 +63,219 @@ export class CrudProfesionales implements OnInit {
       disponibilidad: [true]
     });
   }
-
-  save() {
-    if (this.formProfesional.invalid) {
-      this.formProfesional.markAllAsTouched();
+  public guardarProfesional() {
+    if (this.formularioProfesional.invalid) {
+      this.formularioProfesional.markAllAsTouched();
       return;
     }
-
-    const datos = {
-      ...this.formProfesional.value,
-      oficios: this.formProfesional.value.oficios
-        ? this.formProfesional.value.oficios
-            .split(',')
-            .map((o: string) => o.trim())
-            .filter(Boolean)
-        : [],
-      experiencia: Number(this.formProfesional.value.experiencia)
-    };
-
-    if (this.profesionalEdit?.id) {
-      const updated: Profesional = { ...this.profesionalEdit, ...datos };
-      
-      this.servProfesionales.update(updated).subscribe({
-        next: () => {
-          this.loadProfesionales();
-          this.modalRef.hide();
-          this.showNotification('Profesional actualizado correctamente');
-        },
-        error: (err) => {
-          console.error('Error al actualizar profesional:', err);
-          this.showError('Error al actualizar profesional');
-        }
-      });
+    const datosFormulario = this.formularioProfesional.value;
+    const datosParaServidor = this.prepararDatosParaGuardar(datosFormulario);
+    if (this.profesionalEnEdicion?.id) {
+      this.ejecutarActualizacion(this.profesionalEnEdicion.id, datosParaServidor);
     } else {
-      this.servProfesionales.create(datos as Profesional).subscribe({
-        next: () => {
-          this.loadProfesionales();
-          this.modalRef.hide();
-          this.showNotification('Profesional creado correctamente');
-        },
-        error: (err) => {
-          console.error('Error al crear profesional:', err);
-          this.showError('Error al crear profesional');
-        }
-      });
+      this.ejecutarCreacion(datosParaServidor);
     }
   }
-
-  // ============================================
-  // SECCIÓN 9: MÉTODOS DE CARGA DE DATOS
-  // ============================================
-  loadProfesionales() {
-    this.servProfesionales.getProfesionales().subscribe({
-      next: (data) => {
-        this.profesionales = data;
-        this.formatearDatosParaTabla();
+  public prepararDatosParaGuardar(datos: any): any {
+    return {
+      ...datos,
+      oficios: datos.oficios
+        ? datos.oficios
+          .split(',')
+          .map((oficio: string) => oficio.trim())
+          .filter(Boolean)
+        : [],
+      experiencia: Number(datos.experiencia)
+    };
+  }
+  public ejecutarCreacion(datos: any) {
+    this.servicioProfesionales.crear(datos).subscribe({
+      next: () => {
+        this.cargarProfesionales();
+        this.cerrarModalPrincipal();
+        this.mostrarNotificacion('Profesional creado correctamente');
       },
-      error: (err) => {
-        console.error('Error al cargar profesionales:', err);
-        this.showError('Error al cargar profesionales');
+      error: (error) => {
+        console.error('Error al crear profesional:', error);
+        this.mostrarError('Error al crear profesional');
       }
     });
   }
-
-  // ============================================
-  // SECCIÓN 10: MÉTODOS DE TABLA Y FILTRADO
-  // ============================================
-  formatearDatosParaTabla() {
-    let profesionalesAMostrar = [...this.profesionales];
-
-    // Aplicar filtro por especialidad
+  public ejecutarActualizacion(id: number, datos: any) {
+    this.servicioProfesionales.actualizar(id, datos).subscribe({
+      next: () => {
+        this.cargarProfesionales();
+        this.cerrarModalPrincipal();
+        this.mostrarNotificacion('Profesional actualizado correctamente');
+      },
+      error: (error) => {
+        console.error('Error al actualizar profesional:', error);
+        this.mostrarError('Error al actualizar profesional');
+      }
+    });
+  }
+  public cargarProfesionales() {
+    this.servicioProfesionales.obtenerTodos().subscribe({
+      next: (datosCrudos) => {
+        this.listaProfesionalesOriginales = datosCrudos;
+        this.formatearDatosParaTabla();
+      },
+      error: (error) => {
+        console.error('Error al cargar profesionales:', error);
+        this.mostrarError('Error al cargar profesionales');
+      }
+    });
+  }
+  public formatearDatosParaTabla() {
+    let profesionalesAMostrar = [...this.listaProfesionalesOriginales];
     if (this.filtroEspecialidad) {
       const filtroLower = this.filtroEspecialidad.toLowerCase();
-      profesionalesAMostrar = profesionalesAMostrar.filter(p => 
-        p.especialidad?.toLowerCase().includes(filtroLower)
+      profesionalesAMostrar = profesionalesAMostrar.filter(profesional =>
+        profesional.especialidad?.toLowerCase().includes(filtroLower)
       );
     }
-
-    // Aplicar filtro por experiencia mínima
     if (this.filtroExperienciaMin > 0) {
-      profesionalesAMostrar = profesionalesAMostrar.filter(p => 
-        p.experiencia >= this.filtroExperienciaMin
+      profesionalesAMostrar = profesionalesAMostrar.filter(profesional =>
+        profesional.experiencia >= this.filtroExperienciaMin
       );
     }
-
-    // Aplicar filtro por disponibilidad
     if (this.filtroDisponibilidad !== null) {
-      const isAvailable = this.filtroDisponibilidad === 'true';
-      profesionalesAMostrar = profesionalesAMostrar.filter(p => 
-        p.disponibilidad === isAvailable
+      const estaDisponible = this.filtroDisponibilidad === 'true';
+      profesionalesAMostrar = profesionalesAMostrar.filter(profesional =>
+        profesional.disponibilidad === estaDisponible
       );
     }
-
-    this.profesionalesParaTabla = profesionalesAMostrar.map(p => ({
-      ...p,
-      ubicacionFormateada: p.ubicacion || 'No especificada',
-      oficiosFormateados: Array.isArray(p.oficios) 
-        ? p.oficios.join(', ') 
-        : p.oficios || 'No especificados',
-      experienciaFormateada: `${p.experiencia} años`,
-      disponibilidadFormateada: p.disponibilidad ? 'Sí' : 'No'
+    this.profesionalesParaTabla = profesionalesAMostrar.map(profesional => ({
+      id: profesional.id,
+      nombre: profesional.nombre,
+      especialidad: profesional.especialidad,
+      email: profesional.email,
+      telefono: profesional.telefono,
+      ubicacionFormateada: profesional.ubicacion || 'No especificada',
+      oficiosFormateados: Array.isArray(profesional.oficios)
+        ? profesional.oficios.join(', ')
+        : profesional.oficios || 'No especificados',
+      experienciaFormateada: `${profesional.experiencia} años`,
+      disponibilidadFormateada: profesional.disponibilidad ? 'Sí' : 'No',
+      datosCompletos: profesional // Mantenemos referencia a datos originales
     }));
-
     this.calcularPaginacion();
   }
-
-  search(input: HTMLInputElement) {
-    const param = input.value.trim();
-    if (!param) {
+  public buscarProfesionales(elementoInput: HTMLInputElement) {
+    const terminoBusqueda = elementoInput.value.trim();
+    if (!terminoBusqueda) {
       this.formatearDatosParaTabla();
       this.paginaActual = 1;
       return;
     }
-
-    this.servProfesionales.searchProfesionales(param).subscribe({
+    this.servicioProfesionales.buscar(terminoBusqueda).subscribe({
       next: (resultadosBusqueda) => {
-        let profesionalesAMostrar = [...resultadosBusqueda];
-
-        // Aplicar filtros a los resultados de búsqueda
-        if (this.filtroEspecialidad) {
-          const filtroLower = this.filtroEspecialidad.toLowerCase();
-          profesionalesAMostrar = profesionalesAMostrar.filter(p => 
-            p.especialidad?.toLowerCase().includes(filtroLower)
-          );
-        }
-
-        if (this.filtroExperienciaMin > 0) {
-          profesionalesAMostrar = profesionalesAMostrar.filter(p => 
-            p.experiencia >= this.filtroExperienciaMin
-          );
-        }
-
-        if (this.filtroDisponibilidad !== null) {
-          const isAvailable = this.filtroDisponibilidad === 'true';
-          profesionalesAMostrar = profesionalesAMostrar.filter(p => 
-            p.disponibilidad === isAvailable
-          );
-        }
-
-        this.profesionalesParaTabla = profesionalesAMostrar.map(p => ({
-          ...p,
-          ubicacionFormateada: p.ubicacion || 'No especificada',
-          oficiosFormateados: Array.isArray(p.oficios) 
-            ? p.oficios.join(', ') 
-            : p.oficios || 'No especificados',
-          experienciaFormateada: `${p.experiencia} años`,
-          disponibilidadFormateada: p.disponibilidad ? 'Sí' : 'No'
-        }));
-
-        this.calcularPaginacion();
+        this.listaProfesionalesOriginales = resultadosBusqueda;
+        this.formatearDatosParaTabla();
         this.paginaActual = 1;
       },
-      error: (err) => {
-        console.error('Error en búsqueda:', err);
-        this.showError('Error al buscar profesionales');
+      error: (error) => {
+        console.error('Error en búsqueda:', error);
+        this.mostrarError('Error al buscar profesionales');
       }
     });
   }
-
-  aplicarFiltros(): void {
+  public aplicarFiltros(): void {
     this.paginaActual = 1;
     this.formatearDatosParaTabla();
   }
-
-  limpiarFiltros(): void {
+  public limpiarFiltros(): void {
     this.filtroEspecialidad = '';
     this.filtroExperienciaMin = 0;
     this.filtroDisponibilidad = null;
     this.paginaActual = 1;
     this.formatearDatosParaTabla();
   }
-
-  // ============================================
-  // SECCIÓN 11: MÉTODOS DE PAGINACIÓN
-  // ============================================
-  get profesionalesPaginados(): any[] {
-    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
-    const fin = inicio + this.itemsPorPagina;
-    return this.profesionalesParaTabla.slice(inicio, fin);
+  public get obtenerProfesionalesPaginados(): any[] {
+    const indiceInicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    const indiceFin = indiceInicio + this.itemsPorPagina;
+    return this.profesionalesParaTabla.slice(indiceInicio, indiceFin);
   }
-
-  calcularPaginacion(): void {
+  public calcularPaginacion(): void {
     this.totalPaginas = Math.ceil(this.profesionalesParaTabla.length / this.itemsPorPagina);
     if (this.paginaActual > this.totalPaginas && this.totalPaginas > 0) {
       this.paginaActual = this.totalPaginas;
     }
   }
-
-  cambiarPagina(pagina: number): void {
+  public cambiarPagina(pagina: number): void {
     if (pagina >= 1 && pagina <= this.totalPaginas) {
       this.paginaActual = pagina;
     }
   }
-
-  get rangoRegistros(): string {
+  public get obtenerRangoRegistros(): string {
     const inicio = (this.paginaActual - 1) * this.itemsPorPagina + 1;
     const fin = Math.min(this.paginaActual * this.itemsPorPagina, this.profesionalesParaTabla.length);
     return `${inicio}-${fin} de ${this.profesionalesParaTabla.length}`;
   }
-
-  // ============================================
-  // SECCIÓN 12: MÉTODOS CRUD - CREAR/EDITAR
-  // ============================================
-  openNew() {
-    this.profesionalEdit = null;
-    this.formProfesional.reset({ 
+  public abrirNuevo() {
+    this.profesionalEnEdicion = null;
+    this.formularioProfesional.reset({
       experiencia: 0,
       disponibilidad: true
     });
     this.modalRef.show();
   }
-
-  openEdit(profesional: Profesional) {
-    this.profesionalEdit = { ...profesional };
-    this.formProfesional.patchValue({
-      ...profesional,
-      oficios: Array.isArray(profesional.oficios) 
-        ? profesional.oficios.join(', ') 
-        : profesional.oficios || ''
+  public abrirEdicion(datosProfesional: any) {
+    this.profesionalEnEdicion = { ...datosProfesional.datosCompletos };
+    this.formularioProfesional.patchValue({
+      ...datosProfesional.datosCompletos,
+      oficios: Array.isArray(datosProfesional.datosCompletos.oficios)
+        ? datosProfesional.datosCompletos.oficios.join(', ')
+        : datosProfesional.datosCompletos.oficios || ''
     });
     this.modalRef.show();
   }
-
-  // ============================================
-  // SECCIÓN 13: MÉTODOS CRUD - ELIMINAR
-  // ============================================
-  openDeleteModal(profesional: Profesional) {
-    this.profesional_a_Eliminar = profesional;
-    this.showDeleteModal = true;
+  public abrirModalEliminar(profesional: any) {
+    this.profesionalAEliminar = profesional.datosCompletos;
+    this.mostrarModalEliminar = true;
   }
-
-  confirmDelete() {
-    if (!this.profesional_a_Eliminar?.id) return;
-
-    this.servProfesionales.delete(this.profesional_a_Eliminar.id).subscribe({
+  public confirmarEliminacion() {
+    if (!this.profesionalAEliminar?.id) return;
+    this.servicioProfesionales.eliminar(this.profesionalAEliminar.id).subscribe({
       next: () => {
-        this.showNotification('Profesional eliminado correctamente');
-        this.loadProfesionales();
-        this.closeDeleteModal();
+        this.mostrarNotificacion('Profesional eliminado correctamente');
+        this.cargarProfesionales();
+        this.cerrarModalEliminar();
       },
-      error: (err) => {
-        console.error('Error al eliminar profesional:', err);
-        this.showError('Error al eliminar profesional');
-        this.closeDeleteModal();
+      error: (error) => {
+        console.error('Error al eliminar profesional:', error);
+        this.mostrarError('Error al eliminar profesional');
+        this.cerrarModalEliminar();
       }
     });
   }
-
-  closeDeleteModal() {
-    this.showDeleteModal = false;
-    this.profesional_a_Eliminar = null;
+  public cerrarModalEliminar() {
+    this.mostrarModalEliminar = false;
+    this.profesionalAEliminar = null;
   }
-
-  // ============================================
-  // SECCIÓN 14: MÉTODOS DE VISUALIZACIÓN/DETALLE
-  // ============================================
-  view(profesional: Profesional) {
-    this.profesionalDetalle = profesional;
-    this.showDetailModal = true;
+  public cerrarModalPrincipal() {
+    this.modalRef.hide();
   }
-
-  closeDetail() {
-    this.showDetailModal = false;
+  public verDetalle(profesional: any) {
+    this.profesionalDetalle = profesional.datosCompletos;
+    this.mostrarModalDetalle = true;
+  }
+  public cerrarDetalle() {
+    this.mostrarModalDetalle = false;
     this.profesionalDetalle = null;
   }
-
-  // ============================================
-  // SECCIÓN 15: MÉTODOS DE NOTIFICACIÓN Y ERROR
-  // ============================================
-  showNotification(msg: string) {
-    this.notificationMessage = msg;
-    this.showNotificationModal = true;
+  public mostrarNotificacion(mensaje: string) {
+    this.mensajeNotificacion = mensaje;
+    this.mostrarModalNotificacion = true;
     setTimeout(() => {
-      this.showNotificationModal = false;
+      this.mostrarModalNotificacion = false;
     }, 3000);
   }
-
-  showError(msg: string) {
-    this.errorMessage = msg;
-    this.showErrorModal = true;
+  public mostrarError(mensaje: string) {
+    this.mensajeError = mensaje;
+    this.mostrarModalError = true;
     setTimeout(() => {
-      this.showErrorModal = false;
+      this.mostrarModalError = false;
     }, 3000);
   }
 }

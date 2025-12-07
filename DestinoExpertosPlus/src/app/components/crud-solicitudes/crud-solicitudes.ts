@@ -83,7 +83,7 @@ export class CrudSolicitudesComponent implements OnInit {
     // Cargar datos maestros y solicitudes en paralelo
     Promise.all([
       this.servicioClientes.obtenerTodos().toPromise(),
-      this.servicioProfesionales.getProfesionales().toPromise(),
+      this.servicioProfesionales.obtenerTodos().toPromise(),
       this.servicioServicios.getServicios().toPromise(),
       this.cargarSolicitudes()
     ]).finally(() => {

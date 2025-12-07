@@ -171,7 +171,7 @@ export class CrudServicios implements OnInit {
   }
 
   loadProfesionales() {
-    this.servProfesionales.getProfesionales().subscribe({
+    this.servProfesionales.obtenerTodos().subscribe({
       next: (data) => {
         this.profesionales = data;
       },

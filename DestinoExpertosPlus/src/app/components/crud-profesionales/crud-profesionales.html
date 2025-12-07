@@ -8,14 +8,15 @@
 <div class="mb-4 mt-4 d-flex align-items-center gap-2">
   <input type="text" placeholder="Buscar profesionales..." 
          class="border p-2 rounded w-full md:w-64"
-         #txtBuscar (input)="search(txtBuscar)" />
+         #txtBuscar (input)="buscarProfesionales(txtBuscar)" />
 
   <div style="margin-left: auto;" class="d-flex gap-2">
     <button class="btn btn-light border font-weight-bold py-2 px-4 rounded transition"
-            (click)="openNew()">
+            (click)="abrirNuevo()">
       <i class="bi bi-person-plus"></i> Nuevo Profesional
     </button>
 
+    	
     <button class="btn btn-light border font-weight-bold py-2 px-4 rounded transition">
       <i class="bi bi-list-ul me-1"></i> Exportar Lista
     </button>
@@ -88,7 +89,7 @@
 </div>
 
 <!-- TABLA -->
-<app-data-table [data]="profesionalesPaginados" [columns]="[
+<app-data-table [data]="obtenerProfesionalesPaginados" [columns]="[
   { field: 'id', header: 'ID' },
   { field: 'nombre', header: 'Nombre' },
   { field: 'especialidad', header: 'Especialidad' },
@@ -101,13 +102,13 @@
 ]">
   <ng-template #actions let-row>
     <div class="flex space-x-2">
-      <button  (click)="view(row)"class="btn action-btn unified"> 
+      <button  (click)="verDetalle(row)"class="btn action-btn unified"> 
         <i class="bi bi-eye"></i>
       </button>
-      <button  (click)="openEdit(row)"class="btn action-btn unified">
+      <button  (click)="abrirEdicion(row)"class="btn action-btn unified">
         <i class="bi bi-pencil"></i>
       </button>
-      <button  (click)="openDeleteModal(row)"class="btn action-btn unified">
+      <button  (click)="abrirModalEliminar(row)"class="btn action-btn unified">
         <i class="bi bi-trash"></i>
       </button>
     </div>
@@ -117,7 +118,7 @@
 <!-- PAGINACIÓN -->
 <div class="d-flex justify-content-between align-items-center mt-3" *ngIf="totalPaginas > 1">
   <div class="text-muted small">
-    Mostrando {{ rangoRegistros }} registros
+    Mostrando {{ obtenerRangoRegistros }} registros
   </div>
 
   <nav aria-label="Paginación de profesionales">
@@ -149,27 +150,27 @@
 
 <!-- MODAL REUTILIZABLE DE DETALLES -->
 <app-detail-modal
-  [isVisible]="showDetailModal"
+  [isVisible]="mostrarModalDetalle"
   [data]="profesionalDetalle"
-  (close)="closeDetail()">
+  (close)="cerrarDetalle()">
 </app-detail-modal>
 
 <!-- MODAL DE NOTIFICACIÓN DE ÉXITO -->
-<div *ngIf="showNotificationModal" class="modal fade show d-block notification-modal success" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+<div *ngIf="mostrarModalNotificacion" class="modal fade show d-block notification-modal success" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="btn-close" (click)="showNotificationModal = false"></button>
+        <button type="button" class="btn-close" (click)="mostrarModalNotificacion  = false"></button>
       </div>
       <div class="modal-body">
         <div class="modal-icon">
           <i class="bi bi-check-circle-fill"></i>
         </div>
         <h5 class="modal-title mb-3">¡Éxito!</h5>
-        <p class="mb-0">{{ notificationMessage }}</p>
+        <p class="mb-0">{{ mensajeNotificacion  }}</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-success" (click)="showNotificationModal = false">
+        <button type="button" class="btn btn-success" (click)="mostrarModalNotificacion  = false">
           Aceptar
         </button>
       </div>
@@ -178,21 +179,21 @@
 </div>
 
 <!-- MODAL DE ERROR -->
-<div *ngIf="showErrorModal" class="modal fade show d-block notification-modal error" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+<div *ngIf="mostrarModalError" class="modal fade show d-block notification-modal error" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="btn-close" (click)="showErrorModal = false"></button>
+        <button type="button" class="btn-close" (click)="mostrarModalError = false"></button>
       </div>
       <div class="modal-body">
         <div class="modal-icon">
           <i class="bi bi-exclamation-triangle-fill"></i>
         </div>
         <h5 class="modal-title mb-3">Error</h5>
-        <p class="mb-0">{{ errorMessage }}</p>
+        <p class="mb-0">{{ mensajeError  }}</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger" (click)="showErrorModal = false">
+        <button type="button" class="btn btn-danger" (click)="mostrarModalError  = false">
           Aceptar
         </button>
       </div>
@@ -201,7 +202,7 @@
 </div>
 
 <!-- MODAL DE ELIMINAR -->
-<div *ngIf="showDeleteModal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+<div *ngIf="mostrarModalEliminar" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header border-0">
@@ -209,26 +210,26 @@
           <i class="bi bi-exclamation-triangle me-2"></i>
           Confirmar Eliminación
         </h5>
-        <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+        <button type="button" class="btn-close" (click)="cerrarModalEliminar()"></button>
       </div>
       <div class="modal-body text-center">
         <div class="mb-4">
           <i class="bi bi-trash3-fill text-danger" style="font-size: 3rem;"></i>
         </div>
-        <h6 class="mb-3">¿Está seguro de eliminar al profesional #{{ profesional_a_Eliminar?.id }}?</h6>
+        <h6 class="mb-3">¿Está seguro de eliminar al profesional #{{ profesionalAEliminar?.id }}?</h6>
         <div class="alert alert-light border">
           <p class="mb-1"><strong>Profesional:</strong></p>
-          <p class="mb-0 text-muted">{{ profesional_a_Eliminar?.nombre }} - {{ profesional_a_Eliminar?.especialidad }}</p>
+          <p class="mb-0 text-muted">{{ profesionalAEliminar?.nombre }} - {{ profesionalAEliminar?.especialidad }}</p>
         </div>
         <p class="text-muted small mt-3">
           Esta acción no se puede deshacer. El profesional ya no estará disponible para asignar servicios.
         </p>
       </div>
       <div class="modal-footer border-0 justify-content-center">
-        <button type="button" class="btn btn-secondary me-3" (click)="closeDeleteModal()">
+        <button type="button" class="btn btn-secondary me-3" (click)="cerrarModalEliminar()">
           <i class="bi bi-x-circle me-1"></i> Cancelar
         </button>
-        <button type="button" class="btn btn-danger" (click)="confirmDelete()">
+        <button type="button" class="btn btn-danger" (click)="confirmarEliminacion()">
           <i class="bi bi-trash3 me-1"></i> Sí, eliminar
         </button>
       </div>
@@ -237,26 +238,26 @@
 </div>
 
 <!-- MODAL CREAR/EDITAR -->
-<div class="modal fade" id="profesionalModal" #profesionalModal>
+<div class="modal fade" id="profesionalModal" #modalProfesional>
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">{{ profesionalEdit ? 'Editar' : 'Nuevo' }} Profesional</h5>
+        <h5 class="modal-title">{{ profesionalEnEdicion  ? 'Editar' : 'Nuevo' }} Profesional</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <form [formGroup]="formProfesional">
+      <form [formGroup]="formularioProfesional">
         <div class="modal-body">
           <!-- CAMPO: Nombre con validaciones -->
           <div class="mb-3">
             <label class="form-label">Nombre *</label>
             <input type="text" class="form-control" formControlName="nombre" placeholder="Nombre completo">
             <span class="error">
-              @if (formProfesional.get('nombre')?.invalid &&
-                  (formProfesional.get('nombre')?.dirty || formProfesional.get('nombre')?.touched)) {
-                @if (formProfesional.get('nombre')?.errors?.['required']) {
+              @if (formularioProfesional.get('nombre')?.invalid &&
+                  (formularioProfesional.get('nombre')?.dirty || formularioProfesional.get('nombre')?.touched)) {
+                @if (formularioProfesional.get('nombre')?.errors?.['required']) {
                   El nombre es obligatorio.
                 }
-                @if (formProfesional.get('nombre')?.errors?.['minlength']) {
+                @if (formularioProfesional.get('nombre')?.errors?.['minlength']) {
                   El nombre debe tener al menos 2 caracteres.
                 }
               }
@@ -269,12 +270,12 @@
             <input type="text" class="form-control" formControlName="especialidad" 
                    placeholder="Ej: Electricidad, Plomería, Carpintería">
             <span class="error">
-              @if (formProfesional.get('especialidad')?.invalid &&
-                  (formProfesional.get('especialidad')?.dirty || formProfesional.get('especialidad')?.touched)) {
-                @if (formProfesional.get('especialidad')?.errors?.['required']) {
+              @if (formularioProfesional.get('especialidad')?.invalid &&
+                  (formularioProfesional.get('especialidad')?.dirty || formularioProfesional.get('especialidad')?.touched)) {
+                @if (formularioProfesional.get('especialidad')?.errors?.['required']) {
                   La especialidad es obligatoria.
                 }
-                @if (formProfesional.get('especialidad')?.errors?.['minlength']) {
+                @if (formularioProfesional.get('especialidad')?.errors?.['minlength']) {
                   La especialidad debe tener al menos 2 caracteres.
                 }
               }
@@ -286,12 +287,12 @@
             <label class="form-label">Email *</label>
             <input type="email" class="form-control" formControlName="email" placeholder="correo@ejemplo.com">
             <span class="error">
-              @if (formProfesional.get('email')?.invalid &&
-                  (formProfesional.get('email')?.dirty || formProfesional.get('email')?.touched)) {
-                @if (formProfesional.get('email')?.errors?.['required']) {
+              @if (formularioProfesional.get('email')?.invalid &&
+                  (formularioProfesional.get('email')?.dirty || formularioProfesional.get('email')?.touched)) {
+                @if (formularioProfesional.get('email')?.errors?.['required']) {
                   El email es obligatorio.
                 }
-                @if (formProfesional.get('email')?.errors?.['email']) {
+                @if (formularioProfesional.get('email')?.errors?.['email']) {
                   Ingrese un email válido.
                 }
               }
@@ -303,12 +304,12 @@
             <label class="form-label">Teléfono *</label>
             <input type="tel" class="form-control" formControlName="telefono" placeholder="123456789">
             <span class="error">
-              @if (formProfesional.get('telefono')?.invalid &&
-                  (formProfesional.get('telefono')?.dirty || formProfesional.get('telefono')?.touched)) {
-                @if (formProfesional.get('telefono')?.errors?.['required']) {
+              @if (formularioProfesional.get('telefono')?.invalid &&
+                  (formularioProfesional.get('telefono')?.dirty || formularioProfesional.get('telefono')?.touched)) {
+                @if (formularioProfesional.get('telefono')?.errors?.['required']) {
                   El teléfono es obligatorio.
                 }
-                @if (formProfesional.get('telefono')?.errors?.['pattern']) {
+                @if (formularioProfesional.get('telefono')?.errors?.['pattern']) {
                   Ingrese un número de teléfono válido (mínimo 9 dígitos).
                 }
               }
@@ -340,15 +341,15 @@
               <span class="input-group-text">años</span>
             </div>
             <span class="error">
-              @if (formProfesional.get('experiencia')?.invalid &&
-                  (formProfesional.get('experiencia')?.dirty || formProfesional.get('experiencia')?.touched)) {
-                @if (formProfesional.get('experiencia')?.errors?.['required']) {
+              @if (formularioProfesional.get('experiencia')?.invalid &&
+                  (formularioProfesional.get('experiencia')?.dirty || formularioProfesional.get('experiencia')?.touched)) {
+                @if (formularioProfesional.get('experiencia')?.errors?.['required']) {
                   La experiencia es obligatoria.
                 }
-                @if (formProfesional.get('experiencia')?.errors?.['min']) {
+                @if (formularioProfesional.get('experiencia')?.errors?.['min']) {
                   La experiencia no puede ser negativa.
                 }
-                @if (formProfesional.get('experiencia')?.errors?.['max']) {
+                @if (formularioProfesional.get('experiencia')?.errors?.['max']) {
                   La experiencia no puede superar los 50 años.
                 }
               }
@@ -365,8 +366,8 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">Cancelar</button>
-          <button type="button" class="btn btn-primary" (click)="save()">
-            {{ profesionalEdit ? 'Actualizar' : 'Guardar' }}
+          <button type="button" class="btn btn-primary" (click)="guardarProfesional()">
+            {{ profesionalEnEdicion  ? 'Actualizar' : 'Guardar' }}
           </button>
         </div>
       </form>
