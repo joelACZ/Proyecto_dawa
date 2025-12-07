@@ -29,6 +29,205 @@
       ],
       "experiencia": 4,
       "disponibilidad": false
+    },
+    {
+      "id": "3",
+      "nombre": "Javier Solís",
+      "especialidad": "Carpintería",
+      "telefono": "0976543210",
+      "email": "javier.solis@example.com",
+      "ubicacion": "Cuenca",
+      "oficios": [
+        "Muebles a medida",
+        "Reparación de estructuras",
+        "Instalación de pisos de madera"
+      ],
+      "experiencia": 10,
+      "disponibilidad": true
+    },
+    {
+      "id": "4",
+      "nombre": "Mariana Ruiz",
+      "especialidad": "Pintura",
+      "telefono": "0965432109",
+      "email": "mariana.ruiz@example.com",
+      "ubicacion": "Quito",
+      "oficios": [
+        "Pintura de interiores",
+        "Pintura de exteriores",
+        "Acabados decorativos"
+      ],
+      "experiencia": 5,
+      "disponibilidad": true
+    },
+    {
+      "id": "5",
+      "nombre": "Ricardo Pérez",
+      "especialidad": "Albañilería",
+      "telefono": "0954321098",
+      "email": "ricardo.perez@example.com",
+      "ubicacion": "Manta",
+      "oficios": [
+        "Construcción de paredes",
+        "Colocación de baldosas",
+        "Remodelaciones"
+      ],
+      "experiencia": 12,
+      "disponibilidad": false
+    },
+    {
+      "id": "6",
+      "nombre": "Sofía Castro",
+      "especialidad": "Jardinería",
+      "telefono": "0943210987",
+      "email": "sofia.castro@example.com",
+      "ubicacion": "Guayaquil",
+      "oficios": [
+        "Mantenimiento de jardines",
+        "Poda de árboles",
+        "Instalación de sistemas de riego"
+      ],
+      "experiencia": 4,
+      "disponibilidad": true,
+      "ubicacionFormateada": "Guayaquil",
+      "oficiosFormateados": "Mantenimiento de jardines, Poda de árboles, Instalación de sistemas de riego",
+      "experienciaFormateada": "3 años",
+      "disponibilidadFormateada": "Sí"
+    },
+    {
+      "id": "7",
+      "nombre": "Daniel Vargas",
+      "especialidad": "Refrigeración",
+      "telefono": "0932109876",
+      "email": "daniel.vargas@example.com",
+      "ubicacion": "Ambato",
+      "oficios": [
+        "Reparación de aires acondicionados",
+        "Mantenimiento de neveras",
+        "Instalación de equipos"
+      ],
+      "experiencia": 7,
+      "disponibilidad": true
+    },
+    {
+      "id": "8",
+      "nombre": "Lorena Díaz",
+      "especialidad": "Limpieza Profunda",
+      "telefono": "0921098765",
+      "email": "lorena.diaz@example.com",
+      "ubicacion": "Quito",
+      "oficios": [
+        "Limpieza de oficinas",
+        "Limpieza post-construcción",
+        "Lavado de alfombras"
+      ],
+      "experiencia": 2,
+      "disponibilidad": false
+    },
+    {
+      "id": "9",
+      "nombre": "Gustavo León",
+      "especialidad": "Herrería",
+      "telefono": "0910987654",
+      "email": "gustavo.leon@example.com",
+      "ubicacion": "Portoviejo",
+      "oficios": [
+        "Fabricación de rejas",
+        "Soldadura",
+        "Reparación de estructuras metálicas"
+      ],
+      "experiencia": 9,
+      "disponibilidad": true
+    },
+    {
+      "id": "10",
+      "nombre": "Elena Mendoza",
+      "especialidad": "Gasfitería",
+      "telefono": "0909876543",
+      "email": "elena.mendoza@example.com",
+      "ubicacion": "Cuenca",
+      "oficios": [
+        "Detección de fugas",
+        "Instalación de calentadores",
+        "Mantenimiento de tuberías de gas"
+      ],
+      "experiencia": 6,
+      "disponibilidad": true
+    },
+    {
+      "id": "11",
+      "nombre": "Felipe Guerrero",
+      "especialidad": "Cerrajería",
+      "telefono": "0998765432",
+      "email": "felipe.guerrero@example.com",
+      "ubicacion": "Guayaquil",
+      "oficios": [
+        "Apertura de puertas",
+        "Cambio de cerraduras",
+        "Instalación de sistemas de seguridad"
+      ],
+      "experiencia": 4,
+      "disponibilidad": true
+    },
+    {
+      "id": "12",
+      "nombre": "Valeria Rojas",
+      "especialidad": "Tecnología/Redes",
+      "telefono": "0987654320",
+      "email": "valeria.rojas@example.com",
+      "ubicacion": "Quito",
+      "oficios": [
+        "Instalación de redes",
+        "Soporte técnico a equipos",
+        "Configuración de routers"
+      ],
+      "experiencia": 8,
+      "disponibilidad": false
+    },
+    {
+      "id": "13",
+      "nombre": "Alejandro Silva",
+      "especialidad": "Tapicería",
+      "telefono": "0976543219",
+      "email": "alejandro.silva@example.com",
+      "ubicacion": "Riobamba",
+      "oficios": [
+        "Restauración de muebles",
+        "Tapizado de vehículos",
+        "Diseño de cojines"
+      ],
+      "experiencia": 15,
+      "disponibilidad": true
+    },
+    {
+      "id": "14",
+      "nombre": "Carolina Morales",
+      "especialidad": "Vidriería",
+      "telefono": "0965432100",
+      "email": "carolina.morales@example.com",
+      "ubicacion": "Loja",
+      "oficios": [
+        "Corte e instalación de vidrios",
+        "Vitrinas comerciales",
+        "Espejos a medida"
+      ],
+      "experiencia": 7,
+      "disponibilidad": true
+    },
+    {
+      "id": "15",
+      "nombre": "Héctor Zambrano",
+      "especialidad": "Electrónica",
+      "telefono": "0954321090",
+      "email": "hector.zambrano@example.com",
+      "ubicacion": "Machala",
+      "oficios": [
+        "Reparación de electrodomésticos",
+        "Instalación de cámaras de seguridad",
+        "Circuitos y cableado"
+      ],
+      "experiencia": 11,
+      "disponibilidad": false
     }
   ],
   "servicios": [
@@ -39,8 +238,13 @@
       "descripcion": "Instalación de cableado, lámparas y tomacorrientes.",
       "precioBase": 35,
       "duracionEstimada": 60,
-      "profesional_id": 1,
-      "activo": true
+      "profesional_id": 14,
+      "activo": true,
+      "descripcionCorta": "Instalación de cableado, lámparas y tomacorrientes...",
+      "precioBaseFormateado": "$35.00",
+      "duracionFormateada": "60 min",
+      "profesionalNombre": "No asignado",
+      "activoFormateado": "Sí"
     },
     {
       "id": "2",
@@ -86,6 +290,162 @@
         "Plomería"
       ],
       "notificaciones": false
+    },
+    {
+      "id": "3",
+      "nombre": "Andrés Cárdenas",
+      "email": "andres.cardenas@example.com",
+      "telefono": "0961112233",
+      "direccion": "Quito",
+      "preferencias": [
+        "Carpintería",
+        "Muebles a medida"
+      ],
+      "notificaciones": false
+    },
+    {
+      "id": "4",
+      "nombre": "Lucía Velasco",
+      "email": "lucia.velasco@example.com",
+      "telefono": "0954445566",
+      "direccion": "Manta",
+      "preferencias": [
+        "Pintura",
+        "Acabados premium"
+      ],
+      "notificaciones": true
+    },
+    {
+      "id": "5",
+      "nombre": "Roberto Mora",
+      "email": "roberto.mora@example.com",
+      "telefono": "0990001122",
+      "direccion": "Ambato",
+      "preferencias": [
+        "Albañilería",
+        "Remodelación"
+      ],
+      "notificaciones": true
+    },
+    {
+      "id": "6",
+      "nombre": "Diana Herrera",
+      "email": "diana.herrera@example.com",
+      "telefono": "0943334455",
+      "direccion": "Quito",
+      "preferencias": [
+        "Jardinería",
+        "Mantenimiento mensual"
+      ],
+      "notificaciones": false
+    },
+    {
+      "id": "7",
+      "nombre": "Fernando Reyes",
+      "email": "fernando.reyes@example.com",
+      "telefono": "0932221100",
+      "direccion": "Portoviejo",
+      "preferencias": [
+        "Refrigeración",
+        "Reparación AC"
+      ],
+      "notificaciones": true
+    },
+    {
+      "id": "8",
+      "nombre": "Gabriela Paz",
+      "email": "gabriela.paz@example.com",
+      "telefono": "0925556677",
+      "direccion": "Guayaquil",
+      "preferencias": [
+        "Limpieza Profunda",
+        "Post-construcción"
+      ],
+      "notificaciones": true
+    },
+    {
+      "id": "9",
+      "nombre": "Héctor Solano",
+      "email": "hector.solano@example.com",
+      "telefono": "0918889900",
+      "direccion": "Cuenca",
+      "preferencias": [
+        "Herrería",
+        "Instalación de rejas"
+      ],
+      "notificaciones": false
+    },
+    {
+      "id": "10",
+      "nombre": "Carolina Flores",
+      "email": "carolina.flores@example.com",
+      "telefono": "0907778899",
+      "direccion": "Quito",
+      "preferencias": [
+        "Gasfitería",
+        "Revisión de fugas"
+      ],
+      "notificaciones": true
+    },
+    {
+      "id": "11",
+      "nombre": "Jorge Vidal",
+      "email": "jorge.vidal@example.com",
+      "telefono": "0996665544",
+      "direccion": "Riobamba",
+      "preferencias": [
+        "Cerrajería",
+        "Urgente"
+      ],
+      "notificaciones": true
+    },
+    {
+      "id": "12",
+      "nombre": "María Naranjo",
+      "email": "maria.naranjo@example.com",
+      "telefono": "0985554433",
+      "direccion": "Guayaquil",
+      "preferencias": [
+        "Tecnología/Redes",
+        "Soporte a domicilio"
+      ],
+      "notificaciones": true
+    },
+    {
+      "id": "13",
+      "nombre": "Luis Bravo",
+      "email": "luis.bravo@example.com",
+      "telefono": "0974443322",
+      "direccion": "Loja",
+      "preferencias": [
+        "Tapicería",
+        "Restauración de sillones"
+      ],
+      "notificaciones": false
+    },
+    {
+      "id": "14",
+      "nombre": "Verónica Salgado",
+      "email": "veronica.salgado@example.com",
+      "telefono": "0963332211",
+      "direccion": "Quito",
+      "preferencias": [
+        "Vidriería",
+        "Instalación de ventanas"
+      ],
+      "notificaciones": true
+    },
+    {
+      "id": "15",
+      "nombre": "Emilio Dávila",
+      "email": "emilio.davila@example.com",
+      "telefono": "0952221100",
+      "direccion": "Machala",
+      "preferencias": [
+        "Electrónica",
+        "Reparación de TV"
+      ],
+      "notificaciones": true
     }
   ],
   "solicitudes": [
