@@ -5,19 +5,23 @@
 </app-card>
 
 <!-- BUSCADOR Y BOTONES -->
-<div class="mb-4 mt-4 flex justify-between items-center gap-2">
-  <input type="text" placeholder="Buscar profesionales..." class="border p-2 rounded w-full md:w-64" 
+<div class="mb-4 mt-4 d-flex align-items-center gap-2">
+  <input type="text" placeholder="Buscar profesionales..." 
+         class="border p-2 rounded w-full md:w-64"
          #txtBuscar (input)="search(txtBuscar)" />
-  
-  <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition" 
-          (click)="openNew()">
-    + Nuevo Profesional
-  </button>
-  
-  <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition">
-    <i class="bi bi-list-ul me-1"></i> Exportar Lista
-  </button>
+
+  <div style="margin-left: auto;" class="d-flex gap-2">
+    <button class="btn btn-light border font-weight-bold py-2 px-4 rounded transition"
+            (click)="openNew()">
+      <i class="bi bi-person-plus"></i> Nuevo Profesional
+    </button>
+
+    <button class="btn btn-light border font-weight-bold py-2 px-4 rounded transition">
+      <i class="bi bi-list-ul me-1"></i> Exportar Lista
+    </button>
+  </div>
 </div>
+
 
 <!-- FILTROS -->
 <div class="card mb-4">
@@ -97,12 +101,15 @@
 ]">
   <ng-template #actions let-row>
     <div class="flex space-x-2">
-      <button class="text-blue-600 border border-blue-600 px-3 py-1 rounded hover:bg-blue-50" 
-              (click)="view(row)">Ver</button>
-      <button class="text-yellow-600 border border-yellow-600 px-3 py-1 rounded hover:bg-yellow-50" 
-              (click)="openEdit(row)">Editar</button>
-      <button class="text-red-600 border border-red-600 px-3 py-1 rounded hover:bg-red-50" 
-              (click)="openDeleteModal(row)">Eliminar</button>
+      <button  (click)="view(row)"class="btn action-btn unified"> 
+        <i class="bi bi-eye"></i>
+      </button>
+      <button  (click)="openEdit(row)"class="btn action-btn unified">
+        <i class="bi bi-pencil"></i>
+      </button>
+      <button  (click)="openDeleteModal(row)"class="btn action-btn unified">
+        <i class="bi bi-trash"></i>
+      </button>
     </div>
   </ng-template>
 </app-data-table>

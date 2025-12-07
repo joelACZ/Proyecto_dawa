@@ -8,16 +8,12 @@
   width: 46px;
   height: 46px;
   border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   padding: 0;
   border: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
   overflow: hidden;
   cursor: pointer;
-  
+
   /* Gradiente moderno con brillo */
   background: linear-gradient(145deg, #2a9bc0, #2a9bc0);
   border: 1px solid #2a9bc0;
@@ -25,6 +21,7 @@
     0 4px 12px rgba(0, 0, 0, 0.08),
     0 2px 4px rgba(0, 0, 0, 0.05);
 }
+
 
 /* Efecto hover elegante */
 .action-btn.unified:hover {

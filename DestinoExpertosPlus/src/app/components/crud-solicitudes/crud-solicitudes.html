@@ -206,8 +206,8 @@
               </td>
               <td>{{ formatearFecha(solicitud.fechaCreacion) }}</td>
               <td>
-                <button class="btn btn-sm btn-warning me-1" (click)="prepararEdicion(solicitud)" [disabled]="cargando">Editar</button>
-                <button class="btn btn-sm btn-danger me-1" (click)="eliminarSolicitud(solicitud.id)" [disabled]="cargando">Eliminar</button>
+                <button class="btn btn-sm btn-warning me-1" (click)="prepararEdicion(solicitud)" [disabled]="cargando"> <i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-danger me-1" (click)="eliminarSolicitud(solicitud.id)" [disabled]="cargando"><i class="bi bi-trash"></i></button>
                 <div class="btn-group" role="group">
                   <button type="button" class="btn btn-sm btn-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" [disabled]="cargando">
                     Estado

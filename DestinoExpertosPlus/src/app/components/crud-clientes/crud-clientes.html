@@ -5,15 +5,19 @@
 </app-card>
 
 <!-- BUSCADOR Y BOTONES -->
-<div class="mb-4 mt-4 flex justify-between items-center gap-2">
-  <input type="text" placeholder="Buscar clientes..." class="border p-2 rounded w-full md:w-64" 
+<div class="mb-4 mt-4 d-flex align-items-center gap-2">
+  <input type="text" placeholder="Buscar clientes..."
+         class="border p-2 rounded w-full md:w-64"
          #txtBuscar (input)="buscarClientes(txtBuscar)" />
-  
-  <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition" 
-          (click)="abrirModalNuevo()">
-    + Nuevo Cliente
-  </button>
-</div>
+
+  <div style="margin-left: auto;">
+    <button 
+      class="btn btn-light border font-weight-bold py-2 px-4 rounded transition"
+      (click)="abrirModalNuevo()">
+      <i class="bi bi-person-plus"></i> Nuevo Cliente
+    </button>
+  </div>
+
 
 <!-- FILTROS -->
 <div class="card mb-4" *ngIf="false"> <!-- Oculto por ahora, pero estructura lista -->
@@ -39,12 +43,15 @@
 ]">
   <ng-template #actions let-row>
     <div class="flex space-x-2">
-      <button class="text-blue-600 border border-blue-600 px-3 py-1 rounded hover:bg-blue-50" 
-              (click)="verDetalleCliente(row)">Ver</button>
-      <button class="text-yellow-600 border border-yellow-600 px-3 py-1 rounded hover:bg-yellow-50" 
-              (click)="abrirModalEdicion(row)">Editar</button>
-      <button class="text-red-600 border border-red-600 px-3 py-1 rounded hover:bg-red-50" 
-              (click)="abrirModalEliminacion(row)">Eliminar</button>
+      <button  (click)="verDetalleCliente(row)"class="btn action-btn unified">
+        <i class="bi bi-eye"></i>
+      </button>
+      <button  (click)="abrirModalEdicion(row)"class="btn action-btn unified">
+        <i class="bi bi-pencil"></i>
+      </button>
+      <button  (click)="abrirModalEliminacion(row)"class="btn action-btn unified">
+        <i class="bi bi-trash"></i>
+      </button>
     </div>
   </ng-template>
 </app-data-table>
