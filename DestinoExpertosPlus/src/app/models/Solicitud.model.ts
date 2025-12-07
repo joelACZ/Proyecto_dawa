@@ -18,7 +18,7 @@ export interface Solicitud extends Identifiable, WithTimestamps {
   descripcion: string;
   ubicacion: string;
   urgencia: boolean;
-  nivelUrgencia?: NivelUrgencia; 
+  nivelUrgencia?: string; 
 
 }
 

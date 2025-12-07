@@ -6,7 +6,7 @@ import { Servicio } from '../../../models/Servicio.model';
   standalone: true,
   templateUrl: './cards.html',
 })
-export class Cards {
+export class CardComponent {
   @Input() servicio!: Servicio;
   @Input() title: string = '';
   @Input() subtitle: string = '';

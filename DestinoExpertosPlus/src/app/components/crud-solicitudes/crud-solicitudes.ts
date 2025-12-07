@@ -1,324 +1,250 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';  '@angular/forms';
-import { Solicitud, SolicitudCreate, EstadoSolicitud, NivelUrgencia } from '../../models/Solicitud.model';
-import { Cliente } from '../../models/Cliente.model';
-import { Profesional } from '../../models/Profesional.model';
-import { Servicio } from '../../models/Servicio.model';
-import { ServServiciosJson } from '../../services/servicio-service';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SolicitudService } from '../../services/solicitud-service';
 import { ServClientesJson } from '../../services/cliente-service';
-import { ServProfesionalesJson } from '../../services/profesionales-service'; // Necesitarás crear este servicio
+import { ServProfesionalesJson } from '../../services/profesionales-service';
+import { ServServiciosJson } from '../../services/servicio-service';
 
 @Component({
   selector: 'app-crud-solicitudes',
-  imports: [CommonModule, ReactiveFormsModule, FormsModule], // SOLO componentes, directivas y pipes - NO servicios
-  templateUrl: './crud-solicitudes.html', // Verifica la extensión
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  templateUrl: './crud-solicitudes.html',
   styleUrl: './crud-solicitudes.css',
 })
 export class CrudSolicitudesComponent implements OnInit {
-  // Listas de datos
-  solicitudes: Solicitud[] = [];
-  clientes: Cliente[] = [];
-  profesionales: Profesional[] = [];
-  servicios: Servicio[] = [];
-  
-  // Estados disponibles
-  estadosSolicitud: EstadoSolicitud[] = ['pendiente', 'confirmada', 'en_proceso', 'completada', 'cancelada'];
-  nivelesUrgencia: NivelUrgencia[] = ['baja', 'media', 'alta'];
-  
-  // Objeto para nueva solicitud
-  nuevaSolicitud: SolicitudCreate = {
-    cliente_id: 0,
-    profesional_id: 0,
-    servicio_id: 0,
-    estado: 'pendiente',
-    descripcion: '',
-    ubicacion: '',
-    urgencia: false,
-    nivelUrgencia: undefined
+  // ==================== PROPIEDADES DE DATOS (sin tipos de modelo) ====================
+  solicitudes: any[] = [];
+  clientes: any[] = [];
+  profesionales: any[] = [];
+  servicios: any[] = [];
+
+  // ==================== PROPIEDADES DE FILTROS ====================
+  filtros = {
+    busqueda: '',
+    estado: 'todos',
+    urgencia: 'todos',
+    clienteId: 0,
+    profesionalId: 0
   };
-  
-  // Solicitud seleccionada para editar
-  solicitudSeleccionada: Solicitud | null = null;
-  
-  // Filtros
-  filtroBusqueda: string = '';
-  filtroEstado: string = 'todos';
-  filtroUrgencia: string = 'todos';
-  filtroCliente: number = 0;
-  filtroProfesional: number = 0;
-  
-  // Control de UI
-  modoEdicion: boolean = false;
-  cargando: boolean = false;
-  mensaje: string = '';
-  tipoMensaje: 'success' | 'error' | 'info' = 'info';
+
+  // ==================== DATOS DEL FORMULARIO ====================
+  formulario: {
+  cliente_id: number;
+  profesional_id: number;
+  servicio_id: number;
+  estado: string;
+  descripcion: string;
+  ubicacion: string;
+  urgencia: boolean;
+  nivelUrgencia?: string; 
+} = {
+  cliente_id: 0,
+  profesional_id: 0,
+  servicio_id: 0,
+  estado: 'pendiente',
+  descripcion: '',
+  ubicacion: '',
+  urgencia: false,
+  nivelUrgencia: undefined
+};
+
+  // ==================== ESTADO DE UI ====================
+  modoEdicion = false;
+  cargando = false;
+  mensaje: { texto: string; tipo: 'success' | 'error' | 'info' } | null = null;
   
   // Paginación
-  paginaActual: number = 1;
-  itemsPorPagina: number = 10;
-  totalPaginas: number = 1;
-  
+  paginaActual = 1;
+  itemsPorPagina = 10;
+  totalPaginas = 1;
+  totalItems = 0;
+
+  // ID para edición
+  protected idEditando: number | null = null;
+
+  // ==================== CONSTRUCTOR ====================
   constructor(
-    private solicitudesService: SolicitudService,
-    private clientesService: ServClientesJson,
-    private profesionalesService: ServProfesionalesJson,
-    private serviciosService: ServServiciosJson 
+    private servicioSolicitudes: SolicitudService,
+    private servicioClientes: ServClientesJson,
+    private servicioProfesionales: ServProfesionalesJson,
+    private servicioServicios: ServServiciosJson
   ) {}
 
+  // ==================== CICLO DE VIDA ====================
   ngOnInit(): void {
-    this.cargarDatos();
+    this.inicializarComponente();
   }
 
-  // Cargar todos los datos necesarios
-  cargarDatos(): void {
+  // ==================== INICIALIZACIÓN ====================
+  private inicializarComponente(): void {
     this.cargando = true;
     
-    // Cargar solicitudes
-    this.solicitudesService.getSolicitudes().subscribe({
-      next: (data: Solicitud[]) => {
-        this.solicitudes = data;
-        this.calcularPaginacion();
-        this.cargando = false;
-      },
-      error: (error: any) => {
-        this.mostrarMensaje('Error al cargar las solicitudes', 'error');
-        this.cargando = false;
-        console.error('Error:', error);
-      }
-    });
-    
-    // Cargar clientes para los filtros y formulario
-    this.clientesService.getClientes().subscribe({
-      next: (data: Cliente[]) => {
-        this.clientes = data;
-      },
-      error: (error: any) => {
-        console.error('Error al cargar clientes:', error);
-        this.mostrarMensaje('Error al cargar clientes', 'error');
-      }
-    });
-    
-    // Cargar profesionales - Necesitas implementar este servicio
-    this.profesionalesService.getProfesionales().subscribe({
-       next: (data: Profesional[]) => {
-         this.profesionales = data;
-       },
-       error: (error: any) => {
-         console.error('Error al cargar profesionales:', error);
-       }
-    });
-    
-    // Cargar servicios
-    this.serviciosService.getServicios().subscribe({
-      next: (data: Servicio[]) => {
-        this.servicios = data;
-      },
-      error: (error: any) => {
-        console.error('Error al cargar servicios:', error);
-        this.mostrarMensaje('Error al cargar servicios', 'error');
-      }
+    // Cargar datos maestros y solicitudes en paralelo
+    Promise.all([
+      this.servicioClientes.getClientes().toPromise(),
+      this.servicioProfesionales.getProfesionales().toPromise(),
+      this.servicioServicios.getServicios().toPromise(),
+      this.cargarSolicitudes()
+    ]).finally(() => {
+      this.cargando = false;
     });
   }
 
-  // Aplicar filtros
-  get solicitudesFiltradas(): Solicitud[] {
-    let filtradas = this.solicitudes;
-    
-    // Filtro por búsqueda
-    if (this.filtroBusqueda) {
-      const busqueda = this.filtroBusqueda.toLowerCase();
-      filtradas = filtradas.filter(s =>
-        s.descripcion.toLowerCase().includes(busqueda) ||
-        s.ubicacion.toLowerCase().includes(busqueda) ||
-        s.estado.toLowerCase().includes(busqueda)
-      );
-    }
-    
-    // Filtro por estado
-    if (this.filtroEstado !== 'todos') {
-      filtradas = filtradas.filter(s => s.estado === this.filtroEstado);
-    }
-    
-    // Filtro por urgencia
-    if (this.filtroUrgencia !== 'todos') {
-      const esUrgente = this.filtroUrgencia === 'urgente';
-      filtradas = filtradas.filter(s => s.urgencia === esUrgente);
-    }
-    
-    // Filtro por cliente
-    if (this.filtroCliente > 0) {
-      filtradas = filtradas.filter(s => s.cliente_id === this.filtroCliente);
-    }
-    
-    // Filtro por profesional
-    if (this.filtroProfesional > 0) {
-      filtradas = filtradas.filter(s => s.profesional_id === this.filtroProfesional);
-    }
-    
-    this.calcularPaginacion(filtradas);
-    return filtradas;
-  }
-
-  // Obtener solicitudes paginadas
-  get solicitudesPaginadas(): Solicitud[] {
-    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
-    const fin = inicio + this.itemsPorPagina;
-    return this.solicitudesFiltradas.slice(inicio, fin);
-  }
-
-  calcularPaginacion(lista?: Solicitud[]): void {
-    const listaUsar = lista || this.solicitudes;
-    this.totalPaginas = Math.ceil(listaUsar.length / this.itemsPorPagina);
-    if (this.paginaActual > this.totalPaginas && this.totalPaginas > 0) {
-      this.paginaActual = this.totalPaginas;
+  private async cargarSolicitudes(): Promise<void> {
+    try {
+      const respuesta = await this.servicioSolicitudes.obtenerPaginadas(
+        this.paginaActual,
+        this.itemsPorPagina,
+        this.construirFiltros()
+      ).toPromise();
+      
+      this.solicitudes = respuesta?.datos || [];
+      this.totalItems = respuesta?.total || 0;
+      this.totalPaginas = respuesta?.totalPaginas || 1;
+    } catch (error) {
+      console.error('Error cargando solicitudes:', error);
+      this.mostrarMensaje('Error al cargar solicitudes', 'error');
     }
   }
 
-  // Navegación de páginas
+  // ==================== FILTROS ====================
+  aplicarFiltros(): void {
+    this.paginaActual = 1; // Resetear paginación
+    this.cargarSolicitudes();
+  }
+
+  private construirFiltros(): any {
+    const params: any = {};
+
+    if (this.filtros.busqueda) params.busqueda = this.filtros.busqueda;
+    if (this.filtros.estado !== 'todos') params.estado = this.filtros.estado;
+    if (this.filtros.urgencia !== 'todos') params.urgente = this.filtros.urgencia === 'urgente';
+    if (this.filtros.clienteId > 0) params.clienteId = this.filtros.clienteId;
+    if (this.filtros.profesionalId > 0) params.profesionalId = this.filtros.profesionalId;
+
+    return params;
+  }
+
+  limpiarFiltros(): void {
+    this.filtros = {
+      busqueda: '',
+      estado: 'todos',
+      urgencia: 'todos',
+      clienteId: 0,
+      profesionalId: 0
+    };
+    this.aplicarFiltros();
+  }
+
+  // ==================== PAGINACIÓN ====================
   cambiarPagina(pagina: number): void {
-    if (pagina >= 1 && pagina <= this.totalPaginas) {
-      this.paginaActual = pagina;
-    }
+    if (pagina < 1 || pagina > this.totalPaginas) return;
+    
+    this.paginaActual = pagina;
+    this.cargarSolicitudes();
   }
 
-  // Crear nueva solicitud
+  // ==================== OPERACIONES CRUD ====================
   crearSolicitud(): void {
-    if (!this.validarSolicitud()) return;
-    
+    if (!this.validarFormulario()) return;
+
     this.cargando = true;
-    this.solicitudesService.create(this.nuevaSolicitud).subscribe({
-      next: (solicitud: Solicitud) => {
-        this.solicitudes.unshift(solicitud); // Agregar al inicio
-        this.resetFormulario();
+    this.servicioSolicitudes.crear(this.formulario).subscribe({
+      next: (nueva) => {
+        this.solicitudes.unshift(nueva);
+        this.resetearFormulario();
         this.mostrarMensaje('Solicitud creada exitosamente', 'success');
         this.cargando = false;
       },
-      error: (error: any) => {
-        this.mostrarMensaje('Error al crear la solicitud', 'error');
+      error: (e) => {
+        console.error('Error creando:', e);
+        this.mostrarMensaje('Error al crear solicitud', 'error');
         this.cargando = false;
-        console.error('Error:', error);
       }
     });
   }
 
-  // Seleccionar solicitud para editar
-  seleccionarSolicitud(solicitud: Solicitud): void {
-    this.solicitudSeleccionada = { ...solicitud };
+  prepararEdicion(solicitud: any): void {
+    this.idEditando = solicitud.id;
     this.modoEdicion = true;
-    
-    // Mapear a la estructura de edición (sin id y fecha)
-    this.nuevaSolicitud = {
-      cliente_id: solicitud.cliente_id,
-      profesional_id: solicitud.profesional_id,
-      servicio_id: solicitud.servicio_id,
-      estado: solicitud.estado,
-      descripcion: solicitud.descripcion,
-      ubicacion: solicitud.ubicacion,
-      urgencia: solicitud.urgencia,
-      nivelUrgencia: solicitud.nivelUrgencia
-    };
+    Object.assign(this.formulario, solicitud);
   }
 
-  // Actualizar solicitud
   actualizarSolicitud(): void {
-    if (!this.solicitudSeleccionada || !this.validarSolicitud()) return;
-    
+    if (!this.idEditando || !this.validarFormulario()) return;
+
     this.cargando = true;
-    this.solicitudesService.update(this.solicitudSeleccionada.id, this.nuevaSolicitud).subscribe({
-      next: (solicitudActualizada: Solicitud) => {
-        const index = this.solicitudes.findIndex(s => s.id === solicitudActualizada.id);
-        if (index !== -1) {
-          this.solicitudes[index] = solicitudActualizada;
-        }
-        this.resetFormulario();
+    this.servicioSolicitudes.actualizar(this.idEditando, this.formulario).subscribe({
+      next: (actualizada) => {
+        const index = this.solicitudes.findIndex(s => s.id === actualizada.id);
+        if (index !== -1) this.solicitudes[index] = actualizada;
+        
+        this.resetearFormulario();
         this.mostrarMensaje('Solicitud actualizada exitosamente', 'success');
         this.cargando = false;
       },
-      error: (error: any) => {
-        this.mostrarMensaje('Error al actualizar la solicitud', 'error');
+      error: (e) => {
+        console.error('Error actualizando:', e);
+        this.mostrarMensaje('Error al actualizar solicitud', 'error');
         this.cargando = false;
-        console.error('Error:', error);
       }
     });
   }
 
-  // Eliminar solicitud
   eliminarSolicitud(id: number): void {
-    if (confirm('¿Estás seguro de que deseas eliminar esta solicitud?')) {
-      this.cargando = true;
-      this.solicitudesService.delete(id).subscribe({
-        next: () => {
-          this.solicitudes = this.solicitudes.filter(s => s.id !== id);
-          this.mostrarMensaje('Solicitud eliminada exitosamente', 'success');
-          this.cargando = false;
-        },
-        error: (error: any) => {
-          this.mostrarMensaje('Error al eliminar la solicitud', 'error');
-          this.cargando = false;
-          console.error('Error:', error);
-        }
-      });
-    }
+    if (!confirm('¿Estás seguro de eliminar esta solicitud?')) return;
+
+    this.cargando = true;
+    this.servicioSolicitudes.eliminar(id).subscribe({
+      next: () => {
+        this.solicitudes = this.solicitudes.filter(s => s.id !== id);
+        this.mostrarMensaje('Solicitud eliminada exitosamente', 'success');
+        this.cargando = false;
+      },
+      error: (e) => {
+        console.error('Error eliminando:', e);
+        this.mostrarMensaje('Error al eliminar solicitud', 'error');
+        this.cargando = false;
+      }
+    });
   }
 
-  // Cambiar estado de la solicitud
-  cambiarEstado(solicitud: Solicitud, nuevoEstado: EstadoSolicitud): void {
-    // Verifica si tu servicio tiene el método updateEstado
-    if ((this.solicitudesService as any).updateEstado) {
-      (this.solicitudesService as any).updateEstado(solicitud.id, nuevoEstado).subscribe({
-        next: (solicitudActualizada: Solicitud) => {
-          const index = this.solicitudes.findIndex(s => s.id === solicitudActualizada.id);
-          if (index !== -1) {
-            this.solicitudes[index] = solicitudActualizada;
-          }
-          this.mostrarMensaje(`Estado cambiado a ${nuevoEstado}`, 'success');
-        },
-        error: (error: any) => {
-          this.mostrarMensaje('Error al cambiar el estado', 'error');
-          console.error('Error:', error);
-        }
-      });
-    } else {
-      // Si no existe updateEstado, usa el update normal
-      const solicitudActualizada = { ...solicitud, estado: nuevoEstado };
-      this.solicitudesService.update(solicitud.id, solicitudActualizada).subscribe({
-        next: (respuesta: Solicitud) => {
-          const index = this.solicitudes.findIndex(s => s.id === respuesta.id);
-          if (index !== -1) {
-            this.solicitudes[index] = respuesta;
-          }
-          this.mostrarMensaje(`Estado cambiado a ${nuevoEstado}`, 'success');
-        },
-        error: (error: any) => {
-          this.mostrarMensaje('Error al cambiar el estado', 'error');
-          console.error('Error:', error);
-        }
-      });
-    }
+  // ==================== ACCIONES RÁPIDAS ====================
+  cambiarEstado(solicitud: any, nuevoEstado: string): void {
+    this.servicioSolicitudes.actualizarEstado(solicitud.id, nuevoEstado).subscribe({
+      next: (actualizada) => {
+        const index = this.solicitudes.findIndex(s => s.id === actualizada.id);
+        if (index !== -1) this.solicitudes[index] = actualizada;
+        this.mostrarMensaje(`Estado cambiado a ${nuevoEstado}`, 'success');
+      },
+      error: (e) => {
+        console.error('Error cambiando estado:', e);
+        this.mostrarMensaje('Error al cambiar estado', 'error');
+      }
+    });
   }
 
-  // Validar formulario
-  validarSolicitud(): boolean {
-    if (!this.nuevaSolicitud.cliente_id || !this.nuevaSolicitud.profesional_id || 
-        !this.nuevaSolicitud.servicio_id || !this.nuevaSolicitud.descripcion.trim() || 
-        !this.nuevaSolicitud.ubicacion.trim()) {
-      this.mostrarMensaje('Por favor completa todos los campos obligatorios', 'error');
+  // ==================== VALIDACIÓN Y RESET ====================
+  private validarFormulario(): boolean {
+    const f = this.formulario;
+    
+    if (!f.cliente_id || !f.profesional_id || !f.servicio_id || 
+        !f.descripcion?.trim() || !f.ubicacion?.trim()) {
+      this.mostrarMensaje('Complete todos los campos obligatorios', 'error');
       return false;
     }
     
-    if (this.nuevaSolicitud.urgencia && !this.nuevaSolicitud.nivelUrgencia) {
-      this.mostrarMensaje('Si la solicitud es urgente, selecciona un nivel de urgencia', 'error');
+    if (f.urgencia && !f.nivelUrgencia) {
+      this.mostrarMensaje('Seleccione nivel de urgencia', 'error');
       return false;
     }
     
     return true;
   }
 
-  // Resetear formulario
-  resetFormulario(): void {
-    this.nuevaSolicitud = {
+  public resetearFormulario(): void {
+    this.formulario = {
       cliente_id: 0,
       profesional_id: 0,
       servicio_id: 0,
@@ -328,22 +254,17 @@ export class CrudSolicitudesComponent implements OnInit {
       urgencia: false,
       nivelUrgencia: undefined
     };
-    this.solicitudSeleccionada = null;
+    this.idEditando = null;
     this.modoEdicion = false;
   }
 
-  // Mostrar mensajes
-  mostrarMensaje(mensaje: string, tipo: 'success' | 'error' | 'info'): void {
-    this.mensaje = mensaje;
-    this.tipoMensaje = tipo;
-    
-    setTimeout(() => {
-      this.mensaje = '';
-    }, 5000);
+  // ==================== UTILIDADES ====================
+  private mostrarMensaje(texto: string, tipo: 'success' | 'error' | 'info'): void {
+    this.mensaje = { texto, tipo };
+    setTimeout(() => this.mensaje = null, 5000);
   }
 
-  // Formatear fecha
-  formatearFecha(fecha: string | Date): string {
+  formatearFecha(fecha: string): string {
     return new Date(fecha).toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'long',
@@ -353,8 +274,7 @@ export class CrudSolicitudesComponent implements OnInit {
     });
   }
 
-  // Obtener clase CSS según estado
-  getClaseEstado(estado: EstadoSolicitud): string {
+  obtenerClaseEstado(estado: string): string {
     const clases = {
       'pendiente': 'badge bg-warning',
       'confirmada': 'badge bg-info',
@@ -362,51 +282,45 @@ export class CrudSolicitudesComponent implements OnInit {
       'completada': 'badge bg-success',
       'cancelada': 'badge bg-danger'
     };
-    return clases[estado] || 'badge bg-secondary';
+    return clases[estado as keyof typeof clases] || 'badge bg-secondary';
   }
 
-  // Obtener clase CSS según nivel de urgencia
-  getClaseUrgencia(nivel: NivelUrgencia): string {
+  obtenerClaseUrgencia(nivel: string): string {
     const clases = {
       'baja': 'badge bg-info',
       'media': 'badge bg-warning',
       'alta': 'badge bg-danger'
     };
-    return clases[nivel] || 'badge bg-secondary';
+    return clases[nivel as keyof typeof clases] || 'badge bg-secondary';
   }
 
-  // Limpiar filtros
-  limpiarFiltros(): void {
-    this.filtroBusqueda = '';
-    this.filtroEstado = 'todos';
-    this.filtroUrgencia = 'todos';
-    this.filtroCliente = 0;
-    this.filtroProfesional = 0;
-    this.paginaActual = 1;
-  }
-
-  // Alternar urgencia
+  // ==================== MÉTODOS AUXILIARES PARA TEMPLATE ====================
   toggleUrgencia(): void {
-    if (!this.nuevaSolicitud.urgencia) {
-      this.nuevaSolicitud.nivelUrgencia = 'media'; // Valor por defecto
-    } else {
-      this.nuevaSolicitud.nivelUrgencia = undefined;
-    }
+    this.formulario.nivelUrgencia = this.formulario.urgencia ? 'media' : undefined;
   }
 
-  // Métodos auxiliares para obtener nombres
-  getClienteNombre(clienteId: number): string {
-    const cliente = this.clientes.find(c => c.id === clienteId);
-    return cliente ? cliente.nombre : `Cliente ${clienteId}`;
+  obtenerNombreCliente(id: number): string {
+    return this.clientes.find(c => c.id === id)?.nombre || `Cliente #${id}`;
   }
 
-  getServicioNombre(servicioId: number): string {
-    const servicio = this.servicios.find(s => s.id === servicioId);
-    return servicio ? servicio.nombre : `Servicio ${servicioId}`;
+  obtenerNombreProfesional(id: number): string {
+    return this.profesionales.find(p => p.id === id)?.nombre || `Profesional #${id}`;
   }
 
-  getProfesionalNombre(profesionalId: number): string {
-    const profesional = this.profesionales.find(p => p.id === profesionalId);
-    return profesional ? profesional.nombre : `Profesional ${profesionalId}`;
+  obtenerNombreServicio(id: number): string {
+    return this.servicios.find(s => s.id === id)?.nombre || `Servicio #${id}`;
+  }
+
+    // ==================== MÉTODOS PARA ESTADÍSTICAS ====================
+  getSolicitudesPendientes(): number {
+    return this.solicitudes.filter(s => s.estado === 'pendiente').length;
+  }
+
+  getSolicitudesUrgentes(): number {
+    return this.solicitudes.filter(s => s.urgencia).length;
+  }
+
+  getSolicitudesCompletadas(): number {
+    return this.solicitudes.filter(s => s.estado === 'completada').length;
   }
 }

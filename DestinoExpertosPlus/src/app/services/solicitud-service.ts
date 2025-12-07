@@ -1,158 +1,201 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
-import { Solicitud, SolicitudCreate, SolicitudUpdate } from '../models/Solicitud.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SolicitudService {
-
-  private solicitudesUrl = 'http://localhost:3000/solicitudes';
+  // ==================== CONFIGURACIÓN ====================
+  private readonly API_URL = 'http://localhost:3000/solicitudes';
 
   constructor(private http: HttpClient) {}
 
-  // GET: obtener todas las solicitudes
-  getSolicitudes(): Observable<Solicitud[]> {
-    return this.http.get<Solicitud[]>(this.solicitudesUrl);
+  // ==================== OPERACIONES DE LECTURA ====================
+
+  /**
+   * Obtiene todas las solicitudes sin filtrar
+   */
+  SolicitudesobtenerTodas(): Observable<any[]> {
+    return this.http.get<any[]>(this.API_URL);
   }
 
-  // GET: obtener solicitud por ID
-  getSolicitudById(id: number): Observable<Solicitud> {
-    return this.http.get<Solicitud>(`${this.solicitudesUrl}/${id}`);
+  /**
+   * Obtiene una solicitud específica por ID
+   */
+  obtenerPorId(id: number): Observable<any> {
+    return this.http.get<any>(`${this.API_URL}/${id}`);
   }
 
-  // GET: obtener solicitudes por cliente
-  getSolicitudesByCliente(clienteId: number): Observable<Solicitud[]> {
-    return this.http.get<Solicitud[]>(this.solicitudesUrl).pipe(
-      map(solicitudes => 
-        solicitudes.filter(s => s.cliente_id === clienteId)
-      )
+  /**
+   * Obtiene solicitudes aplicando múltiples filtros simultáneamente
+   * Los filtros se aplican en el cliente simulando un backend real
+   */
+  obtenerFiltradas(filtros: {
+    busqueda?: string;
+    estado?: string;
+    urgente?: boolean;
+    clienteId?: number;
+    profesionalId?: number;
+    servicioId?: number;
+    fechaInicio?: Date;
+    fechaFin?: Date;
+  }): Observable<any[]> {
+    return this.http.get<any[]>(this.API_URL).pipe(
+      map(solicitudes => this.aplicarFiltros(solicitudes, filtros))
     );
   }
 
-  // GET: obtener solicitudes por profesional
-  getSolicitudesByProfesional(profesionalId: number): Observable<Solicitud[]> {
-    return this.http.get<Solicitud[]>(this.solicitudesUrl).pipe(
-      map(solicitudes => 
-        solicitudes.filter(s => s.profesional_id === profesionalId)
-      )
-    );
-  }
-
-  // GET: obtener solicitudes por servicio
-  getSolicitudesByServicio(servicioId: number): Observable<Solicitud[]> {
-    return this.http.get<Solicitud[]>(this.solicitudesUrl).pipe(
-      map(solicitudes => 
-        solicitudes.filter(s => s.servicio_id === servicioId)
-      )
-    );
-  }
-
-  // SEARCH: filtrar solicitudes por descripción, ubicación o estado
-  searchSolicitudes(param: string): Observable<Solicitud[]> {
-    return this.http.get<Solicitud[]>(this.solicitudesUrl).pipe(
-      map(solicitudes =>
-        solicitudes.filter(s =>
-          s.descripcion.toLowerCase().includes(param.toLowerCase()) ||
-          s.ubicacion.toLowerCase().includes(param.toLowerCase()) ||
-          s.estado.toLowerCase().includes(param.toLowerCase())
-        )
-      )
-    );
-  }
-
-  // POST: crear nueva solicitud
-  create(solicitud: SolicitudCreate): Observable<Solicitud> {
-    // Asignar fecha actual si no viene en la solicitud
-    const solicitudConFecha = {
-      ...solicitud,
-      fecha: new Date().toISOString()
-    };
-    return this.http.post<Solicitud>(this.solicitudesUrl, solicitudConFecha);
-  }
-
-  // PUT: actualizar solicitud existente
-  update(id: number, solicitud: SolicitudUpdate): Observable<Solicitud> {
-    const url = `${this.solicitudesUrl}/${id}`;
-    return this.http.put<Solicitud>(url, solicitud);
-  }
-
-  // PATCH: actualizar parcialmente (especialmente útil para estados)
-  updateEstado(id: number, estado: string): Observable<Solicitud> {
-    const url = `${this.solicitudesUrl}/${id}`;
-    return this.http.patch<Solicitud>(url, { estado });
-  }
-
-  // PATCH: actualizar urgencia
-  updateUrgencia(id: number, urgencia: boolean, nivelUrgencia?: string): Observable<Solicitud> {
-    const url = `${this.solicitudesUrl}/${id}`;
-    const updateData: any = { urgencia };
-    if (nivelUrgencia) {
-      updateData.nivelUrgencia = nivelUrgencia;
-    }
-    return this.http.patch<Solicitud>(url, updateData);
-  }
-
-  // DELETE: eliminar solicitud
-  delete(id: number): Observable<Solicitud> {
-    const url = `${this.solicitudesUrl}/${id}`;
-    return this.http.delete<Solicitud>(url);
-  }
-
-  // Métodos adicionales útiles
-
-  // Filtrar por estado
-  getSolicitudesByEstado(estado: string): Observable<Solicitud[]> {
-    return this.http.get<Solicitud[]>(this.solicitudesUrl).pipe(
-      map(solicitudes => 
-        solicitudes.filter(s => s.estado === estado)
-      )
-    );
-  }
-
-  // Filtrar por urgencia
-  getSolicitudesUrgentes(): Observable<Solicitud[]> {
-    return this.http.get<Solicitud[]>(this.solicitudesUrl).pipe(
-      map(solicitudes => 
-        solicitudes.filter(s => s.urgencia === true)
-      )
-    );
-  }
-
-  // Obtener solicitudes por rango de fechas
-  getSolicitudesByFechaRange(fechaInicio: Date, fechaFin: Date): Observable<Solicitud[]> {
-    return this.http.get<Solicitud[]>(this.solicitudesUrl).pipe(
-      map(solicitudes =>
-        solicitudes.filter(s => {
-          const fechaSolicitud = new Date(s.fecha);
-          return fechaSolicitud >= fechaInicio && fechaSolicitud <= fechaFin;
-        })
-      )
-    );
-  }
-
-  // Obtener estadísticas de solicitudes
-  getEstadisticas(): Observable<any> {
-    return this.http.get<Solicitud[]>(this.solicitudesUrl).pipe(
+  /**
+   * Obtiene solicitudes paginadas y filtradas
+   * Retorna datos + información de paginación
+   */
+  obtenerPaginadas(
+    pagina: number, 
+    itemsPorPagina: number, 
+    filtros?: any
+  ): Observable<{
+    datos: any[];
+    total: number;
+    totalPaginas: number;
+  }> {
+    return this.obtenerFiltradas(filtros || {}).pipe(
       map(solicitudes => {
         const total = solicitudes.length;
-        const porEstado = solicitudes.reduce((acc, s) => {
-          acc[s.estado] = (acc[s.estado] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>);
-
-        const urgentes = solicitudes.filter(s => s.urgencia).length;
-        const conNivelUrgencia = solicitudes.filter(s => s.nivelUrgencia).length;
-
+        const inicio = (pagina - 1) * itemsPorPagina;
+        const fin = inicio + itemsPorPagina;
+        
         return {
+          datos: solicitudes.slice(inicio, fin),
           total,
-          porEstado,
-          urgentes,
-          conNivelUrgencia,
-          porcentajeUrgentes: total > 0 ? (urgentes / total) * 100 : 0
+          totalPaginas: Math.ceil(total / itemsPorPagina)
         };
       })
     );
+  }
+
+  // ==================== OPERACIONES DE ESCRITURA ====================
+
+  /**
+   * Crea una nueva solicitud asignando fecha actual automáticamente
+   */
+  crear(datosSolicitud: any): Observable<any> {
+    const solicitudConFecha = {
+      ...datosSolicitud,
+      fecha: new Date().toISOString(),
+      estado: datosSolicitud.estado || 'pendiente'
+    };
+    return this.http.post<any>(this.API_URL, solicitudConFecha);
+  }
+
+  /**
+   * Actualiza una solicitud completamente
+   */
+  actualizar(id: number, datosSolicitud: any): Observable<any> {
+    return this.http.put<any>(`${this.API_URL}/${id}`, datosSolicitud);
+  }
+
+  /**
+   * Actualiza solo el estado de una solicitud
+   */
+  actualizarEstado(id: number, estado: string): Observable<any> {
+    return this.http.patch<any>(`${this.API_URL}/${id}`, { estado });
+  }
+
+  /**
+   * Actualiza solo la configuración de urgencia
+   */
+  actualizarUrgencia(id: number, urgencia: boolean, nivelUrgencia?: string): Observable<any> {
+    const datos: any = { urgencia };
+    if (nivelUrgencia) datos.nivelUrgencia = nivelUrgencia;
+    return this.http.patch<any>(`${this.API_URL}/${id}`, datos);
+  }
+
+  // ==================== OPERACIONES DE ELIMINACIÓN ====================
+
+  /**
+   * Elimina una solicitud por ID
+   */
+  eliminar(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.API_URL}/${id}`);
+  }
+
+  // ==================== ESTADÍSTICAS ====================
+
+  /**
+   * Calcula estadísticas de solicitudes
+   */
+  obtenerEstadisticas(): Observable<{
+    total: number;
+    porEstado: Record<string, number>;
+    urgentes: number;
+    porcentajeUrgentes: number;
+  }> {
+    return this.SolicitudesobtenerTodas().pipe(
+      map(solicitudes => {
+        const total = solicitudes.length;
+        
+        return {
+          total,
+          porEstado: this.calcularConteoPorCampo(solicitudes, 'estado'),
+          urgentes: solicitudes.filter(s => s.urgencia).length,
+          porcentajeUrgentes: total > 0 ? (solicitudes.filter(s => s.urgencia).length / total) * 100 : 0
+        };
+      })
+    );
+  }
+
+  // ==================== MÉTODOS PRIVADOS ====================
+
+  /**
+   * Aplica múltiples filtros a una lista de solicitudes
+   */
+  private aplicarFiltros(solicitudes: any[], filtros: any): any[] {
+    return solicitudes.filter(s => {
+      // Filtro por ID de cliente
+      if (filtros.clienteId && s.cliente_id !== filtros.clienteId) return false;
+      
+      // Filtro por ID de profesional
+      if (filtros.profesionalId && s.profesional_id !== filtros.profesionalId) return false;
+      
+      // Filtro por ID de servicio
+      if (filtros.servicioId && s.servicio_id !== filtros.servicioId) return false;
+      
+      // Filtro por estado exacto
+      if (filtros.estado && s.estado !== filtros.estado) return false;
+      
+      // Filtro por estado de urgencia
+      if (filtros.urgente !== undefined && s.urgencia !== filtros.urgente) return false;
+      
+      // Filtro por texto de búsqueda (descripción, ubicación o estado)
+      if (filtros.busqueda) {
+        const textoBusqueda = filtros.busqueda.toLowerCase();
+        const textoMatch = 
+          s.descripcion?.toLowerCase().includes(textoBusqueda) ||
+          s.ubicacion?.toLowerCase().includes(textoBusqueda) ||
+          s.estado?.toLowerCase().includes(textoBusqueda);
+        if (!textoMatch) return false;
+      }
+      
+      // Filtro por rango de fechas
+      if (filtros.fechaInicio || filtros.fechaFin) {
+        const fechaSolicitud = new Date(s.fecha);
+        if (filtros.fechaInicio && fechaSolicitud < filtros.fechaInicio) return false;
+        if (filtros.fechaFin && fechaSolicitud > filtros.fechaFin) return false;
+      }
+      
+      return true;
+    });
+  }
+
+  /**
+   * Calcula el conteo de items por un campo específico
+   */
+  private calcularConteoPorCampo(lista: any[], campo: string): Record<string, number> {
+    return lista.reduce((acc, item) => {
+      const valor = item[campo];
+      acc[valor] = (acc[valor] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
   }
 }

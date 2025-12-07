@@ -43,7 +43,7 @@ export class ResenaListComponent implements OnInit {
         // Cargar clientes y solicitudes para obtener nombres
         this.clienteService.getClientes().subscribe({
           next: (clientes) => {
-            this.solicitudService.getSolicitudes().subscribe({
+            this.solicitudService.SolicitudesobtenerTodas().subscribe({
               next: (solicitudes) => {
                 // Enriquecer las reseñas con información adicional
                 this.resenas = resenas.map(resena => {

@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Profesional } from '../../models/Profesional.model';
 import { ServProfesionalesJson } from '../../services/profesionales-service';
 import { DataTableComponent } from '../shared/data-table/data-table';
-import { Cards } from '../shared/cards/cards';
+import { CardComponent } from '../shared/cards/cards';
 import { DetailModal } from '../shared/detail-modal/detail-modal';
 
 declare const bootstrap: any;
@@ -14,18 +14,7 @@ declare const bootstrap: any;
   standalone: true,
   templateUrl: './crud-profesionales.html',
   styleUrls: ['./crud-profesionales.css'],
-<<<<<<< HEAD
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    DataTableComponent,
-    Cards,
-    DetailModal
-  ],
-  standalone: true,
-=======
   imports: [DataTableComponent, CardComponent, ReactiveFormsModule, FormsModule, CommonModule, DetailModal],
->>>>>>> 3029ae3d94ce60a9f8abff23d46273c3d493769a
 })
 export class CrudProfesionales implements OnInit {
   // ============================================
