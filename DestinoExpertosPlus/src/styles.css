@@ -1,55 +1,63 @@
-/* Contenedor de botones */
-.d-flex.gap-2 {
-  gap: 0.75rem !important;
+.action-buttons-wrapper {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 0.45rem;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
 }
 
-/* Botones de acción unificados - Diseño moderno */
 .action-btn.unified {
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0;
   border: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
+  position: relative;
   cursor: pointer;
-
-  /* Gradiente moderno con brillo */
+  overflow: hidden;
   background: linear-gradient(145deg, #2a9bc0, #2a9bc0);
   border: 1px solid #2a9bc0;
-  box-shadow: 
+  box-shadow:
     0 4px 12px rgba(0, 0, 0, 0.08),
     0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
 }
 
+.action-btn.unified i {
+  font-size: 1.15rem;
+  color: black;
+  text-shadow: 0 0 8px rgba(5, 193, 255, 0.3);
+  transition: all 0.3s ease;
+}
 
-/* Efecto hover elegante */
 .action-btn.unified:hover {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 
-    0 8px 20px rgba(0, 0, 0, 0.3),
-    0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px) scale(1.05);
 }
 
-/* Efecto activo */
+.action-btn.unified:hover i {
+  color: #38d0ff;
+  transform: scale(1.1);
+}
+
 .action-btn.unified:active {
-  transform: translateY(-1px) scale(0.98);
-  transition: all 0.1s ease;
+  transform: scale(0.95);
 }
 
-/* Efecto de "onda" al hacer clic */
 .action-btn.unified::after {
-  content: '';
+  content: "";
   position: absolute;
+  width: 6px;
+  height: 6px;
+  background: rgba(255,255,255,0.4);
+  border-radius: 50%;
+  opacity: 0;
   top: 50%;
   left: 50%;
-  width: 5px;
-  height: 5px;
-  background: rgba(255, 255, 255, 0.3);
-  opacity: 0;
-  border-radius: 100%;
-  transform: scale(1, 1) translate(-50%);
-  transform-origin: 50% 50%;
+  transform: translate(-50%,-50%) scale(1);
 }
 
 .action-btn.unified:focus:not(:active)::after {
@@ -57,71 +65,10 @@
 }
 
 @keyframes ripple {
-  0% {
-    transform: scale(0, 0);
-    opacity: 0.5;
-  }
-  100% {
-    transform: scale(20, 20);
-    opacity: 0;
-  }
+  from { transform: translate(-50%,-50%) scale(0); opacity: 0.6; }
+  to   { transform: translate(-50%,-50%) scale(18); opacity: 0; }
 }
 
-/* Iconos con diseño mejorado */
-.action-btn.unified i {
-  color: #000000;
-  font-size: 1.4rem;
-  font-weight: 600;
-  text-shadow: 0 0 10px rgba(5, 193, 255, 0.3);
-  transition: all 0.3s ease;
-  z-index: 1;
-}
-
-/* Efecto hover en iconos */
-.action-btn.unified:hover i {
-  color: #38d0ff;
-  text-shadow: 0 0 15px rgba(56, 208, 255, 0.5);
-  transform: scale(1.1);
-}
-
-
-@keyframes pulse {
-  0% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7);
-  }
-  
-  70% {
-    transform: scale(1);
-    box-shadow: 0 0 0 4px rgba(255, 71, 87, 0);
-  }
-  
-  100% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(255, 71, 87, 0);
-  }
-}
-
-/* Estados específicos para cada botón */
-/* Botón Ver - Color más suave */
-.action-btn.unified:first-child:hover i {
-  color: #00b894;
-  text-shadow: 0 0 15px rgba(0, 184, 148, 0.5);
-}
-
-/* Botón Editar - Color dorado */
-.action-btn.unified:nth-child(2):hover i {
-  color: #fdcb6e;
-  text-shadow: 0 0 15px rgba(253, 203, 110, 0.5);
-}
-
-/* Botón Eliminar - Color rojo más intenso */
-.action-btn.unified:last-child:hover i {
-  color: #ff6b81;
-  text-shadow: 0 0 15px rgba(255, 107, 129, 0.5);
-}
-
-/* Efecto de deshabilitado */
 .action-btn.unified:disabled {
   opacity: 0.5;
   transform: none !important;
@@ -129,30 +76,24 @@
   box-shadow: none !important;
 }
 
-.action-btn.unified:disabled:hover i {
+.action-btn.unified:disabled i {
   transform: none !important;
-  color: #05c1ff !important;
+  color: #ccc !important;
 }
 
-/* Responsive para pantallas pequeñas */
-@media (max-width: 768px) {
+@media (max-width: 600px) {
   .action-btn.unified {
-    width: 42px;
-    height: 42px;
-    border-radius: 10px;
+    width: 36px;
+    height: 36px;
   }
-  
+
   .action-btn.unified i {
-    font-size: 1.2rem;
+    font-size: 1rem;
   }
-  
-  .d-flex.gap-2 {
-    gap: 0.5rem !important;
+  .action-buttons-wrapper {
+    gap: 0.35rem;
   }
 }
-
-/* tabla reutilizable*/
-
 
 .data-table-container {
   padding: 10px;
@@ -161,51 +102,26 @@
 }
 
 .data-table-container .data-table {
-  margin-bottom: 0;
-  border-radius: 15px;
-  overflow: hidden;
-  min-width: 200px;
   width: 100%;
-  border-collapse: separate; 
-  border-spacing: 0 5px; 
-  font-size: 1.1rem;
+  border-collapse: separate;
+  border-spacing: 0 5px;
 }
 
 .data-table-container .data-table thead th {
   background: #52abc7;
   color: white;
-  padding: 0.5rem;
-  font-weight: 600;
-  text-transform: capitalize;
-  letter-spacing: 0.09em;
   text-align: center;
-  border: none; 
+  padding: 0.75rem;
 }
 
 .data-table-container .data-table tbody td {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #333;
-  padding: 1rem;
-  text-align: left;
-
-  border: none; 
-}
-
-.data-table-container .data-table tbody td:not(:last-child) {
-  border-right: 9px solid transparent; 
-}
-
-.cell-content {
-  height: 100%;
-  display: block;          /* ← evita que flex rompa la fila */
-  white-space: nowrap;     /* ← evita saltos de línea */
-  overflow: hidden;        /* ← oculta exceso */
-  text-overflow: ellipsis; /* ← coloca ... */
-}
-
-.data-table-container .data-table tbody tr:nth-child(even) td {
   background-color: rgba(240, 248, 255, 0.7);
+  color: #333;
+  padding: 0.8rem;
+  border: none;
+  vertical-align: middle;
 }
+
 .data-table-container .data-table tbody tr:nth-child(odd) td {
   background-color: rgba(230, 240, 255, 0.9);
 }
@@ -218,6 +134,7 @@
   border-top-left-radius: 10px;
   border-bottom-left-radius: 10px;
 }
+
 .data-table-container .data-table tbody td:last-child {
   border-top-right-radius: 10px;
   border-bottom-right-radius: 10px;

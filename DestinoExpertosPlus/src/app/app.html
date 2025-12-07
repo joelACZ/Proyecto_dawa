@@ -19,6 +19,9 @@
 
   <!-- CONTENIDO PRINCIPAL -->
   <main class="flex-grow-1 p-0" [class.main-with-sidebar]="showSidebar">
-    <router-outlet></router-outlet>
+    <!-- CONTENEDOR CON LÍMITES -->
+    <div class="container-lg py-4">
+      <router-outlet></router-outlet>
+    </div>
   </main>
 </div>
