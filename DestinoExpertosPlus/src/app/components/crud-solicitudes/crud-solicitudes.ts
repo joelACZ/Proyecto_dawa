@@ -108,6 +108,8 @@ export class CrudSolicitudesComponent implements OnInit {
     }
   }
 
+  
+
   // ==================== FILTROS ====================
   aplicarFiltros(): void {
     this.paginaActual = 1; // Resetear paginación

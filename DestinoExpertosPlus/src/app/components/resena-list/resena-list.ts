@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { ServResenasJson } from '../../services/resena-service';
 import { ServClientesJson } from '../../services/cliente-service';
 import { SolicitudService } from '../../services/solicitud-service';
+import { ServProfesionalesJson } from '../../services/profesionales-service';
 import { Resena } from '../../models/Resena.model';
 
 interface ResenaConDetalles extends Resena {
@@ -25,8 +26,9 @@ export class ResenaListComponent implements OnInit {
 
   constructor(
     private servResenas: ServResenasJson,
-    private clienteService: ServClientesJson,
+    private servicioClientes: ServClientesJson,
     private solicitudService: SolicitudService,
+    private servicioProfesionales: ServProfesionalesJson,
     private router: Router
   ) {}
 
@@ -41,7 +43,7 @@ export class ResenaListComponent implements OnInit {
     this.servResenas.obtenerTodas().subscribe({
       next: (resenas) => {
         // Cargar clientes y solicitudes para obtener nombres
-        this.clienteService.obtenerTodos().subscribe({
+        this.servicioClientes.obtenerTodos().subscribe({
           next: (clientes) => {
             this.solicitudService.obtenerTodas().subscribe({
               next: (solicitudes) => {
@@ -100,5 +102,19 @@ export class ResenaListComponent implements OnInit {
       return palabras[0][0] + palabras[1][0];
     }
     return nombre.substring(0, 2);
+  }
+
+  private inicializarComponente(): void {
+    this.cargando = true;
+
+    // Cargar datos maestros y solicitudes en paralelo
+    Promise.all([
+      this.servicioClientes.obtenerTodos().toPromise(),
+      this.servicioProfesionales.obtenerTodos().toPromise(),
+      //this.servicioServicios.obtenerTodos().toPromise(),
+      //this.cargarSolicitudes()
+    ]).finally(() => {
+      this.cargando = false;
+    });
   }
 }

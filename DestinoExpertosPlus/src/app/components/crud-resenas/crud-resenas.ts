@@ -6,6 +6,7 @@ import { SolicitudService } from '../../services/solicitud-service';
 import { DataTableComponent } from '../shared/data-table/data-table';
 import { CardComponent } from '../shared/cards/cards';
 import { DetailModal } from '../shared/detail-modal/detail-modal';
+import { Router } from '@angular/router';
 
 
 declare const bootstrap: any;
@@ -61,7 +62,8 @@ export class CrudResenas implements OnInit, AfterViewInit {
   constructor(
     private servicioResenas: ServResenasJson,
     private servicioSolicitudes: SolicitudService,
-    private constructorFormularios: FormBuilder
+    private constructorFormularios: FormBuilder,
+    private router: Router
   ) {
     this.inicializarFormulario();
   }
@@ -167,6 +169,9 @@ export class CrudResenas implements OnInit, AfterViewInit {
     });
   }
 
+  public navegarAListaResenas(): void {
+    this.router.navigate(['/resena-list']);
+  }
   public formatearDatosParaTabla() {
     let resenasAMostrar = [...this.listaResenasOriginales];
 
