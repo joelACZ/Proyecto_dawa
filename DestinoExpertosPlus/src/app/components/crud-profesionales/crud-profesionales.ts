@@ -13,7 +13,14 @@ declare const bootstrap: any;
   standalone: true,
   templateUrl: './crud-profesionales.html',
   styleUrls: ['./crud-profesionales.css'],
-  imports: [DataTableComponent, CardComponent, ReactiveFormsModule, FormsModule, CommonModule, DetailModal],
+  imports: [
+    DataTableComponent,
+    CardComponent,
+    ReactiveFormsModule,
+    FormsModule,
+    CommonModule,
+    DetailModal,
+  ],
 })
 export class CrudProfesionales implements OnInit, AfterViewInit {
   private listaProfesionalesOriginales: any[] = []; // CACHE INTERNO - Datos crudos del servidor
@@ -57,10 +64,10 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
       especialidad: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
       telefono: ['', [Validators.required, Validators.pattern(/^[0-9]{9,}$/)]],
-      ubicacion: [''],
-      oficios: [''],
+      ubicacion: ['', [Validators.minLength(3)]],
+      oficios: ['', [Validators.minLength(3)]],
       experiencia: [0, [Validators.required, Validators.min(0), Validators.max(50)]],
-      disponibilidad: [true]
+      disponibilidad: [true],
     });
   }
   public guardarProfesional() {
@@ -81,11 +88,11 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
       ...datos,
       oficios: datos.oficios
         ? datos.oficios
-          .split(',')
-          .map((oficio: string) => oficio.trim())
-          .filter(Boolean)
+            .split(',')
+            .map((oficio: string) => oficio.trim())
+            .filter(Boolean)
         : [],
-      experiencia: Number(datos.experiencia)
+      experiencia: Number(datos.experiencia),
     };
   }
   public ejecutarCreacion(datos: any) {
@@ -98,7 +105,7 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
       error: (error) => {
         console.error('Error al crear profesional:', error);
         this.mostrarError('Error al crear profesional');
-      }
+      },
     });
   }
   public ejecutarActualizacion(id: number, datos: any) {
@@ -111,7 +118,7 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
       error: (error) => {
         console.error('Error al actualizar profesional:', error);
         this.mostrarError('Error al actualizar profesional');
-      }
+      },
     });
   }
   public cargarProfesionales() {
@@ -123,29 +130,29 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
       error: (error) => {
         console.error('Error al cargar profesionales:', error);
         this.mostrarError('Error al cargar profesionales');
-      }
+      },
     });
   }
   public formatearDatosParaTabla() {
     let profesionalesAMostrar = [...this.listaProfesionalesOriginales];
     if (this.filtroEspecialidad) {
       const filtroLower = this.filtroEspecialidad.toLowerCase();
-      profesionalesAMostrar = profesionalesAMostrar.filter(profesional =>
+      profesionalesAMostrar = profesionalesAMostrar.filter((profesional) =>
         profesional.especialidad?.toLowerCase().includes(filtroLower)
       );
     }
     if (this.filtroExperienciaMin > 0) {
-      profesionalesAMostrar = profesionalesAMostrar.filter(profesional =>
-        profesional.experiencia >= this.filtroExperienciaMin
+      profesionalesAMostrar = profesionalesAMostrar.filter(
+        (profesional) => profesional.experiencia >= this.filtroExperienciaMin
       );
     }
     if (this.filtroDisponibilidad !== null) {
       const estaDisponible = this.filtroDisponibilidad === 'true';
-      profesionalesAMostrar = profesionalesAMostrar.filter(profesional =>
-        profesional.disponibilidad === estaDisponible
+      profesionalesAMostrar = profesionalesAMostrar.filter(
+        (profesional) => profesional.disponibilidad === estaDisponible
       );
     }
-    this.profesionalesParaTabla = profesionalesAMostrar.map(profesional => ({
+    this.profesionalesParaTabla = profesionalesAMostrar.map((profesional) => ({
       id: profesional.id,
       nombre: profesional.nombre,
       especialidad: profesional.especialidad,
@@ -157,7 +164,7 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
         : profesional.oficios || 'No especificados',
       experienciaFormateada: `${profesional.experiencia} años`,
       disponibilidadFormateada: profesional.disponibilidad ? 'Sí' : 'No',
-      datosCompletos: profesional // Mantenemos referencia a datos originales
+      datosCompletos: profesional, // Mantenemos referencia a datos originales
     }));
     this.calcularPaginacion();
   }
@@ -177,7 +184,7 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
       error: (error) => {
         console.error('Error en búsqueda:', error);
         this.mostrarError('Error al buscar profesionales');
-      }
+      },
     });
   }
   public aplicarFiltros(): void {
@@ -209,14 +216,17 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
   }
   public get obtenerRangoRegistros(): string {
     const inicio = (this.paginaActual - 1) * this.itemsPorPagina + 1;
-    const fin = Math.min(this.paginaActual * this.itemsPorPagina, this.profesionalesParaTabla.length);
+    const fin = Math.min(
+      this.paginaActual * this.itemsPorPagina,
+      this.profesionalesParaTabla.length
+    );
     return `${inicio}-${fin} de ${this.profesionalesParaTabla.length}`;
   }
   public abrirNuevo() {
     this.profesionalEnEdicion = null;
     this.formularioProfesional.reset({
       experiencia: 0,
-      disponibilidad: true
+      disponibilidad: true,
     });
     this.modalRef.show();
   }
@@ -226,7 +236,7 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
       ...datosProfesional.datosCompletos,
       oficios: Array.isArray(datosProfesional.datosCompletos.oficios)
         ? datosProfesional.datosCompletos.oficios.join(', ')
-        : datosProfesional.datosCompletos.oficios || ''
+        : datosProfesional.datosCompletos.oficios || '',
     });
     this.modalRef.show();
   }
@@ -246,7 +256,7 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
         console.error('Error al eliminar profesional:', error);
         this.mostrarError('Error al eliminar profesional');
         this.cerrarModalEliminar();
-      }
+      },
     });
   }
   public cerrarModalEliminar() {

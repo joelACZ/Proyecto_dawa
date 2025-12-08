@@ -144,7 +144,7 @@
    /* Estilo del Menu */
    
 :root {
-  --color-1: #073ae2;
+  --color-1: #3661f1;
 }
 
 /* Contenedor principal sin scroll */
@@ -210,7 +210,7 @@ section.container.py-5 {
 .img-container {
   width: 135px;
   height: 135px;
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  background: linear-gradient(135deg, #f8f9fa, #d2dfec);
   border: 3px solid #dee2e6;
   transition: all 0.3s ease;
   margin-bottom: 0;

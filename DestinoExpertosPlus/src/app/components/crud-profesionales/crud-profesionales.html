@@ -15,14 +15,8 @@
             (click)="abrirNuevo()">
       <i class="bi bi-person-plus"></i> Nuevo Profesional
     </button>
-
-    	
-    <button class="btn btn-light border font-weight-bold py-2 px-4 rounded transition">
-      <i class="bi bi-list-ul me-1"></i> Exportar Lista
-    </button>
   </div>
 </div>
-
 
 <!-- FILTROS -->
 <div class="card mb-4">
@@ -34,21 +28,21 @@
   <div class="card-body">
     <div class="row g-3">
       <!-- Filtro por Especialidad -->
-      <div class="col-md-4">
+      <div class="col-md-3">
         <label class="form-label">Especialidad</label>
         <input type="text" class="form-control" placeholder="Buscar por especialidad..."
                [(ngModel)]="filtroEspecialidad" (input)="aplicarFiltros()" />
       </div>
 
       <!-- Filtro por Experiencia -->
-      <div class="col-md-4">
+      <div class="col-md-3">
         <label class="form-label">Experiencia mínima (años)</label>
         <input type="number" class="form-control" min="0" max="50" 
                [(ngModel)]="filtroExperienciaMin" (input)="aplicarFiltros()" />
       </div>
 
       <!-- Filtro por Disponibilidad -->
-      <div class="col-md-4">
+      <div class="col-md-3">
         <label class="form-label">Disponibilidad</label>
         <select class="form-select" [(ngModel)]="filtroDisponibilidad" (change)="aplicarFiltros()">
           <option value="">Todos</option>
@@ -56,11 +50,9 @@
           <option value="false">No disponibles</option>
         </select>
       </div>
-    </div>
 
-    <!-- Botón Limpiar Filtros -->
-    <div class="row mt-3">
-      <div class="col-12">
+      <!-- Botón Limpiar Filtros -->
+      <div class="col-md-3 d-flex align-items-end">
         <button class="btn btn-outline-secondary w-100" (click)="limpiarFiltros()">
           <i class="bi bi-x-circle me-1"></i> Limpiar Filtros
         </button>
@@ -101,14 +93,14 @@
   { field: 'disponibilidadFormateada', header: 'Disponible' }
 ]">
   <ng-template #actions let-row>
-    <div class="flex space-x-2">
-      <button  (click)="verDetalle(row)"class="btn action-btn unified"> 
+    <div class="d-flex gap-2">
+      <button (click)="verDetalle(row)" class="btn action-btn unified"> 
         <i class="bi bi-eye"></i>
       </button>
-      <button  (click)="abrirEdicion(row)"class="btn action-btn unified">
+      <button (click)="abrirEdicion(row)" class="btn action-btn unified">
         <i class="bi bi-pencil"></i>
       </button>
-      <button  (click)="abrirModalEliminar(row)"class="btn action-btn unified">
+      <button (click)="abrirModalEliminar(row)" class="btn action-btn unified">
         <i class="bi bi-trash"></i>
       </button>
     </div>
@@ -160,17 +152,17 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="btn-close" (click)="mostrarModalNotificacion  = false"></button>
+        <button type="button" class="btn-close" (click)="mostrarModalNotificacion = false"></button>
       </div>
       <div class="modal-body">
         <div class="modal-icon">
           <i class="bi bi-check-circle-fill"></i>
         </div>
         <h5 class="modal-title mb-3">¡Éxito!</h5>
-        <p class="mb-0">{{ mensajeNotificacion  }}</p>
+        <p class="mb-0">{{ mensajeNotificacion }}</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-success" (click)="mostrarModalNotificacion  = false">
+        <button type="button" class="btn btn-success" (click)="mostrarModalNotificacion = false">
           Aceptar
         </button>
       </div>
@@ -190,10 +182,10 @@
           <i class="bi bi-exclamation-triangle-fill"></i>
         </div>
         <h5 class="modal-title mb-3">Error</h5>
-        <p class="mb-0">{{ mensajeError  }}</p>
+        <p class="mb-0">{{ mensajeError }}</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger" (click)="mostrarModalError  = false">
+        <button type="button" class="btn btn-danger" (click)="mostrarModalError = false">
           Aceptar
         </button>
       </div>
@@ -237,12 +229,12 @@
   </div>
 </div>
 
-<!-- MODAL CREAR/EDITAR -->
+<!-- MODAL CREAR/EDITAR CON TODAS LAS VALIDACIONES -->
 <div class="modal fade" id="profesionalModal" #modalProfesional>
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">{{ profesionalEnEdicion  ? 'Editar' : 'Nuevo' }} Profesional</h5>
+        <h5 class="modal-title">{{ profesionalEnEdicion ? 'Editar' : 'Nuevo' }} Profesional</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <form [formGroup]="formularioProfesional">
@@ -316,14 +308,22 @@
             </span>
           </div>
 
-          <!-- CAMPO: Ubicación -->
+          <!-- CAMPO: Ubicación con validaciones -->
           <div class="mb-3">
             <label class="form-label">Ubicación</label>
             <input type="text" class="form-control" formControlName="ubicacion" 
                    placeholder="Ej: Ciudad, Dirección, Barrio">
+            <span class="error">
+              @if (formularioProfesional.get('ubicacion')?.invalid &&
+                  (formularioProfesional.get('ubicacion')?.dirty || formularioProfesional.get('ubicacion')?.touched)) {
+                @if (formularioProfesional.get('ubicacion')?.errors?.['minlength']) {
+                  La ubicación debe tener al menos 3 caracteres.
+                }
+              }
+            </span>
           </div>
 
-          <!-- CAMPO: Oficios -->
+          <!-- CAMPO: Oficios con validaciones -->
           <div class="mb-3">
             <label class="form-label">Oficios</label>
             <input type="text" class="form-control" formControlName="oficios" 
@@ -331,6 +331,14 @@
             <small class="form-text text-muted">
               Separe los oficios con comas
             </small>
+            <span class="error">
+              @if (formularioProfesional.get('oficios')?.invalid &&
+                  (formularioProfesional.get('oficios')?.dirty || formularioProfesional.get('oficios')?.touched)) {
+                @if (formularioProfesional.get('oficios')?.errors?.['minlength']) {
+                  Los oficios deben tener al menos 3 caracteres.
+                }
+              }
+            </span>
           </div>
 
           <!-- CAMPO: Experiencia con validaciones -->
@@ -367,7 +375,7 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">Cancelar</button>
           <button type="button" class="btn btn-primary" (click)="guardarProfesional()">
-            {{ profesionalEnEdicion  ? 'Actualizar' : 'Guardar' }}
+            {{ profesionalEnEdicion ? 'Actualizar' : 'Guardar' }}
           </button>
         </div>
       </form>
