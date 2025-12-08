@@ -6,6 +6,7 @@ import { NgFor, NgIf, NgTemplateOutlet } from '@angular/common';
   standalone: true,
   imports: [NgFor, NgIf, NgTemplateOutlet],   
   templateUrl: './data-table.html',
+  styleUrls: ['./data-table.css']  // ← AGREGA ESTA LÍNEA
 })
 export class DataTableComponent {
   @Input() data: any[] = [];

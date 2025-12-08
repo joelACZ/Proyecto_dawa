@@ -3,6 +3,7 @@ import { CommonModule, KeyValuePipe } from '@angular/common';
 
 @Component({
   selector: 'app-detail-modal',
+  standalone: true,
   imports: [CommonModule, KeyValuePipe],
   templateUrl: './detail-modal.html',
   styleUrl: './detail-modal.css',
