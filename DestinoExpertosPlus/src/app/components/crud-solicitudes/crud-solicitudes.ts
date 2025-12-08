@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SolicitudService } from '../../services/solicitud-service';
 import { ServClientesJson } from '../../services/cliente-service';
 import { ServProfesionalesJson } from '../../services/profesionales-service';
 import { ServServiciosJson } from '../../services/servicio-service';
+
 
 @Component({
   selector: 'app-crud-solicitudes',
@@ -13,13 +14,16 @@ import { ServServiciosJson } from '../../services/servicio-service';
   styleUrl: './crud-solicitudes.css',
 })
 export class CrudSolicitudesComponent implements OnInit {
-  // ==================== PROPIEDADES DE DATOS (sin tipos de modelo) ====================
+
+  @ViewChild('modalFormulario') modalFormulario!: ElementRef;
+  @ViewChild('modalDetalle') modalDetalle!: ElementRef;
+
   solicitudes: any[] = [];
   clientes: any[] = [];
   profesionales: any[] = [];
   servicios: any[] = [];
 
-  // ==================== PROPIEDADES DE FILTROS ====================
+
   filtros = {
     busqueda: '',
     estado: 'todos',
@@ -28,7 +32,6 @@ export class CrudSolicitudesComponent implements OnInit {
     profesionalId: 0
   };
 
-  // ==================== DATOS DEL FORMULARIO ====================
   formulario: {
     cliente_id: number;
     profesional_id: number;
@@ -49,21 +52,18 @@ export class CrudSolicitudesComponent implements OnInit {
       nivelUrgencia: undefined
     };
 
-  // ==================== ESTADO DE UI ====================
   modoEdicion = false;
   cargando = false;
   mensaje: { texto: string; tipo: 'success' | 'error' | 'info' } | null = null;
 
-  // Paginación
   paginaActual = 1;
   itemsPorPagina = 10;
   totalPaginas = 1;
   totalItems = 0;
 
-  // ID para edición
   protected idEditando: number | null = null;
+  protected solicitudSeleccionada: any = null;
 
-  // ==================== CONSTRUCTOR ====================
   constructor(
     private servicioSolicitudes: SolicitudService,
     private servicioClientes: ServClientesJson,
@@ -71,24 +71,64 @@ export class CrudSolicitudesComponent implements OnInit {
     private servicioServicios: ServServiciosJson
   ) { }
 
-  // ==================== CICLO DE VIDA ====================
   ngOnInit(): void {
     this.inicializarComponente();
   }
 
-  // ==================== INICIALIZACIÓN ====================
-  private inicializarComponente(): void {
+  abrirModalFormulario(): void {
+    const modal = new (window as any).bootstrap.Modal(this.modalFormulario.nativeElement);
+    modal.show();
+  }
+
+  // Cerrar modal de formulario
+  cerrarModalFormulario(): void {
+    const modal = (window as any).bootstrap.Modal.getInstance(this.modalFormulario.nativeElement);
+    if (modal) {
+      modal.hide();
+    }
+    this.resetearFormulario();
+  }
+  verDetalle(solicitud: any): void {
+    this.solicitudSeleccionada = solicitud;
+    const modal = new (window as any).bootstrap.Modal(this.modalDetalle.nativeElement);
+    modal.show();
+  }
+
+  // Cerrar modal de detalles
+  cerrarModalDetalle(): void {
+    const modal = (window as any).bootstrap.Modal.getInstance(this.modalDetalle.nativeElement);
+    if (modal) {
+      modal.hide();
+    }
+    this.solicitudSeleccionada = null;
+  }
+  generarArrayPaginas(): number[] {
+    return Array.from({ length: this.totalPaginas }, (_, i) => i + 1);
+  }
+  private async inicializarComponente(): Promise<void> {
     this.cargando = true;
 
-    // Cargar datos maestros y solicitudes en paralelo
-    Promise.all([
-      this.servicioClientes.obtenerTodos().toPromise(),
-      this.servicioProfesionales.obtenerTodos().toPromise(),
-      this.servicioServicios.obtenerTodos().toPromise(),
-      this.cargarSolicitudes()
-    ]).finally(() => {
+    try {
+      // Cargar datos maestros primero y ASIGNARLOS a las propiedades
+      const [clientes, profesionales, servicios] = await Promise.all([
+        this.servicioClientes.obtenerTodos().toPromise(),
+        this.servicioProfesionales.obtenerTodos().toPromise(),
+        this.servicioServicios.obtenerTodos().toPromise()
+      ]);
+
+      // ESTAS ASIGNACIONES SON CRÍTICAS - faltaban en tu código
+      this.clientes = clientes || [];
+      this.profesionales = profesionales || [];
+      this.servicios = servicios || [];
+
+      // Luego cargar las solicitudes
+      await this.cargarSolicitudes();
+    } catch (error) {
+      console.error('Error en la inicialización:', error);
+      this.mostrarMensaje('Error al inicializar componente', 'error');
+    } finally {
       this.cargando = false;
-    });
+    }
   }
 
   private async cargarSolicitudes(): Promise<void> {
@@ -108,23 +148,18 @@ export class CrudSolicitudesComponent implements OnInit {
     }
   }
 
-  
-
-  // ==================== FILTROS ====================
   aplicarFiltros(): void {
-    this.paginaActual = 1; // Resetear paginación
+    this.paginaActual = 1;
     this.cargarSolicitudes();
   }
 
   private construirFiltros(): any {
     const params: any = {};
-
     if (this.filtros.busqueda) params.busqueda = this.filtros.busqueda;
     if (this.filtros.estado !== 'todos') params.estado = this.filtros.estado;
     if (this.filtros.urgencia !== 'todos') params.urgente = this.filtros.urgencia === 'urgente';
     if (this.filtros.clienteId > 0) params.clienteId = this.filtros.clienteId;
     if (this.filtros.profesionalId > 0) params.profesionalId = this.filtros.profesionalId;
-
     return params;
   }
 
@@ -139,18 +174,14 @@ export class CrudSolicitudesComponent implements OnInit {
     this.aplicarFiltros();
   }
 
-  // ==================== PAGINACIÓN ====================
   cambiarPagina(pagina: number): void {
     if (pagina < 1 || pagina > this.totalPaginas) return;
-
     this.paginaActual = pagina;
     this.cargarSolicitudes();
   }
 
-  // ==================== OPERACIONES CRUD ====================
   crearSolicitud(): void {
     if (!this.validarFormulario()) return;
-
     this.cargando = true;
     this.servicioSolicitudes.crear(this.formulario).subscribe({
       next: (nueva) => {
@@ -175,13 +206,11 @@ export class CrudSolicitudesComponent implements OnInit {
 
   actualizarSolicitud(): void {
     if (!this.idEditando || !this.validarFormulario()) return;
-
     this.cargando = true;
     this.servicioSolicitudes.actualizar(this.idEditando, this.formulario).subscribe({
       next: (actualizada) => {
         const index = this.solicitudes.findIndex(s => s.id === actualizada.id);
         if (index !== -1) this.solicitudes[index] = actualizada;
-
         this.resetearFormulario();
         this.mostrarMensaje('Solicitud actualizada exitosamente', 'success');
         this.cargando = false;
@@ -196,7 +225,6 @@ export class CrudSolicitudesComponent implements OnInit {
 
   eliminarSolicitud(id: number): void {
     if (!confirm('¿Estás seguro de eliminar esta solicitud?')) return;
-
     this.cargando = true;
     this.servicioSolicitudes.eliminar(id).subscribe({
       next: () => {
@@ -212,7 +240,6 @@ export class CrudSolicitudesComponent implements OnInit {
     });
   }
 
-  // ==================== ACCIONES RÁPIDAS ====================
   cambiarEstado(solicitud: any, nuevoEstado: string): void {
     this.servicioSolicitudes.actualizarEstado(solicitud.id, nuevoEstado).subscribe({
       next: (actualizada) => {
@@ -227,21 +254,17 @@ export class CrudSolicitudesComponent implements OnInit {
     });
   }
 
-  // ==================== VALIDACIÓN Y RESET ====================
   private validarFormulario(): boolean {
     const f = this.formulario;
-
     if (!f.cliente_id || !f.profesional_id || !f.servicio_id ||
       !f.descripcion?.trim() || !f.ubicacion?.trim()) {
       this.mostrarMensaje('Complete todos los campos obligatorios', 'error');
       return false;
     }
-
     if (f.urgencia && !f.nivelUrgencia) {
       this.mostrarMensaje('Seleccione nivel de urgencia', 'error');
       return false;
     }
-
     return true;
   }
 
@@ -260,7 +283,6 @@ export class CrudSolicitudesComponent implements OnInit {
     this.modoEdicion = false;
   }
 
-  // ==================== UTILIDADES ====================
   private mostrarMensaje(texto: string, tipo: 'success' | 'error' | 'info'): void {
     this.mensaje = { texto, tipo };
     setTimeout(() => this.mensaje = null, 5000);
@@ -277,26 +299,25 @@ export class CrudSolicitudesComponent implements OnInit {
   }
 
   obtenerClaseEstado(estado: string): string {
-    const clases = {
+    const clases: Record<string, string> = {
       'pendiente': 'badge bg-warning',
       'confirmada': 'badge bg-info',
       'en_proceso': 'badge bg-primary',
       'completada': 'badge bg-success',
       'cancelada': 'badge bg-danger'
     };
-    return clases[estado as keyof typeof clases] || 'badge bg-secondary';
+    return clases[estado] || 'badge bg-secondary';
   }
 
   obtenerClaseUrgencia(nivel: string): string {
-    const clases = {
+    const clases: Record<string, string> = {
       'baja': 'badge bg-info',
       'media': 'badge bg-warning',
       'alta': 'badge bg-danger'
     };
-    return clases[nivel as keyof typeof clases] || 'badge bg-secondary';
+    return clases[nivel] || 'badge bg-secondary';
   }
 
-  // ==================== MÉTODOS AUXILIARES PARA TEMPLATE ====================
   toggleUrgencia(): void {
     this.formulario.nivelUrgencia = this.formulario.urgencia ? 'media' : undefined;
   }
@@ -312,8 +333,6 @@ export class CrudSolicitudesComponent implements OnInit {
   obtenerNombreServicio(id: number): string {
     return this.servicios.find(s => s.id === id)?.nombre || `Servicio #${id}`;
   }
-
-  // ==================== MÉTODOS PARA ESTADÍSTICAS ====================
 
   contarSolicitudesPendientes(): number {
     return this.solicitudes.filter(s => s.estado === 'pendiente').length;

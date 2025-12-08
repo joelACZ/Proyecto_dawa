@@ -1,61 +1,67 @@
 <!-- crud-solicitudes.html -->
-<div class="container-fluid mt-4">
+<div class="container-fluid p-4">
   
-  <!-- Título -->
+  <!-- CÚPULA DE CONTROL -->
+  <div class="dashboard-header d-flex justify-content-between align-items-center p-4 mb-4 bg-white rounded shadow">
+    <h2 class="m-0 fw-bold text-primary">
+      <i class="bi bi-clipboard-check me-2"></i>
+      Gestión de Solicitudes
+    </h2>
+    <button class="btn btn-primary" (click)="resetearFormulario(); abrirModalFormulario()">
+      <i class="bi bi-plus-circle me-2"></i>
+      Nueva Solicitud
+    </button>
+  </div>
+
+  <!-- GALAXIA DE ESTADOS -->
   <div class="row mb-4">
-    <div class="col-12">
-      <h1 class="h2">Gestión de Solicitudes</h1>
-    </div>
-  </div>
-
-  <!-- Mensajes -->
-  <div class="row mb-3" *ngIf="mensaje">
-    <div class="col-12">
-      <div class="alert alert-{{ mensaje.tipo === 'success' ? 'success' : mensaje.tipo === 'error' ? 'danger' : 'info' }} alert-dismissible fade show" role="alert">
-        {{ mensaje.texto }}
-        <button type="button" class="btn-close" (click)="mensaje = null"></button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Estadísticas -->
-  <div class="row mb-4">
-    <div class="col-md-4">
-      <div class="card text-white mb-3" style="background-color: var(--color-1);">
-        <div class="card-body">
-          <h5 class="card-title">Pendientes</h5>
-          <h2>{{ contarSolicitudesPendientes() }}</h2>
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body text-center p-3">
+          <h6 class="text-muted mb-2">Total</h6>
+          <h3 class="fw-bold text-primary">{{ totalItems }}</h3>
         </div>
       </div>
     </div>
-    <div class="col-md-4">
-      <div class="card text-white mb-3" style="background-color: var(--color-3);">
-        <div class="card-body">
-          <h5 class="card-title">Urgentes</h5>
-          <h2>{{ contarSolicitudesUrgentes() }}</h2>
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body text-center p-3">
+          <h6 class="text-muted mb-2">Pendientes</h6>
+          <h3 class="fw-bold text-warning">{{ contarSolicitudesPendientes() }}</h3>
         </div>
       </div>
     </div>
-    <div class="col-md-4">
-      <div class="card text-white mb-3" style="background-color: var(--color-5);">
-        <div class="card-body">
-          <h5 class="card-title">Completadas</h5>
-          <h2>{{ contarSolicitudesCompletadas() }}</h2>
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body text-center p-3">
+          <h6 class="text-muted mb-2">Urgentes</h6>
+          <h3 class="fw-bold text-danger">{{ contarSolicitudesUrgentes() }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body text-center p-3">
+          <h6 class="text-muted mb-2">Completadas</h6>
+          <h3 class="fw-bold text-success">{{ contarSolicitudesCompletadas() }}</h3>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Filtros -->
-  <div class="card mb-4" style="background-color: var(--color-4);">
-    <div class="card-body">
-      <h5 class="card-title">Filtros</h5>
-      <div class="row">
-        <div class="col-md-3">
-          <input type="text" class="form-control" placeholder="Buscar..." [(ngModel)]="filtros.busqueda" (keyup.enter)="aplicarFiltros()">
+  <!-- ÓRGANO FILTRADOR -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body p-3">
+      <div class="row g-2">
+        <div class="col-md-4">
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control" placeholder="Buscar por texto..." 
+                   [(ngModel)]="filtros.busqueda" (keyup.enter)="aplicarFiltros()">
+          </div>
         </div>
         <div class="col-md-2">
-          <select class="form-control" [(ngModel)]="filtros.estado">
+          <select class="form-select" [(ngModel)]="filtros.estado">
             <option value="todos">Todos los estados</option>
             <option value="pendiente">Pendiente</option>
             <option value="confirmada">Confirmada</option>
@@ -65,64 +71,204 @@
           </select>
         </div>
         <div class="col-md-2">
-          <select class="form-control" [(ngModel)]="filtros.urgencia">
-            <option value="todos">Todas</option>
+          <select class="form-select" [(ngModel)]="filtros.urgencia">
+            <option value="todos">Todas las urgencias</option>
             <option value="urgente">Urgente</option>
-            <option value="normal">Normal</option>
+            <option value="no_urgente">No Urgente</option>
           </select>
         </div>
         <div class="col-md-2">
-          <select class="form-control" [(ngModel)]="filtros.clienteId">
+          <select class="form-select" [(ngModel)]="filtros.clienteId">
             <option value="0">Todos los clientes</option>
-            <option *ngFor="let cliente of clientes" [value]="cliente.id">{{ cliente.nombre }}</option>
+            @for (cliente of clientes; track cliente.id) {
+              <option [value]="cliente.id">{{ cliente.nombre }}</option>
+            }
           </select>
         </div>
         <div class="col-md-2">
-          <select class="form-control" [(ngModel)]="filtros.profesionalId">
+          <select class="form-select" [(ngModel)]="filtros.profesionalId">
             <option value="0">Todos los profesionales</option>
-            <option *ngFor="let profesional of profesionales" [value]="profesional.id">{{ profesional.nombre }}</option>
+            @for (profesional of profesionales; track profesional.id) {
+              <option [value]="profesional.id">{{ profesional.nombre }}</option>
+            }
           </select>
         </div>
-        <div class="col-md-1">
-          <button class="btn btn-primary w-100" (click)="aplicarFiltros()">Filtrar</button>
-        </div>
-        <div class="col-md-1">
-          <button class="btn btn-secondary w-100" (click)="limpiarFiltros()">Limpiar</button>
+      </div>
+      <div class="row mt-3">
+        <div class="col-12 d-flex gap-2 justify-content-end">
+          <button class="btn btn-outline-secondary" (click)="limpiarFiltros()">
+            <i class="bi bi-arrow-clockwise me-1"></i>
+            Limpiar
+          </button>
+          <button class="btn btn-primary" (click)="aplicarFiltros()">
+            <i class="bi bi-funnel me-1"></i>
+            Filtrar
+          </button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Formulario -->
-  <div class="card mb-4" style="background-color: var(--color-2);">
-    <div class="card-body">
-      <h5 class="card-title">{{ modoEdicion ? 'Editar' : 'Nueva' }} Solicitud</h5>
-      <form (ngSubmit)="modoEdicion ? actualizarSolicitud() : crearSolicitud()">
-        <div class="row">
-          <div class="col-md-3">
-            <label class="form-label">Cliente</label>
-            <select class="form-control" [(ngModel)]="formulario.cliente_id" name="cliente_id" required>
+  <!-- MENSAJES DE SISTEMA -->
+  @if (mensaje) {
+    <div class="alert alert-dismissible fade show mb-4" 
+         [ngClass]="{
+           'alert-success': mensaje.tipo === 'success',
+           'alert-danger': mensaje.tipo === 'error',
+           'alert-info': mensaje.tipo === 'info'
+         }">
+      {{ mensaje.texto }}
+      <button type="button" class="btn-close" (click)="mensaje = null"></button>
+    </div>
+  }
+
+  <!-- TABLA-MATRIZ CENTRAL -->
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 50px">
+                <input type="checkbox" class="form-check-input">
+              </th>
+              <th>ID</th>
+              <th>Cliente</th>
+              <th>Profesional</th>
+              <th>Servicio</th>
+              <th>Estado</th>
+              <th>Urgencia</th>
+              <th>Fecha</th>
+              <th style="width: 150px">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (solicitud of solicitudes; track solicitud.id) {
+              <tr>
+                <td>
+                  <input type="checkbox" class="form-check-input" [value]="solicitud.id">
+                </td>
+                <td class="fw-bold">#{{ solicitud.id }}</td>
+                <td>{{ obtenerNombreCliente(solicitud.cliente_id) }}</td>
+                <td>{{ obtenerNombreProfesional(solicitud.profesional_id) }}</td>
+                <td>{{ obtenerNombreServicio(solicitud.servicio_id) }}</td>
+                <td>
+                  <span class="badge" [ngClass]="obtenerClaseEstado(solicitud.estado)">
+                    {{ solicitud.estado }}
+                  </span>
+                </td>
+                <td>
+                  @if (solicitud.urgencia) {
+                    <span class="badge" [ngClass]="obtenerClaseUrgencia(solicitud.nivelUrgencia)">
+                      URGENTE
+                    </span>
+                  } @else {
+                    <span class="badge bg-secondary">Normal</span>
+                  }
+                </td>
+                <td>{{ formatearFecha(solicitud.fecha) }}</td>
+                <td>
+                  <div class="btn-group btn-group-sm" role="group">
+                    <button class="btn btn-outline-info" title="Ver" (click)="verDetalle(solicitud)">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-outline-warning" title="Editar" (click)="prepararEdicion(solicitud); abrirModalFormulario()">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-outline-danger" title="Eliminar" (click)="eliminarSolicitud(solicitud.id)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="9" class="text-center py-4 text-muted">
+                  <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                  No se encontraron solicitudes
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGINACIÓN CÓSMICA -->
+  <div class="d-flex justify-content-between align-items-center mt-3">
+    <div class="text-muted">
+      Mostrando {{ (paginaActual - 1) * itemsPorPagina + 1 }} 
+      a {{ (paginaActual * itemsPorPagina) > totalItems ? totalItems : (paginaActual * itemsPorPagina) }}
+      de {{ totalItems }} solicitudes
+    </div>
+    <nav>
+      <ul class="pagination pagination-sm mb-0">
+        <li class="page-item" [class.disabled]="paginaActual === 1">
+          <button class="page-link" (click)="cambiarPagina(paginaActual - 1)">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+        </li>
+        <li class="page-item" *ngFor="let page of generarArrayPaginas()">
+          <button class="page-link" 
+                  [class.active]="page === paginaActual"
+                  (click)="cambiarPagina(page)">
+            {{ page }}
+          </button>
+        </li>
+        <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+          <button class="page-link" (click)="cambiarPagina(paginaActual + 1)">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+</div>
+
+<!-- MODAL DE FORMULARIO DIMENSIÓN PARALELA -->
+<div class="modal fade" #modalFormulario tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          {{ modoEdicion ? 'Editar' : 'Crear' }} Solicitud
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="cerrarModalFormulario()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Cliente *</label>
+            <select class="form-select" [(ngModel)]="formulario.cliente_id" required>
               <option value="0">Seleccione un cliente</option>
-              <option *ngFor="let cliente of clientes" [value]="cliente.id">{{ cliente.nombre }}</option>
+              @for (cliente of clientes; track cliente.id) {
+                <option [value]="cliente.id">{{ cliente.nombre }}</option>
+              }
             </select>
           </div>
-          <div class="col-md-3">
-            <label class="form-label">Profesional</label>
-            <select class="form-control" [(ngModel)]="formulario.profesional_id" name="profesional_id" required>
+          <div class="col-md-6">
+            <label class="form-label">Profesional *</label>
+            <select class="form-select" [(ngModel)]="formulario.profesional_id" required>
               <option value="0">Seleccione un profesional</option>
-              <option *ngFor="let profesional of profesionales" [value]="profesional.id">{{ profesional.nombre }}</option>
+              @for (profesional of profesionales; track profesional.id) {
+                <option [value]="profesional.id">{{ profesional.nombre }}</option>
+              }
             </select>
           </div>
-          <div class="col-md-3">
-            <label class="form-label">Servicio</label>
-            <select class="form-control" [(ngModel)]="formulario.servicio_id" name="servicio_id" required>
+          <div class="col-md-6">
+            <label class="form-label">Servicio *</label>
+            <select class="form-select" [(ngModel)]="formulario.servicio_id" required>
               <option value="0">Seleccione un servicio</option>
-              <option *ngFor="let servicio of servicios" [value]="servicio.id">{{ servicio.nombre }}</option>
+              @for (servicio of servicios; track servicio.id) {
+                <option [value]="servicio.id">{{ servicio.nombre }}</option>
+              }
             </select>
           </div>
-          <div class="col-md-3">
-            <label class="form-label">Estado</label>
-            <select class="form-control" [(ngModel)]="formulario.estado" name="estado" required>
+          <div class="col-md-6">
+            <label class="form-label">Estado *</label>
+            <select class="form-select" [(ngModel)]="formulario.estado" required>
               <option value="pendiente">Pendiente</option>
               <option value="confirmada">Confirmada</option>
               <option value="en_proceso">En Proceso</option>
@@ -130,204 +276,83 @@
               <option value="cancelada">Cancelada</option>
             </select>
           </div>
-        </div>
-        <div class="row mt-3">
-          <div class="col-md-6">
-            <label class="form-label">Descripción</label>
-            <textarea class="form-control" [(ngModel)]="formulario.descripcion" name="descripcion" rows="3" required></textarea>
+          <div class="col-12">
+            <label class="form-label">Descripción *</label>
+            <textarea class="form-control" rows="3" [(ngModel)]="formulario.descripcion" required></textarea>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Ubicación *</label>
+            <input type="text" class="form-control" [(ngModel)]="formulario.ubicacion" required>
           </div>
           <div class="col-md-6">
-            <label class="form-label">Ubicación</label>
-            <textarea class="form-control" [(ngModel)]="formulario.ubicacion" name="ubicacion" rows="3" required></textarea>
-          </div>
-        </div>
-        <div class="row mt-3">
-          <div class="col-md-3">
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" [(ngModel)]="formulario.urgencia" name="urgencia" (change)="toggleUrgencia()">
-              <label class="form-check-label">Urgente</label>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" 
+                     [(ngModel)]="formulario.urgencia" 
+                     (change)="toggleUrgencia()">
+              <label class="form-check-label">Marcar como urgente</label>
             </div>
           </div>
-          <div class="col-md-3" *ngIf="formulario.urgencia">
-            <label class="form-label">Nivel de Urgencia</label>
-            <select class="form-control" [(ngModel)]="formulario.nivelUrgencia" name="nivelUrgencia" required>
-              <option value="baja">Baja</option>
-              <option value="media">Media</option>
-              <option value="alta">Alta</option>
-            </select>
-          </div>
+          @if (formulario.urgencia) {
+            <div class="col-md-6">
+              <label class="form-label">Nivel de Urgencia *</label>
+              <select class="form-select" [(ngModel)]="formulario.nivelUrgencia" required>
+                <option value="baja">Baja</option>
+                <option value="media" selected>Media</option>
+                <option value="alta">Alta</option>
+              </select>
+            </div>
+          }
         </div>
-        <div class="row mt-3">
-          <div class="col-12">
-            <button type="submit" class="btn btn-success me-2" [disabled]="cargando">
-              {{ modoEdicion ? 'Actualizar' : 'Guardar' }}
-            </button>
-            <button type="button" class="btn btn-secondary" (click)="resetearFormulario()" [disabled]="cargando" *ngIf="modoEdicion">
-              Cancelar
-            </button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Tabla -->
-  <div class="card" style="background-color: var(--color-4);">
-    <div class="card-body">
-      <h5 class="card-title">Lista de Solicitudes</h5>
-      <div class="table-responsive">
-        <table class="table table-striped" *ngIf="solicitudes.length > 0; else noData">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Cliente</th>
-              <th>Profesional</th>
-              <th>Servicio</th>
-              <th>Descripción</th>
-              <th>Ubicación</th>
-              <th>Estado</th>
-              <th>Urgencia</th>
-              <th>Fecha</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let solicitud of solicitudes">
-              <td>{{ solicitud.id }}</td>
-              <td>{{ obtenerNombreCliente(solicitud.cliente_id) }}</td>
-              <td>{{ obtenerNombreProfesional(solicitud.profesional_id) }}</td>
-              <td>{{ obtenerNombreServicio(solicitud.servicio_id) }}</td>
-              <td>{{ solicitud.descripcion | slice:0:50 }}{{ solicitud.descripcion.length > 50 ? '...' : '' }}</td>
-              <td>{{ solicitud.ubicacion | slice:0:30 }}{{ solicitud.ubicacion.length > 30 ? '...' : '' }}</td>
-              <td><span [class]="obtenerClaseEstado(solicitud.estado)">{{ solicitud.estado }}</span></td>
-              <td>
-                <span *ngIf="solicitud.urgencia" [class]="obtenerClaseUrgencia(solicitud.nivelUrgencia || 'media')">{{ solicitud.nivelUrgencia || 'media' }}</span>
-                <span *ngIf="!solicitud.urgencia" class="badge bg-secondary">Normal</span>
-              </td>
-              <td>{{ formatearFecha(solicitud.fechaCreacion) }}</td>
-              <td>
-                <button class="btn btn-sm btn-warning me-1" (click)="prepararEdicion(solicitud)" [disabled]="cargando"> <i class="bi bi-pencil"></i></button>
-                <button class="btn btn-sm btn-danger me-1" (click)="eliminarSolicitud(solicitud.id)" [disabled]="cargando"><i class="bi bi-trash"></i></button>
-                <div class="btn-group" role="group">
-                  <button type="button" class="btn btn-sm btn-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" [disabled]="cargando">
-                    Estado
-                  </button>
-                  <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#" (click)="cambiarEstado(solicitud, 'pendiente'); $event.preventDefault()">Pendiente</a></li>
-                    <li><a class="dropdown-item" href="#" (click)="cambiarEstado(solicitud, 'confirmada'); $event.preventDefault()">Confirmada</a></li>
-                    <li><a class="dropdown-item" href="#" (click)="cambiarEstado(solicitud, 'en_proceso'); $event.preventDefault()">En Proceso</a></li>
-                    <li><a class="dropdown-item" href="#" (click)="cambiarEstado(solicitud, 'completada'); $event.preventDefault()">Completada</a></li>
-                    <li><a class="dropdown-item" href="#" (click)="cambiarEstado(solicitud, 'cancelada'); $event.preventDefault()">Cancelada</a></li>
-                  </ul>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <ng-template #noData>
-          <div class="alert alert-info">No hay solicitudes para mostrar</div>
-        </ng-template>
       </div>
-
-      <!-- Paginación -->
-      <nav *ngIf="totalPaginas > 1" class="mt-4">
-        <ul class="pagination justify-content-center">
-          <li class="page-item" [class.disabled]="paginaActual === 1">
-            <a class="page-link" href="#" (click)="cambiarPagina(paginaActual - 1); $event.preventDefault()">Anterior</a>
-          </li>
-          <li class="page-item" *ngFor="let page of [].constructor(totalPaginas); let i = index" [class.active]="paginaActual === i + 1">
-            <a class="page-link" href="#" (click)="cambiarPagina(i + 1); $event.preventDefault()">{{ i + 1 }}</a>
-          </li>
-          <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
-            <a class="page-link" href="#" (click)="cambiarPagina(paginaActual + 1); $event.preventDefault()">Siguiente</a>
-          </li>
-        </ul>
-      </nav>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalFormulario()">
+          <i class="bi bi-x-circle me-1"></i>
+          Cancelar
+        </button>
+        @if (modoEdicion) {
+          <button type="button" class="btn btn-primary" (click)="actualizarSolicitud()">
+            <i class="bi bi-save me-1"></i>
+            Actualizar
+          </button>
+        } @else {
+          <button type="button" class="btn btn-success" (click)="crearSolicitud()">
+            <i class="bi bi-check-circle me-1"></i>
+            Crear Solicitud
+          </button>
+        }
+      </div>
     </div>
   </div>
-
 </div>
 
-<style>
-  :root {
-    --color-1: #2a9bc0;
-    --color-2: #52abc7;
-    --color-3: #72b5cf;
-    --color-4: #88bad3;
-    --color-5: #a2c4d8;
-  }
-
-  .container-fluid {
-    max-width: 1400px;
-  }
-
-  .card {
-    border: none;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
-
-  .btn {
-    border-radius: 0.375rem;
-  }
-
-  .btn-primary {
-    background-color: var(--color-1);
-    border-color: var(--color-1);
-  }
-
-  .btn-primary:hover {
-    background-color: var(--color-2);
-    border-color: var(--color-2);
-  }
-
-  .btn-success {
-    background-color: #198754;
-    border-color: #198754;
-  }
-
-  .btn-warning {
-    background-color: #ffc107;
-    border-color: #ffc107;
-  }
-
-  .btn-danger {
-    background-color: #dc3545;
-    border-color: #dc3545;
-  }
-
-  .btn-info {
-    background-color: var(--color-1);
-    border-color: var(--color-1);
-  }
-
-  .btn-secondary {
-    background-color: var(--color-5);
-    border-color: var(--color-5);
-  }
-
-  .form-control:focus {
-    border-color: var(--color-1);
-    box-shadow: 0 0 0 0.2rem rgba(42, 155, 192, 0.25);
-  }
-
-  .table-striped > tbody > tr:nth-child(odd) > td {
-    background-color: rgba(138, 186, 211, 0.05);
-  }
-
-  .page-item.active .page-link {
-    background-color: var(--color-1);
-    border-color: var(--color-1);
-  }
-
-  .page-link {
-    color: var(--color-1);
-  }
-
-  .page-link:hover {
-    color: var(--color-2);
-  }
-
-  .badge {
-    font-weight: 500;
-  }
-</style>
+<!-- MODAL DE DETALLES -->
+<div class="modal fade" #modalDetalle tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title">Detalles de Solicitud</h5>
+        <button type="button" class="btn-close btn-close-white" (click)="cerrarModalDetalle()"></button>
+      </div>
+      <div class="modal-body" *ngIf="solicitudSeleccionada">
+        <p><strong>ID:</strong> #{{ solicitudSeleccionada.id }}</p>
+        <p><strong>Cliente:</strong> {{ obtenerNombreCliente(solicitudSeleccionada.cliente_id) }}</p>
+        <p><strong>Profesional:</strong> {{ obtenerNombreProfesional(solicitudSeleccionada.profesional_id) }}</p>
+        <p><strong>Servicio:</strong> {{ obtenerNombreServicio(solicitudSeleccionada.servicio_id) }}</p>
+        <p><strong>Estado:</strong> 
+          <span class="badge" [ngClass]="obtenerClaseEstado(solicitudSeleccionada.estado)">
+            {{ solicitudSeleccionada.estado }}
+          </span>
+        </p>
+        <p><strong>Descripción:</strong> {{ solicitudSeleccionada.descripcion }}</p>
+        <p><strong>Ubicación:</strong> {{ solicitudSeleccionada.ubicacion }}</p>
+        <p><strong>Fecha:</strong> {{ formatearFecha(solicitudSeleccionada.fecha) }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalDetalle()">
+          <i class="bi bi-x-circle me-1"></i>
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
