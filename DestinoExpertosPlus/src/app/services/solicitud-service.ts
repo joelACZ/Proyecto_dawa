@@ -16,7 +16,7 @@ export class SolicitudService {
   /**
    * Obtiene todas las solicitudes sin filtrar
    */
-  SolicitudesobtenerTodas(): Observable<any[]> {
+  obtenerTodas(): Observable<any[]> {
     return this.http.get<any[]>(this.API_URL);
   }
 
@@ -131,7 +131,7 @@ export class SolicitudService {
     urgentes: number;
     porcentajeUrgentes: number;
   }> {
-    return this.SolicitudesobtenerTodas().pipe(
+    return this.obtenerTodas().pipe(
       map(solicitudes => {
         const total = solicitudes.length;
         

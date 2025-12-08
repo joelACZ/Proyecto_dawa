@@ -1,428 +1,333 @@
-// ============================================
-// SECCIÓN 1: IMPORTS Y DECORADOR COMPONENTE
-// ============================================
-import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-
-// Modelos
-import { Resena } from '../../models/Resena.model';
-import { Solicitud } from '../../models/Solicitud.model';
-
-// Servicios
 import { ServResenasJson } from '../../services/resena-service';
-import { SolicitudService } from '../../services/solicitud-service';
-import { ServClientesJson } from '../../services/cliente-service';
-
-// Componentes compartidos
 import { DataTableComponent } from '../shared/data-table/data-table';
 import { CardComponent } from '../shared/cards/cards';
-import { DetailModal } from "../shared/detail-modal/detail-modal";
-import { Router } from '@angular/router';
+import { DetailModal } from '../shared/detail-modal/detail-modal';
+import { SolicitudService } from '../../services/solicitud-service';
 
-// Bootstrap (externa)
+
+
 declare const bootstrap: any;
 
 @Component({
-  selector: 'app-resena-crud',
+  selector: 'app-crud-resenas',
   standalone: true,
   templateUrl: './crud-resenas.html',
   styleUrls: ['./crud-resenas.css'],
   imports: [DataTableComponent, CardComponent, ReactiveFormsModule, FormsModule, CommonModule, DetailModal],
 })
-export class CrudResenas implements OnInit {
-
-  // ============================================
-  // SECCIÓN 2: PROPIEDADES DE DATOS Y ESTADO
-  // ============================================
-
-  resenas: Resena[] = [];
+export class CrudResenas implements OnInit, AfterViewInit {
+  private listaResenasOriginales: any[] = [];
   resenasParaTabla: any[] = [];
-  resenaEdit: Resena | null = null;
+  resenaEnEdicion: any = null;
   modalRef: any;
-
-  solicitudes: Solicitud[] = [];
-  clientes: any[] = [];
-
-  // ============================================
-  // SECCIÓN 3: PROPIEDADES DE MODALES
-  // ============================================
-  resenaDetalle: Resena | null = null;
-  showDetailModal: boolean = false;
-  showDeleteModal = false;
-  showNotificationModal = false;
-  showErrorModal = false;
-  resena_a_Eliminar: Resena | null = null;
-  notificationMessage = '';
-  errorMessage = '';
-
-  // ============================================
-  // SECCIÓN 4: PROPIEDADES DE FORMULARIO
-  // ============================================
+  resenaDetalle: any = null;
+  mostrarModalDetalle: boolean = false;
+  mostrarModalEliminar = false;
+  mostrarModalNotificacion = false;
+  mostrarModalError = false;
+  resenaAEliminar: any = null;
+  mensajeNotificacion = '';
+  mensajeError = '';
   formResena!: FormGroup;
-
-  // ============================================
-  // SECCIÓN 5: PROPIEDADES DE PAGINACIÓN
-  // ============================================
   paginaActual: number = 1;
   itemsPorPagina: number = 8;
   totalPaginas: number = 1;
-
-  // ============================================
-  // SECCIÓN 6: PROPIEDADES DE FILTRADO
-  // ============================================
-  filtroCalificacion: number = 0;
+  filtroCalificacion: string = '';
   filtroFechaInicio: string = '';
   filtroFechaFin: string = '';
-
-  // ============================================
-  // SECCIÓN 7: OPCIONES Y CONFIGURACIONES
-  // ============================================
-  opcionesCalificacion = [
-    { valor: 1, texto: '1★ - Pésimo servicio' },
-    { valor: 2, texto: '2★ - Mal servicio' },
-    { valor: 3, texto: '3★ - Servicio regular' },
-    { valor: 4, texto: '4★ - Buen servicio' },
-    { valor: 5, texto: '5★ - Excelente servicio' },
-  ];
-
+  solicitudes: any[] = [];
+  
   opcionesFiltroCalificacion = [
-    { valor: 0, texto: 'Todas las calificaciones' },
-    { valor: 1, texto: '1★ - Pésimo servicio' },
-    { valor: 2, texto: '2★ - Mal servicio' },
-    { valor: 3, texto: '3★ - Servicio regular' },
-    { valor: 4, texto: '4★ - Buen servicio' },
-    { valor: 5, texto: '5★ - Excelente servicio' },
+    { valor: '', texto: 'Todas' },
+    { valor: '5', texto: '5 estrellas' },
+    { valor: '4', texto: '4 estrellas' },
+    { valor: '3', texto: '3 estrellas' },
+    { valor: '2', texto: '2 estrellas' },
+    { valor: '1', texto: '1 estrella' }
   ];
 
-  @ViewChild('resenaModal') modalElement!: ElementRef;
+  opcionesCalificacion = [
+    { valor: 5, texto: '5 estrellas' },
+    { valor: 4, texto: '4 estrellas' },
+    { valor: 3, texto: '3 estrellas' },
+    { valor: 2, texto: '2 estrellas' },
+    { valor: 1, texto: '1 estrella' }
+  ];
 
-  // ============================================
-  // SECCIÓN 8: CONSTRUCTOR E INICIALIZACIÓN
-  // ============================================
+  @ViewChild('resenaModal') elementoModal!: ElementRef;
+
   constructor(
-    private servResenas: ServResenasJson,
-    private solicitudService: SolicitudService,
-    private clienteService: ServClientesJson,
-    private fb: FormBuilder,
-    private router: Router
+    private servicioResenas: ServResenasJson,
+    private servicioSolicitudes: SolicitudService,
+    private constructorFormularios: FormBuilder
   ) {
     this.inicializarFormulario();
   }
 
   ngOnInit() {
     this.cargarDatosIniciales();
+    this.cargarSolicitudes();
   }
-
-  private cargarDatosIniciales(): void {
-    this.loadResenas();
-    this.loadSolicitudes();
-    this.loadClientes();
-  }
-
 
   ngAfterViewInit() {
-    this.modalRef = new bootstrap.Modal(this.modalElement.nativeElement);
+    this.modalRef = new bootstrap.Modal(this.elementoModal.nativeElement);
   }
 
-  // ============================================
-  // SECCIÓN 9: MÉTODOS DE FORMULARIO
-  // ============================================
-  inicializarFormulario() {
-    this.formResena = this.fb.group({
-      solicitud_id: ['', [Validators.required, Validators.min(1)]],
+  public cargarDatosIniciales(): void {
+    this.cargarResenas();
+  }
+
+  public inicializarFormulario() {
+    this.formResena = this.constructorFormularios.group({
+      solicitud_id: ['', [Validators.required]],
       calificacion: ['', [Validators.required, Validators.min(1), Validators.max(5)]],
       comentario: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]],
-      fecha: ['', Validators.required],
-      anonima: [false],
+      fecha: ['', [Validators.required]],
+      anonima: [false]
     });
   }
 
-  save() {
+  public guardarResena() {
     if (this.formResena.invalid) {
       this.formResena.markAllAsTouched();
       return;
     }
-
-    const datos = this.formResena.value;
-
-    if (this.resenaEdit?.id) {
-      const updated: Resena = { ...this.resenaEdit, ...datos, calificacion: Number(datos.calificacion) };
-      this.servResenas.update(updated).subscribe({
-        next: () => {
-          this.loadResenas();
-          this.modalRef.hide();
-          this.showNotification('Reseña actualizada');
-        }
-      });
+    const datosFormulario = this.formResena.value;
+    const datosParaServidor = this.prepararDatosParaGuardar(datosFormulario);
+    
+    if (this.resenaEnEdicion?.id) {
+      this.ejecutarActualizacion(this.resenaEnEdicion.id, datosParaServidor);
     } else {
-      this.servResenas.create({ ...datos, calificacion: Number(datos.calificacion) } as Resena).subscribe({
-        next: () => {
-          this.loadResenas();
-          this.modalRef.hide();
-          this.showNotification('Reseña creada');
-        }
-      });
+      this.ejecutarCreacion(datosParaServidor);
     }
   }
 
-  // ============================================
-  // SECCIÓN 10: MÉTODOS DE CARGA DE DATOS
-  // ============================================
-  loadResenas() {
-    this.servResenas.getResenas().subscribe({
-      next: (data) => {
-        this.resenas = data;
+  public prepararDatosParaGuardar(datos: any): any {
+    return {
+      ...datos,
+      solicitud_id: Number(datos.solicitud_id),
+      calificacion: Number(datos.calificacion),
+      anonima: Boolean(datos.anonima)
+    };
+  }
+
+  public ejecutarCreacion(datos: any) {
+    this.servicioResenas.crear(datos).subscribe({
+      next: () => {
+        this.cargarResenas();
+        this.cerrarModalPrincipal();
+        this.mostrarNotificacion('Reseña creada correctamente');
+      },
+      error: (error) => {
+        console.error('Error al crear reseña:', error);
+        this.mostrarError('Error al crear reseña');
+      }
+    });
+  }
+
+  public ejecutarActualizacion(id: number, datos: any) {
+    this.servicioResenas.actualizar(id, datos).subscribe({
+      next: () => {
+        this.cargarResenas();
+        this.cerrarModalPrincipal();
+        this.mostrarNotificacion('Reseña actualizada correctamente');
+      },
+      error: (error) => {
+        console.error('Error al actualizar reseña:', error);
+        this.mostrarError('Error al actualizar reseña');
+      }
+    });
+  }
+
+  public cargarResenas() {
+    this.servicioResenas.obtenerTodas().subscribe({
+      next: (datosCrudos) => {
+        this.listaResenasOriginales = datosCrudos;
         this.formatearDatosParaTabla();
       },
-      error: (err) => {
-        console.error('Error al cargar reseñas:', err);
-        this.showError('Error al cargar reseñas');
+      error: (error) => {
+        console.error('Error al cargar reseñas:', error);
+        this.mostrarError('Error al cargar reseñas');
       }
     });
   }
 
-  loadSolicitudes() {
-    this.solicitudService.SolicitudesobtenerTodas().subscribe({
-      next: (data) => {
-        this.solicitudes = data;
+  public cargarSolicitudes() {
+    this.servicioSolicitudes.obtenerTodas().subscribe({
+      next: (solicitudes) => {
+        this.solicitudes = solicitudes;
       },
-      error: (err) => {
-        console.error('Error al cargar solicitudes:', err);
-        this.showError('Error al cargar solicitudes');
+      error: (error) => {
+        console.error('Error al cargar solicitudes:', error);
       }
     });
   }
 
-  loadClientes() {
-    this.clienteService.obtenerTodos().subscribe({
-      next: (data: any[]) => {
-        this.clientes = data;
-      },
-      error: (err: any) => {
-        console.error('Error al cargar clientes:', err);
-      }
-    });
-  }
+  public formatearDatosParaTabla() {
+    let resenasAMostrar = [...this.listaResenasOriginales];
 
-  // ============================================
-  // SECCIÓN 11: MÉTODOS DE TABLA Y FILTRADO
-  // ============================================
-  formatearDatosParaTabla() {
-    let resenasAMostrar = [...this.resenas];
-
-    if (this.filtroCalificacion > 0) {
-      resenasAMostrar = resenasAMostrar.filter(r => Number(r.calificacion) === Number(this.filtroCalificacion));
+    if (this.filtroCalificacion) {
+      const filtro = Number(this.filtroCalificacion);
+      resenasAMostrar = resenasAMostrar.filter(resena => resena.calificacion === filtro);
     }
 
     if (this.filtroFechaInicio) {
       const fechaInicio = new Date(this.filtroFechaInicio);
-      resenasAMostrar = resenasAMostrar.filter(r => {
-        const fechaResena = new Date(r.fecha);
-        return fechaResena >= fechaInicio;
-      });
+      resenasAMostrar = resenasAMostrar.filter(resena => new Date(resena.fecha) >= fechaInicio);
     }
 
     if (this.filtroFechaFin) {
       const fechaFin = new Date(this.filtroFechaFin);
       fechaFin.setHours(23, 59, 59, 999);
-      resenasAMostrar = resenasAMostrar.filter(r => {
-        const fechaResena = new Date(r.fecha);
-        return fechaResena <= fechaFin;
-      });
+      resenasAMostrar = resenasAMostrar.filter(resena => new Date(resena.fecha) <= fechaFin);
     }
 
-    this.resenasParaTabla = resenasAMostrar.map(r => ({
-      ...r,
-      calificacionFormateada: `${r.calificacion} ★ - ${this.obtenerTextoCalificacion(r.calificacion)}`,
-      anonimaFormateada: r.anonima ? 'Sí' : 'No'
+    this.resenasParaTabla = resenasAMostrar.map(resena => ({
+      id: resena.id,
+      solicitud_id: resena.solicitud_id,
+      calificacionFormateada: '⭐'.repeat(resena.calificacion),
+      comentario: resena.comentario,
+      fecha: new Date(resena.fecha).toLocaleDateString('es-ES'),
+      anonimaFormateada: resena.anonima ? 'Sí' : 'No',
+      datosCompletos: resena
     }));
 
     this.calcularPaginacion();
   }
 
-  search(input: HTMLInputElement) {
-    const param = input.value.trim();
-
-    if (!param) {
-      this.formatearDatosParaTabla();
+  public buscarResenas(elementoInput: HTMLInputElement) {
+    const terminoBusqueda = elementoInput.value.trim();
+    if (!terminoBusqueda) {
+      this.cargarResenas();
       this.paginaActual = 1;
       return;
     }
-
-    const resultadosBusqueda = this.resenas.filter(r =>
-      r.comentario.toLowerCase().includes(param.toLowerCase()) ||
-      String(r.calificacion).includes(param) ||
-      String(r.solicitud_id).includes(param)
-    );
-
-    let resenasAMostrar = [...resultadosBusqueda];
-
-    if (this.filtroCalificacion > 0) {
-      resenasAMostrar = resenasAMostrar.filter(r => r.calificacion === this.filtroCalificacion);
-    }
-
-    if (this.filtroFechaInicio) {
-      const fechaInicio = new Date(this.filtroFechaInicio);
-      resenasAMostrar = resenasAMostrar.filter(r => {
-        const fechaResena = new Date(r.fecha);
-        return fechaResena >= fechaInicio;
-      });
-    }
-
-    if (this.filtroFechaFin) {
-      const fechaFin = new Date(this.filtroFechaFin);
-      fechaFin.setHours(23, 59, 59, 999);
-      resenasAMostrar = resenasAMostrar.filter(r => {
-        const fechaResena = new Date(r.fecha);
-        return fechaResena <= fechaFin;
-      });
-    }
-
-    this.resenasParaTabla = resenasAMostrar.map(r => ({
-      ...r,
-      calificacionFormateada: `${r.calificacion} ★ - ${this.obtenerTextoCalificacion(r.calificacion)}`,
-      anonimaFormateada: r.anonima ? 'Sí' : 'No'
-    }));
-
-    this.calcularPaginacion();
-    this.paginaActual = 1;
+    this.servicioResenas.buscarPorTermino(terminoBusqueda).subscribe({
+      next: (resultadosBusqueda) => {
+        this.listaResenasOriginales = resultadosBusqueda;
+        this.formatearDatosParaTabla();
+        this.paginaActual = 1;
+      },
+      error: (error) => {
+        console.error('Error en búsqueda:', error);
+        this.mostrarError('Error al buscar reseñas');
+      }
+    });
   }
 
-  aplicarFiltros(): void {
+  public aplicarFiltros(): void {
     this.paginaActual = 1;
     this.formatearDatosParaTabla();
   }
 
-  limpiarFiltros(): void {
-    this.filtroCalificacion = 0;
+  public limpiarFiltros(): void {
+    this.filtroCalificacion = '';
     this.filtroFechaInicio = '';
     this.filtroFechaFin = '';
     this.paginaActual = 1;
     this.formatearDatosParaTabla();
   }
 
-  // ============================================
-  // SECCIÓN 12: MÉTODOS DE PAGINACIÓN
-  // ============================================
-  get resenasPaginadas(): any[] {
-    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
-    const fin = inicio + this.itemsPorPagina;
-    return this.resenasParaTabla.slice(inicio, fin);
+  public get resenasPaginadas(): any[] {
+    const indiceInicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    const indiceFin = indiceInicio + this.itemsPorPagina;
+    return this.resenasParaTabla.slice(indiceInicio, indiceFin);
   }
 
-  calcularPaginacion(): void {
+  public calcularPaginacion(): void {
     this.totalPaginas = Math.ceil(this.resenasParaTabla.length / this.itemsPorPagina);
     if (this.paginaActual > this.totalPaginas && this.totalPaginas > 0) {
       this.paginaActual = this.totalPaginas;
     }
   }
 
-  cambiarPagina(pagina: number): void {
+  public cambiarPagina(pagina: number): void {
     if (pagina >= 1 && pagina <= this.totalPaginas) {
       this.paginaActual = pagina;
     }
   }
 
-  get rangoRegistros(): string {
+  public get rangoRegistros(): string {
     const inicio = (this.paginaActual - 1) * this.itemsPorPagina + 1;
     const fin = Math.min(this.paginaActual * this.itemsPorPagina, this.resenasParaTabla.length);
     return `${inicio}-${fin} de ${this.resenasParaTabla.length}`;
   }
 
-  // ============================================
-  // SECCIÓN 13: MÉTODOS CRUD - CREAR/EDITAR
-  // ============================================
-  openNew() {
-    this.resenaEdit = null;
-    this.formResena.reset({ anonima: false });
-    this.modalRef.show();
-  }
-
-  openEdit(resena: Resena) {
-    this.resenaEdit = { ...resena };
-    const fecha = typeof resena.fecha === 'string' ? resena.fecha : new Date(resena.fecha).toISOString().split('T')[0];
-    this.formResena.patchValue({
-      solicitud_id: resena.solicitud_id,
-      calificacion: resena.calificacion,
-      comentario: resena.comentario,
-      fecha: fecha,
-      anonima: resena.anonima
+  public abrirNuevor() {
+    this.resenaEnEdicion = null;
+    this.formResena.reset({
+      calificacion: '',
+      anonima: false,
+      fecha: new Date().toISOString().split('T')[0]
     });
     this.modalRef.show();
   }
 
-  // ============================================
-  // SECCIÓN 14: MÉTODOS CRUD - ELIMINAR
-  // ============================================
-  openDeleteModal(resena: Resena) {
-    this.resena_a_Eliminar = resena;
-    this.showDeleteModal = true;
+  public abrirEdicion(datosResena: any) {
+    this.resenaEnEdicion = { ...datosResena.datosCompletos };
+    this.formResena.patchValue({
+      ...datosResena.datosCompletos,
+      fecha: new Date(datosResena.datosCompletos.fecha).toISOString().split('T')[0]
+    });
+    this.modalRef.show();
   }
 
-  confirmDelete() {
-    if (!this.resena_a_Eliminar?.id) return;
+  public abrirModalEliminar(resena: any) {
+    this.resenaAEliminar = resena.datosCompletos;
+    this.mostrarModalEliminar = true;
+  }
 
-    this.servResenas.delete(this.resena_a_Eliminar.id).subscribe({
+  public confirmarEliminacion() {
+    if (!this.resenaAEliminar?.id) return;
+    this.servicioResenas.eliminar(this.resenaAEliminar.id).subscribe({
       next: () => {
-        this.showNotification('Reseña eliminada');
-        this.loadResenas();
-        this.closeDeleteModal();
+        this.mostrarNotificacion('Reseña eliminada correctamente');
+        this.cargarResenas();
+        this.cerrarModalEliminar();
+      },
+      error: (error) => {
+        console.error('Error al eliminar reseña:', error);
+        this.mostrarError('Error al eliminar reseña');
+        this.cerrarModalEliminar();
       }
     });
   }
 
-  closeDeleteModal() {
-    this.showDeleteModal = false;
-    this.resena_a_Eliminar = null;
+  public cerrarModalEliminar() {
+    this.mostrarModalEliminar = false;
+    this.resenaAEliminar = null;
   }
 
-  // ============================================
-  // SECCIÓN 15: MÉTODOS DE VISUALIZACIÓN/DETALLE
-  // ============================================
-  view(resena: Resena) {
-    this.resenaDetalle = resena;
-    this.showDetailModal = true;
+  public cerrarModalPrincipal() {
+    this.modalRef.hide();
   }
 
-  closeDetail() {
-    this.showDetailModal = false;
+  public verDetalle(resena: any) {
+    this.resenaDetalle = resena.datosCompletos;
+    this.mostrarModalDetalle = true;
+  }
+
+  public cerrarDetalle() {
+    this.mostrarModalDetalle = false;
     this.resenaDetalle = null;
   }
 
-  // ============================================
-  // SECCIÓN 16: MÉTODOS AUXILIARES
-  // ============================================
-  obtenerTextoCalificacion(c: number): string {
-    const t = ['', 'Pésimo servicio', 'Mal servicio', 'Servicio regular', 'Buen servicio', 'Excelente servicio'];
-    return t[c] || '';
+  public mostrarNotificacion(mensaje: string) {
+    this.mensajeNotificacion = mensaje;
+    this.mostrarModalNotificacion = true;
+    setTimeout(() => {
+      this.mostrarModalNotificacion = false;
+    }, 3000);
   }
 
-  getSolicitudDescripcion(solicitudId: number): string {
-    const solicitud = this.solicitudes.find(s => s.id === solicitudId);
-    return solicitud ? solicitud.descripcion : 'N/A';
-  }
-
-  getClienteNombre(clienteId: number): string {
-    const cliente = this.clientes.find(c => c.id === clienteId);
-    return cliente ? cliente.nombre : 'Cliente desconocido';
-  }
-
-  // ============================================
-  // SECCIÓN 17: MÉTODOS DE NOTIFICACIÓN Y ERROR
-  // ============================================
-  showNotification(msg: string) {
-    this.notificationMessage = msg;
-    this.showNotificationModal = true;
-  }
-
-  showError(msg: string) {
-    this.errorMessage = msg;
-    this.showErrorModal = true;
-  }
-
-
-  verListaResenas(): void {
-    this.router.navigate(['/resena-list']);
+  public mostrarError(mensaje: string) {
+    this.mensajeError = mensaje;
+    this.mostrarModalError = true;
+    setTimeout(() => {
+      this.mostrarModalError = false;
+    }, 3000);
   }
 }

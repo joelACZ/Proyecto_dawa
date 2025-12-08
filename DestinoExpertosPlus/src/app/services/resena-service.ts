@@ -1,46 +1,68 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, map } from 'rxjs';
-import { Resena } from '../models/Resena.model';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ServResenasJson {
-  private resenasUrl = 'http://localhost:3000/resenas';
+  private readonly urlBase = 'http://localhost:3000/resenas';
 
-  constructor(private http: HttpClient) {}
+  constructor(private clienteHttp: HttpClient) {}
 
-  getResenas(): Observable<Resena[]> {
-    return this.http.get<Resena[]>(this.resenasUrl);
+  /**
+   * Obtener todas las reseñas
+   * @returns Observable<any[]> - Datos crudos del API
+   */
+  obtenerTodas(): Observable<any[]> {
+    return this.clienteHttp.get<any[]>(this.urlBase);
   }
 
-  getResenaById(id: number | string): Observable<Resena> {
-    return this.http.get<Resena>(`${this.resenasUrl}/${id}`);
+  /**
+   * Obtener una reseña por ID
+   * @param identificador - Identificador único de la reseña
+   * @returns Observable<any> - Datos crudos del API
+   */
+  obtenerPorId(identificador: number): Observable<any> {
+    return this.clienteHttp.get<any>(`${this.urlBase}/${identificador}`);
   }
 
-  searchResenas(param: string): Observable<Resena[]> {
-    return this.http.get<Resena[]>(this.resenasUrl).pipe(
-      map(resenas =>
-        resenas.filter(r =>
-          r.comentario.toLowerCase().includes(param.toLowerCase()) ||
-          String(r.calificacion).includes(param)
-        )
-      )
-    );
+  /**
+   * Crear una nueva reseña
+   * @param datosResena - Datos ya formateados para el API
+   * @returns Observable<any> - Respuesta cruda del API
+   */
+  crear(datosResena: any): Observable<any> {
+    return this.clienteHttp.post<any>(this.urlBase, datosResena);
   }
 
-  create(resena: any): Observable<Resena> {
-    return this.http.post<Resena>(this.resenasUrl, resena);
+  /**
+   * Actualizar una reseña existente
+   * @param identificador - Identificador de la reseña a actualizar
+   * @param datosResena - Datos ya formateados para el API
+   * @returns Observable<any> - Respuesta cruda del API
+   */
+  actualizar(identificador: number, datosResena: any): Observable<any> {
+    return this.clienteHttp.put<any>(`${this.urlBase}/${identificador}`, datosResena);
   }
 
-  update(resena: any): Observable<Resena> {
-    const url = `${this.resenasUrl}/${resena.id}`;
-    return this.http.put<Resena>(url, resena);
+  /**
+   * Eliminar una reseña
+   * @param identificador - Identificador de la reseña a eliminar
+   * @returns Observable<any> - Respuesta cruda del API
+   */
+  eliminar(identificador: number): Observable<any> {
+    return this.clienteHttp.delete<any>(`${this.urlBase}/${identificador}`);
   }
 
-  delete(id: number | string): Observable<Resena> {
-    const url = `${this.resenasUrl}/${id}`;
-    return this.http.delete<Resena>(url);
+  /**
+   * Buscar reseñas por término (comentario o calificación)
+   * @param termino - Término de búsqueda
+   * @returns Observable<any[]> - Datos crudos del API
+   */
+  buscarPorTermino(termino: string): Observable<any[]> {
+    // NOTA: Esta implementación asume que el backend soporta query parameters
+    // Si no, se podría hacer el filtrado en el cliente
+    return this.clienteHttp.get<any[]>(`${this.urlBase}?q=${termino}`);
   }
 }

@@ -10,27 +10,24 @@
     placeholder="Buscar reseñas..." 
     class="border p-2 rounded w-full md:w-64" 
     #txtBuscar 
-    (input)="search(txtBuscar)" 
+    (input)="buscarResenas(txtBuscar)" 
   />
 
-  <!-- Contenedor que envía los botones a la derecha -->
   <div style="margin-left: auto;" class="d-flex gap-2">
     <button 
        class="btn btn-light border font-weight-bold py-2 px-4 rounded transition"
-      (click)="openNew()">
+      (click)="abrirNuevor()">
       + Nueva Reseña
     </button>
 
     <button 
       class="btn btn-light border font-weight-bold py-2 px-4 rounded transition" 
-      (click)="verListaResenas()">
+      (click)="cargarDatosIniciales()">
       <i class="bi bi-list-ul me-1"></i> Lista de Reseñas
     </button>
   </div>
 </div>
 
-
-<!-- FILTROS -->
 <div class="card mb-4">
   <div class="card-header">
     <h5 class="mb-0">
@@ -39,7 +36,6 @@
   </div>
   <div class="card-body">
     <div class="row g-3">
-      <!-- Filtro por Calificación -->
       <div class="col-md-3">
         <label class="form-label">Calificación</label>
         <select class="form-select" [(ngModel)]="filtroCalificacion" (change)="aplicarFiltros()">
@@ -49,19 +45,16 @@
         </select>
       </div>
 
-      <!-- Filtro por Fecha Inicio -->
       <div class="col-md-3">
         <label class="form-label">Fecha Desde</label>
         <input type="date" class="form-control" [(ngModel)]="filtroFechaInicio" (change)="aplicarFiltros()">
       </div>
 
-      <!-- Filtro por Fecha Fin -->
       <div class="col-md-3">
         <label class="form-label">Fecha Hasta</label>
         <input type="date" class="form-control" [(ngModel)]="filtroFechaFin" (change)="aplicarFiltros()">
       </div>
 
-      <!-- Botón Limpiar Filtros -->
       <div class="col-md-3 d-flex align-items-end">
         <button class="btn btn-outline-secondary w-100" (click)="limpiarFiltros()">
           <i class="bi bi-x-circle me-1"></i> Limpiar Filtros
@@ -69,21 +62,7 @@
       </div>
     </div>
 
-    <!-- Indicadores de filtros activos -->
-    <div class="mt-3" *ngIf="filtroCalificacion > 0 || filtroFechaInicio || filtroFechaFin">
-      <small class="text-muted">
-        <i class="bi bi-info-circle me-1"></i>Filtros activos:
-        <span class="badge bg-primary ms-2" *ngIf="filtroCalificacion > 0">
-          Calificación: {{ filtroCalificacion }} ★
-        </span>
-        <span class="badge bg-primary ms-2" *ngIf="filtroFechaInicio">
-          Desde: {{ filtroFechaInicio }}
-        </span>
-        <span class="badge bg-primary ms-2" *ngIf="filtroFechaFin">
-          Hasta: {{ filtroFechaFin }}
-        </span>
-      </small>
-    </div>
+    <!--- falta filtro calificacion-->
   </div>
 </div>
 
@@ -97,20 +76,19 @@
 ]">
   <ng-template #actions let-row>
     <div class="flex space-x-2">
-      <button  (click)="view(row)"class="btn action-btn unified"> 
+      <button (click)="verDetalle(row)" class="btn action-btn unified"> 
         <i class="bi bi-eye"></i>
       </button>
-      <button  (click)="openEdit(row)"class="btn action-btn unified">
+      <button (click)="abrirEdicion(row)" class="btn action-btn unified">
         <i class="bi bi-pencil"></i>
       </button>
-      <button  (click)="openDeleteModal(row)"class="btn action-btn unified">
+      <button (click)="abrirModalEliminar(row)" class="btn action-btn unified">
         <i class="bi bi-trash"></i>
       </button>
     </div>
   </ng-template>
 </app-data-table>
 
-<!-- PAGINACIÓN -->
 <div class="d-flex justify-content-between align-items-center mt-3" *ngIf="totalPaginas > 1">
   <div class="text-muted small">
     Mostrando {{ rangoRegistros }} registros
@@ -118,14 +96,12 @@
   
   <nav aria-label="Paginación de reseñas">
     <ul class="pagination mb-0">
-      <!-- Botón Anterior -->
       <li class="page-item" [class.disabled]="paginaActual === 1">
         <a class="page-link" href="#" (click)="cambiarPagina(paginaActual - 1); $event.preventDefault()">
           <i class="bi bi-chevron-left"></i> Anterior
         </a>
       </li>
       
-      <!-- Números de página -->
       <li class="page-item" *ngFor="let pagina of [].constructor(totalPaginas); let i = index"
           [class.active]="paginaActual === i + 1">
         <a class="page-link" href="#" (click)="cambiarPagina(i + 1); $event.preventDefault()">
@@ -133,7 +109,6 @@
         </a>
       </li>
       
-      <!-- Botón Siguiente -->
       <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
         <a class="page-link" href="#" (click)="cambiarPagina(paginaActual + 1); $event.preventDefault()">
           Siguiente <i class="bi bi-chevron-right"></i>
@@ -143,29 +118,27 @@
   </nav>
 </div>
 
-<!-- MODAL REUTILIZABLE DE DETALLES -->
 <app-detail-modal 
-  [isVisible]="showDetailModal"
+  [isVisible]="mostrarModalDetalle"
   [data]="resenaDetalle"
-  (close)="closeDetail()">
+  (close)="cerrarDetalle()">
 </app-detail-modal>
 
-<!-- MODAL DE NOTIFICACIÓN DE ÉXITO -->
-<div *ngIf="showNotificationModal" class="modal fade show d-block notification-modal success" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+<div *ngIf="mostrarModalNotificacion" class="modal fade show d-block notification-modal success" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="btn-close" (click)="showNotificationModal = false"></button>
+        <button type="button" class="btn-close" (click)="mostrarModalNotificacion = false"></button>
       </div>
       <div class="modal-body">
         <div class="modal-icon">
           <i class="bi bi-check-circle-fill"></i>
         </div>
         <h5 class="modal-title mb-3">¡Éxito!</h5>
-        <p class="mb-0">{{ notificationMessage }}</p>
+        <p class="mb-0">{{ mensajeNotificacion }}</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-success" (click)="showNotificationModal = false">
+        <button type="button" class="btn btn-success" (click)="mostrarModalNotificacion = false">
           Aceptar
         </button>
       </div>
@@ -173,22 +146,21 @@
   </div>
 </div>
 
-<!-- MODAL DE ERROR -->
-<div *ngIf="showErrorModal" class="modal fade show d-block notification-modal error" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+<div *ngIf="mostrarModalError" class="modal fade show d-block notification-modal error" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="btn-close" (click)="showErrorModal = false"></button>
+        <button type="button" class="btn-close" (click)="mostrarModalError = false"></button>
       </div>
       <div class="modal-body">
         <div class="modal-icon">
           <i class="bi bi-exclamation-triangle-fill"></i>
         </div>
         <h5 class="modal-title mb-3">Error</h5>
-        <p class="mb-0">{{ errorMessage }}</p>
+        <p class="mb-0">{{ mensajeError }}</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger" (click)="showErrorModal = false">
+        <button type="button" class="btn btn-danger" (click)="mostrarModalError = false">
           Aceptar
         </button>
       </div>
@@ -196,8 +168,7 @@
   </div>
 </div>
 
-<!-- MODAL DE ELIMINAR -->
-<div *ngIf="showDeleteModal" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+<div *ngIf="mostrarModalEliminar" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header border-0">
@@ -205,26 +176,26 @@
           <i class="bi bi-exclamation-triangle me-2"></i>
           Confirmar Eliminación
         </h5>
-        <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+        <button type="button" class="btn-close" (click)="cerrarModalEliminar()"></button>
       </div>
       <div class="modal-body text-center">
         <div class="mb-4">
           <i class="bi bi-trash3-fill text-danger" style="font-size: 3rem;"></i>
         </div>
-        <h6 class="mb-3">¿Está seguro de eliminar la reseña #{{ resena_a_Eliminar?.id }}?</h6>
+        <h6 class="mb-3">¿Está seguro de eliminar la reseña #{{ resenaAEliminar?.id }}?</h6>
         <div class="alert alert-light border">
           <p class="mb-1"><strong>Comentario:</strong></p>
-          <p class="mb-0 text-muted">"{{ resena_a_Eliminar?.comentario }}"</p>
+          <p class="mb-0 text-muted">"{{ resenaAEliminar?.comentario }}"</p>
         </div>
         <p class="text-muted small mt-3">
           Esta acción no se puede deshacer.
         </p>
       </div>
       <div class="modal-footer border-0 justify-content-center">
-        <button type="button" class="btn btn-secondary me-3" (click)="closeDeleteModal()">
+        <button type="button" class="btn btn-secondary me-3" (click)="cerrarModalEliminar()">
           <i class="bi bi-x-circle me-1"></i> Cancelar
         </button>
-        <button type="button" class="btn btn-danger" (click)="confirmDelete()">
+        <button type="button" class="btn btn-danger" (click)="confirmarEliminacion()">
           <i class="bi bi-trash3 me-1"></i> Sí, eliminar
         </button>
       </div>
@@ -232,24 +203,21 @@
   </div>
 </div>
 
-<!-- MODAL CREAR/EDITAR -->
-<div class="modal fade" id="resenaModal" #resenaModal>
+<div class="modal fade" id="resenaModal" #elementoModal>
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">{{ resenaEdit ? 'Editar' : 'Nueva' }} Reseña</h5>
+        <h5 class="modal-title">{{ resenaEnEdicion ? 'Editar' : 'Nueva' }} Reseña</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <form [formGroup]="formResena">
         <div class="modal-body">
-          
-          <!-- CAMPO: Solicitud con validaciones -->
           <div class="mb-3">
             <label class="form-label">Solicitud *</label>
             <select class="form-select fw-bold" formControlName="solicitud_id">
               <option value="">Seleccionar solicitud...</option>
               <option *ngFor="let solicitud of solicitudes" [value]="solicitud.id">
-                #{{ solicitud.id }} - {{ getClienteNombre(solicitud.cliente_id) }}
+                #{{ solicitud.id }} - {{ (solicitud.cliente_id) }}
               </option>
             </select>
             <span class="error">
@@ -265,7 +233,6 @@
             </span>
           </div>
 
-          <!-- CAMPO: Calificación con validaciones -->
           <div class="mb-3">
             <label class="form-label">Calificación *</label>
             <select class="form-select" formControlName="calificacion">
@@ -285,7 +252,6 @@
             </span>
           </div>
 
-          <!-- CAMPO: Comentario con validaciones -->
           <div class="mb-3">
             <label class="form-label">Comentario *</label>
             <textarea class="form-control" rows="4" formControlName="comentario" 
@@ -309,7 +275,6 @@
             </small>
           </div>
 
-          <!-- CAMPO: Fecha con validaciones -->
           <div class="mb-3">
             <label class="form-label">Fecha *</label>
             <input type="date" class="form-control" formControlName="fecha">
@@ -323,7 +288,6 @@
             </span>
           </div>
 
-          <!-- CAMPO: Anónima (checkbox) -->
           <div class="form-check">
             <input class="form-check-input" type="checkbox" formControlName="anonima" id="checkAnonima">
             <label class="form-check-label" for="checkAnonima">Reseña anónima</label>
@@ -331,8 +295,8 @@
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">Cancelar</button>
-          <button type="button" class="btn btn-primary" (click)="save()">{{ resenaEdit ? 'Actualizar' : 'Guardar' }}</button>
+          <button type="button" class="btn btn-secondary" (click)="cerrarModalPrincipal()">Cancelar</button>
+          <button type="button" class="btn btn-primary" (click)="guardarResena()">{{ resenaEnEdicion ? 'Actualizar' : 'Guardar' }}</button>
         </div>
       </form>
     </div>

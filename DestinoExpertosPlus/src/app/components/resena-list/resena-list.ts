@@ -38,12 +38,12 @@ export class ResenaListComponent implements OnInit {
     this.cargando = true;
 
     // Cargar todas las reseñas
-    this.servResenas.getResenas().subscribe({
+    this.servResenas.obtenerTodas().subscribe({
       next: (resenas) => {
         // Cargar clientes y solicitudes para obtener nombres
         this.clienteService.obtenerTodos().subscribe({
           next: (clientes) => {
-            this.solicitudService.SolicitudesobtenerTodas().subscribe({
+            this.solicitudService.obtenerTodas().subscribe({
               next: (solicitudes) => {
                 // Enriquecer las reseñas con información adicional
                 this.resenas = resenas.map(resena => {
