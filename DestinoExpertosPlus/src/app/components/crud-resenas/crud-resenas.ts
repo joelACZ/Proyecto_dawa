@@ -2,11 +2,10 @@ import { Component, ElementRef, ViewChild, OnInit, AfterViewInit } from '@angula
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ServResenasJson } from '../../services/resena-service';
+import { SolicitudService } from '../../services/solicitud-service';
 import { DataTableComponent } from '../shared/data-table/data-table';
 import { CardComponent } from '../shared/cards/cards';
 import { DetailModal } from '../shared/detail-modal/detail-modal';
-import { SolicitudService } from '../../services/solicitud-service';
-
 
 
 declare const bootstrap: any;
@@ -16,7 +15,7 @@ declare const bootstrap: any;
   standalone: true,
   templateUrl: './crud-resenas.html',
   styleUrls: ['./crud-resenas.css'],
-  imports: [DataTableComponent, CardComponent, ReactiveFormsModule, FormsModule, CommonModule, DetailModal],
+  imports: [DataTableComponent, CardComponent, ReactiveFormsModule, FormsModule, CommonModule, DetailModal, ],
 })
 export class CrudResenas implements OnInit, AfterViewInit {
   private listaResenasOriginales: any[] = [];
@@ -39,7 +38,7 @@ export class CrudResenas implements OnInit, AfterViewInit {
   filtroFechaInicio: string = '';
   filtroFechaFin: string = '';
   solicitudes: any[] = [];
-  
+
   opcionesFiltroCalificacion = [
     { valor: '', texto: 'Todas' },
     { valor: '5', texto: '5 estrellas' },
@@ -57,7 +56,7 @@ export class CrudResenas implements OnInit, AfterViewInit {
     { valor: 1, texto: '1 estrella' }
   ];
 
-  @ViewChild('resenaModal') elementoModal!: ElementRef;
+  @ViewChild('elementoModal') elementoModal!: ElementRef;
 
   constructor(
     private servicioResenas: ServResenasJson,
@@ -73,7 +72,9 @@ export class CrudResenas implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.modalRef = new bootstrap.Modal(this.elementoModal.nativeElement);
+    if (this.elementoModal) {
+      this.modalRef = new bootstrap.Modal(this.elementoModal.nativeElement);
+    }
   }
 
   public cargarDatosIniciales(): void {
@@ -256,14 +257,16 @@ export class CrudResenas implements OnInit, AfterViewInit {
     return `${inicio}-${fin} de ${this.resenasParaTabla.length}`;
   }
 
-  public abrirNuevor() {
+  public abrirNuevo() {
     this.resenaEnEdicion = null;
     this.formResena.reset({
       calificacion: '',
       anonima: false,
       fecha: new Date().toISOString().split('T')[0]
     });
-    this.modalRef.show();
+    if (this.modalRef) {
+      this.modalRef.show();
+    }
   }
 
   public abrirEdicion(datosResena: any) {
@@ -272,7 +275,9 @@ export class CrudResenas implements OnInit, AfterViewInit {
       ...datosResena.datosCompletos,
       fecha: new Date(datosResena.datosCompletos.fecha).toISOString().split('T')[0]
     });
-    this.modalRef.show();
+    if (this.modalRef) {
+      this.modalRef.show();
+    }
   }
 
   public abrirModalEliminar(resena: any) {
@@ -302,7 +307,9 @@ export class CrudResenas implements OnInit, AfterViewInit {
   }
 
   public cerrarModalPrincipal() {
-    this.modalRef.hide();
+    if (this.modalRef) {
+      this.modalRef.hide();
+    }
   }
 
   public verDetalle(resena: any) {
