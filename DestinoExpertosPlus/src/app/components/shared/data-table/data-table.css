@@ -1,0 +1,75 @@
+/* data-table.component.css */
+
+.data-table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+}
+
+/* Estilos del encabezado */
+.data-table thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.data-table thead th {
+  padding: 16px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  border: none;
+}
+
+/* Estilos del cuerpo */
+.data-table tbody tr {
+  border-bottom: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+}
+
+.data-table tbody tr:hover {
+  background-color: #f8f9fa;
+  transform: scale(1.01);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.data-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.data-table tbody td {
+  padding: 16px 12px;
+  font-size: 14px;
+  color: #495057;
+  vertical-align: middle;
+}
+
+/* Contenido de las celdas */
+.cell-content {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+}
+
+/* Fila vacía */
+.data-table tbody tr td[colspan] {
+  text-align: center;
+  padding: 40px 12px;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .data-table thead th,
+  .data-table tbody td {
+    padding: 12px 8px;
+    font-size: 13px;
+  }
+}

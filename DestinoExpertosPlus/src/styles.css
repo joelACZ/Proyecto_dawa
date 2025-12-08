@@ -142,7 +142,6 @@
 
 
    /* Estilo del Menu */
-   
 :root {
   --color-1: #3661f1;
 }
@@ -259,13 +258,14 @@ section.container.py-5 {
   width: 100%;
 }
 
-/* Grid con espaciado perfecto */
+/* Grid con espaciado perfecto - se adapta automáticamente */
 .row.g-4 {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   height: 100%;
   gap: 1.5rem;
+  padding: 0 1rem;
 }
 
 .row.g-4 > div {
@@ -273,11 +273,11 @@ section.container.py-5 {
   height: auto;
 }
 
-/* Columnas con ancho óptimo */
+/* Columnas flexibles que se adaptan al espacio disponible */
 .col-12.col-sm-6.col-lg-4.col-xl {
-  flex: 0 0 auto;
-  min-width: 245px;
-  max-width: 245px;
+  flex: 1 1 200px;
+  min-width: 200px;
+  max-width: 280px;
 }
 
 .card.h-100 {
@@ -351,8 +351,8 @@ footer .py-3 {
 /* Responsive */
 @media (max-width: 1400px) {
   .col-12.col-sm-6.col-lg-4.col-xl {
-    flex: 0 0 20%;
-    max-width: 20%;
+    flex: 1 1 220px;
+    min-width: 220px;
   }
 }
 

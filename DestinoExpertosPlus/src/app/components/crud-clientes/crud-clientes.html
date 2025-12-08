@@ -20,7 +20,7 @@
         </div>
       </div>
       <div class="col-12 col-md-4 text-md-end">
-        <button class="btn btn-primary w-100 w-md-auto" (click)="abrirModalNuevo()">
+          <button class="btn btn-outline-dark" (click)="abrirModalNuevo()">
           <i class="bi bi-person-plus"></i> Nuevo Cliente
         </button>
       </div>
@@ -74,13 +74,13 @@
   <div class="card-body">
     <div class="row align-items-center">
       <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
-        <span class="text-muted small">
+         <!--<span class="text-muted small">
           Mostrando {{ obtenerRangoRegistros }} registros
-        </span>
+        </span>-->
       </div>
       <div class="col-md-6">
         <nav aria-label="Paginación de clientes">
-          <ul class="pagination justify-content-center justify-content-md-end mb-0">
+          <ul class="pagination justify-content-center justify-content-md-center mb-0">
             <!-- Botón Anterior -->
             <li class="page-item" [class.disabled]="paginaActual === 1">
               <a class="page-link" href="#" (click)="cambiarPagina(paginaActual - 1); $event.preventDefault()">

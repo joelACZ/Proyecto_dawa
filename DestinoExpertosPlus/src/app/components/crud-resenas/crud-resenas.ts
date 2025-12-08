@@ -42,19 +42,19 @@ export class CrudResenas implements OnInit, AfterViewInit {
 
   opcionesFiltroCalificacion = [
     { valor: '', texto: 'Todas' },
-    { valor: '5', texto: '5 estrellas' },
-    { valor: '4', texto: '4 estrellas' },
-    { valor: '3', texto: '3 estrellas' },
-    { valor: '2', texto: '2 estrellas' },
-    { valor: '1', texto: '1 estrella' }
+    { valor: '5', texto: '5 Estrellas' },
+    { valor: '4', texto: '4 Estrellas' },
+    { valor: '3', texto: '3 Estrellas' },
+    { valor: '2', texto: '2 Estrellas' },
+    { valor: '1', texto: '1 Estrella' }
   ];
 
   opcionesCalificacion = [
-    { valor: 5, texto: '5 estrellas' },
-    { valor: 4, texto: '4 estrellas' },
-    { valor: 3, texto: '3 estrellas' },
-    { valor: 2, texto: '2 estrellas' },
-    { valor: 1, texto: '1 estrella' }
+    { valor: 5, texto: '5 Estrellas' },
+    { valor: 4, texto: '4 Estrellas' },
+    { valor: 3, texto: '3 Estrellas' },
+    { valor: 2, texto: '2 Estrellas' },
+    { valor: 1, texto: '1 Estrella' }
   ];
 
   @ViewChild('elementoModal') elementoModal!: ElementRef;
