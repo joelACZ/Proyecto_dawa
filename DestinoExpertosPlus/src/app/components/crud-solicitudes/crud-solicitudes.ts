@@ -322,17 +322,21 @@ export class CrudSolicitudesComponent implements OnInit {
     this.formulario.nivelUrgencia = this.formulario.urgencia ? 'media' : undefined;
   }
 
-  obtenerNombreCliente(id: number): string {
-    return this.clientes.find(c => c.id === id)?.nombre || `Cliente #${id}`;
-  }
+  obtenerNombreCliente(id: any): string {
+  // Usamos == para permitir comparación entre string y number si fuera necesario
+  const cliente = this.clientes.find(c => c.id == id);
+  return cliente ? cliente.nombre : `Cliente #${id}`;
+}
 
-  obtenerNombreProfesional(id: number): string {
-    return this.profesionales.find(p => p.id === id)?.nombre || `Profesional #${id}`;
-  }
+obtenerNombreProfesional(id: any): string {
+  const pro = this.profesionales.find(p => p.id == id);
+  return pro ? pro.nombre : `Profesional #${id}`;
+}
 
-  obtenerNombreServicio(id: number): string {
-    return this.servicios.find(s => s.id === id)?.nombre || `Servicio #${id}`;
-  }
+obtenerNombreServicio(id: any): string {
+  const serv = this.servicios.find(s => s.id == id);
+  return serv ? serv.nombre : `Servicio #${id}`;
+}
 
   contarSolicitudesPendientes(): number {
     return this.solicitudes.filter(s => s.estado === 'pendiente').length;
