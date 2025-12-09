@@ -2,9 +2,9 @@
 <div class="container-fluid p-4">
   
   <!-- CÚPULA DE CONTROL -->
-  <div class="dashboard-header d-flex justify-content-between align-items-center p-4 mb-4 bg-white rounded shadow">
+  <div class="dashboard-header d-flex justify-content-between align-items-center p-4 mb-4 rounded shadow" style="background-color: #bfe3ef;">
     <h2 class="m-0 fw-bold text-primary">
-      <i class="bi bi-clipboard-check me-2"></i>
+      <i class="bi bi-clipboard-check me-2" ></i>
       Gestión de Solicitudes
     </h2>
     <button class="btn btn-primary" (click)="resetearFormulario(); abrirModalFormulario()">
@@ -16,7 +16,7 @@
   <!-- GALAXIA DE ESTADOS -->
   <div class="row mb-4">
     <div class="col-md-3">
-      <div class="card shadow-sm border-0 h-100">
+      <div class="card shadow-sm border-0 h-100" style="background-color: #bfe3ef;">
         <div class="card-body text-center p-3">
           <h6 class="text-muted mb-2">Total</h6>
           <h3 class="fw-bold text-primary">{{ totalItems }}</h3>
@@ -24,15 +24,15 @@
       </div>
     </div>
     <div class="col-md-3">
-      <div class="card shadow-sm border-0 h-100">
+      <div class="card shadow-sm border-0 h-100" style="background-color: #bfe3ef;">
         <div class="card-body text-center p-3">
-          <h6 class="text-muted mb-2">Pendientes</h6>
+          <h6 class="text-muted  mb-2">Pendientes</h6>
           <h3 class="fw-bold text-warning">{{ contarSolicitudesPendientes() }}</h3>
         </div>
       </div>
     </div>
     <div class="col-md-3">
-      <div class="card shadow-sm border-0 h-100">
+      <div class="card shadow-sm border-0 h-100" style="background-color: #bfe3ef;">
         <div class="card-body text-center p-3">
           <h6 class="text-muted mb-2">Urgentes</h6>
           <h3 class="fw-bold text-danger">{{ contarSolicitudesUrgentes() }}</h3>
@@ -40,7 +40,7 @@
       </div>
     </div>
     <div class="col-md-3">
-      <div class="card shadow-sm border-0 h-100">
+      <div class="card shadow-sm border-0 h-100" style="background-color: #bfe3ef;">
         <div class="card-body text-center p-3">
           <h6 class="text-muted mb-2">Completadas</h6>
           <h3 class="fw-bold text-success">{{ contarSolicitudesCompletadas() }}</h3>
@@ -238,72 +238,150 @@
         <button type="button" class="btn-close btn-close-white" (click)="cerrarModalFormulario()"></button>
       </div>
       <div class="modal-body">
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label">Cliente *</label>
-            <select class="form-select" [(ngModel)]="formulario.cliente_id" required>
-              <option value="0">Seleccione un cliente</option>
-              @for (cliente of clientes; track cliente.id) {
-                <option [value]="cliente.id">{{ cliente.nombre }}</option>
-              }
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Profesional *</label>
-            <select class="form-select" [(ngModel)]="formulario.profesional_id" required>
-              <option value="0">Seleccione un profesional</option>
-              @for (profesional of profesionales; track profesional.id) {
-                <option [value]="profesional.id">{{ profesional.nombre }}</option>
-              }
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Servicio *</label>
-            <select class="form-select" [(ngModel)]="formulario.servicio_id" required>
-              <option value="0">Seleccione un servicio</option>
-              @for (servicio of servicios; track servicio.id) {
-                <option [value]="servicio.id">{{ servicio.nombre }}</option>
-              }
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Estado *</label>
-            <select class="form-select" [(ngModel)]="formulario.estado" required>
-              <option value="pendiente">Pendiente</option>
-              <option value="confirmada">Confirmada</option>
-              <option value="en_proceso">En Proceso</option>
-              <option value="completada">Completada</option>
-              <option value="cancelada">Cancelada</option>
-            </select>
-          </div>
-          <div class="col-12">
-            <label class="form-label">Descripción *</label>
-            <textarea class="form-control" rows="3" [(ngModel)]="formulario.descripcion" required></textarea>
-          </div>
-          <div class="col-12">
-            <label class="form-label">Ubicación *</label>
-            <input type="text" class="form-control" [(ngModel)]="formulario.ubicacion" required>
-          </div>
-          <div class="col-md-6">
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" 
-                     [(ngModel)]="formulario.urgencia" 
-                     (change)="toggleUrgencia()">
-              <label class="form-check-label">Marcar como urgente</label>
-            </div>
-          </div>
-          @if (formulario.urgencia) {
-            <div class="col-md-6">
-              <label class="form-label">Nivel de Urgencia *</label>
-              <select class="form-select" [(ngModel)]="formulario.nivelUrgencia" required>
-                <option value="baja">Baja</option>
-                <option value="media" selected>Media</option>
-                <option value="alta">Alta</option>
-              </select>
-            </div>
+  <form #formSolicitud="ngForm">
+
+    <div class="row g-3">
+      
+      <!-- CLIENTE -->
+      <div class="col-md-6">
+        <label class="form-label">Cliente *</label>
+        <select class="form-select" 
+                required
+                [(ngModel)]="formulario.cliente_id" 
+                name="cliente_id"
+                #cliente_id="ngModel"
+                [class.is-invalid]="cliente_id.invalid && cliente_id.touched">
+          <option value="0">Seleccione un cliente</option>
+          @for (cliente of clientes; track cliente.id) {
+            <option [value]="cliente.id">{{ cliente.nombre }}</option>
           }
+        </select>
+        <div *ngIf="cliente_id.invalid && cliente_id.touched" class="text-danger small">
+          Seleccione un cliente.
         </div>
       </div>
+
+      <!-- PROFESIONAL -->
+      <div class="col-md-6">
+        <label class="form-label">Profesional *</label>
+        <select class="form-select" 
+                required
+                [(ngModel)]="formulario.profesional_id" 
+                name="profesional_id"
+                #profesional_id="ngModel"
+                [class.is-invalid]="profesional_id.invalid && profesional_id.touched">
+          <option value="0">Seleccione un profesional</option>
+          @for (profesional of profesionales; track profesional.id) {
+            <option [value]="profesional.id">{{ profesional.nombre }}</option>
+          }
+        </select>
+        <div *ngIf="profesional_id.invalid && profesional_id.touched" class="text-danger small">
+          Seleccione un profesional.
+        </div>
+      </div>
+
+      <!-- SERVICIO -->
+      <div class="col-md-6">
+        <label class="form-label">Servicio *</label>
+        <select class="form-select" 
+                required
+                [(ngModel)]="formulario.servicio_id" 
+                name="servicio_id"
+                #servicio_id="ngModel"
+                [class.is-invalid]="servicio_id.invalid && servicio_id.touched">
+          <option value="0">Seleccione un servicio</option>
+          @for (servicio of servicios; track servicio.id) {
+            <option [value]="servicio.id">{{ servicio.nombre }}</option>
+          }
+        </select>
+        <div *ngIf="servicio_id.invalid && servicio_id.touched" class="text-danger small">
+          Seleccione un servicio.
+        </div>
+      </div>
+
+      <!-- ESTADO -->
+      <div class="col-md-6">
+        <label class="form-label">Estado *</label>
+        <select class="form-select" 
+                required
+                [(ngModel)]="formulario.estado" 
+                name="estado"
+                #estado="ngModel"
+                [class.is-invalid]="estado.invalid && estado.touched">
+          <option value="pendiente">Pendiente</option>
+          <option value="confirmada">Confirmada</option>
+          <option value="en_proceso">En Proceso</option>
+          <option value="completada">Completada</option>
+          <option value="cancelada">Cancelada</option>
+        </select>
+        <div *ngIf="estado.invalid && estado.touched" class="text-danger small">
+          Seleccione un estado.
+        </div>
+      </div>
+
+      <!-- DESCRIPCIÓN -->
+      <div class="col-12">
+        <label class="form-label">Descripción *</label>
+        <textarea class="form-control" rows="3"
+                  required
+                  [(ngModel)]="formulario.descripcion" 
+                  name="descripcion"
+                  #descripcion="ngModel"
+                  [class.is-invalid]="descripcion.invalid && descripcion.touched"></textarea>
+        <div *ngIf="descripcion.invalid && descripcion.touched" class="text-danger small">
+          La descripción es obligatoria.
+        </div>
+      </div>
+
+      <!-- UBICACIÓN -->
+      <div class="col-12">
+        <label class="form-label">Ubicación *</label>
+        <input type="text" class="form-control"
+               required
+               [(ngModel)]="formulario.ubicacion"
+               name="ubicacion"
+               #ubicacion="ngModel"
+               [class.is-invalid]="ubicacion.invalid && ubicacion.touched">
+        <div *ngIf="ubicacion.invalid && ubicacion.touched" class="text-danger small">
+          Ingrese la ubicación.
+        </div>
+      </div>
+
+      <!-- URGENCIA -->
+      <div class="col-md-6">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox"
+                 [(ngModel)]="formulario.urgencia"
+                 name="urgencia"
+                 (change)="toggleUrgencia()">
+          <label class="form-check-label">Marcar como urgente</label>
+        </div>
+      </div>
+
+      <!-- NIVEL DE URGENCIA -->
+      @if (formulario.urgencia) {
+        <div class="col-md-6">
+          <label class="form-label">Nivel de Urgencia *</label>
+          <select class="form-select"
+                  required
+                  [(ngModel)]="formulario.nivelUrgencia"
+                  name="nivelUrgencia"
+                  #nivelUrgencia="ngModel"
+                  [class.is-invalid]="nivelUrgencia.invalid && nivelUrgencia.touched">
+            <option value="baja">Baja</option>
+            <option value="media" selected>Media</option>
+            <option value="alta">Alta</option>
+          </select>
+          <div *ngIf="nivelUrgencia.invalid && nivelUrgencia.touched" class="text-danger small">
+            Seleccione un nivel de urgencia.
+          </div>
+        </div>
+      }
+
+    </div>
+  </form>
+</div>
+
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="cerrarModalFormulario()">
           <i class="bi bi-x-circle me-1"></i>

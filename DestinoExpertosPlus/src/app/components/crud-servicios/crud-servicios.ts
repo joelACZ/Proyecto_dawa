@@ -7,6 +7,7 @@ import { DataTableComponent } from '../shared/data-table/data-table';
 import { CardComponent } from '../shared/cards/cards';
 import { DetailModal } from '../shared/detail-modal/detail-modal';
 import { CATEGORIAS_SERVICIOS } from '../../models/categoria.model';
+import { ServProfesionalesJson } from '../../services/profesionales-service';
 
 declare const bootstrap: any;
 
@@ -41,19 +42,33 @@ export class CrudServicios implements OnInit, AfterViewInit {
   categorias = CATEGORIAS_SERVICIOS;
   
   constructor(
-    private servicioServicios: ServServiciosJson,
-    private constructorFormularios: FormBuilder
-  ) {
-    this.inicializarFormulario();
-  }
+  private servicioServicios: ServServiciosJson,
+  private constructorFormularios: FormBuilder,
+  // AÑADIR ESTO:
+    private servicioProfesionales: ServProfesionalesJson
+ ) {
+   this.inicializarFormulario();
+ }
   
   ngOnInit() {
     this.cargarDatosIniciales();
   }
   
-  public cargarDatosIniciales(): void {
-    this.cargarServicios();
-  }
+  public async cargarDatosIniciales(): Promise<void> {
+    try {
+        // Carga el listado de profesionales
+        const profesionales = await this.servicioProfesionales.obtenerTodos().toPromise();
+        
+        // Asigna el resultado. (Asegúrate de que 'profesionales' es el arreglo de datos o ajusta si devuelve { data: [...] })
+        this.profesionales = profesionales || []; 
+        
+        // Carga los servicios (que ahora usarán la lista de profesionales cargada)
+        this.cargarServicios();
+    } catch (error) {
+        console.error('Error cargando datos maestros:', error);
+        this.mostrarError('Error al cargar clientes y profesionales.');
+    }
+}
   
   ngAfterViewInit() {
     this.modalRef = new bootstrap.Modal(this.elementoModal.nativeElement);
@@ -175,10 +190,13 @@ export class CrudServicios implements OnInit, AfterViewInit {
     this.calcularPaginacion();
   }
   
-  private obtenerNombreProfesional(profesionalId: number): string {
-    // Esto se implementaría si tuvieras el servicio de profesionales
-    return 'Profesional ' + profesionalId;
-  }
+  private obtenerNombreProfesional(profesionalId: number | string): string {
+    // Usamos '==' para que funcione si el ID es un número o un string ('1' == 1)
+    const profesional = this.profesionales.find(p => p.id == profesionalId);
+    
+    // Devolvemos el nombre si lo encontramos, o un mensaje de fallback si no
+    return profesional ? profesional.nombre : `Profesional #${profesionalId} (No encontrado)`;
+}
   
   public buscarServicios(elementoInput: HTMLInputElement) {
     const terminoBusqueda = elementoInput.value.trim();

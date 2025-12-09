@@ -3,9 +3,11 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } 
 import { CommonModule } from '@angular/common';
 import { ServResenasJson } from '../../services/resena-service';
 import { SolicitudService } from '../../services/solicitud-service';
+
 import { DataTableComponent } from '../shared/data-table/data-table';
 import { CardComponent } from '../shared/cards/cards';
 import { DetailModal } from '../shared/detail-modal/detail-modal';
+import { ServServiciosJson } from '../../services/servicio-service';
 import { Router } from '@angular/router';
 
 
@@ -39,6 +41,7 @@ export class CrudResenas implements OnInit, AfterViewInit {
   filtroFechaInicio: string = '';
   filtroFechaFin: string = '';
   solicitudes: any[] = [];
+  servicios: any[] = [];
 
   opcionesFiltroCalificacion = [
     { valor: '', texto: 'Todas' },
@@ -63,6 +66,7 @@ export class CrudResenas implements OnInit, AfterViewInit {
     private servicioResenas: ServResenasJson,
     private servicioSolicitudes: SolicitudService,
     private constructorFormularios: FormBuilder,
+    private servicioServicios: ServServiciosJson, 
     private router: Router
   ) {
     this.inicializarFormulario();
@@ -71,6 +75,8 @@ export class CrudResenas implements OnInit, AfterViewInit {
   ngOnInit() {
     this.cargarDatosIniciales();
     this.cargarSolicitudes();
+    this.cargarServicios();
+
   }
 
   ngAfterViewInit() {
@@ -83,6 +89,18 @@ export class CrudResenas implements OnInit, AfterViewInit {
     this.cargarResenas();
   }
 
+
+
+  public cargarServicios() {
+  this.servicioServicios.obtenerTodos().subscribe({
+    next: (servicios) => {
+      this.servicios = servicios;
+    },
+    error: (error) => {
+      console.error('Error al cargar servicios:', error);
+    }
+  });
+}
   public inicializarFormulario() {
     this.formResena = this.constructorFormularios.group({
       solicitud_id: ['', [Validators.required]],
@@ -162,6 +180,7 @@ export class CrudResenas implements OnInit, AfterViewInit {
     this.servicioSolicitudes.obtenerTodas().subscribe({
       next: (solicitudes) => {
         this.solicitudes = solicitudes;
+        console.log('Solicitudes cargadas:', this.solicitudes);
       },
       error: (error) => {
         console.error('Error al cargar solicitudes:', error);
@@ -260,7 +279,7 @@ export class CrudResenas implements OnInit, AfterViewInit {
     const inicio = (this.paginaActual - 1) * this.itemsPorPagina + 1;
     const fin = Math.min(this.paginaActual * this.itemsPorPagina, this.resenasParaTabla.length);
     return `${inicio}-${fin} de ${this.resenasParaTabla.length}`;
-  }
+  }
 
   public abrirNuevo() {
     this.resenaEnEdicion = null;
@@ -342,4 +361,9 @@ export class CrudResenas implements OnInit, AfterViewInit {
       this.mostrarModalError = false;
     }, 3000);
   }
+
+  obtenerNombreServicio(servicioId: number): string {
+  const servicio = this.servicios.find(s => s.id === servicioId);
+  return servicio ? servicio.nombre : 'Sin servicio';
+}
 }

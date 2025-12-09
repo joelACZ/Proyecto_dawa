@@ -24,8 +24,9 @@ export class ServResenasJson {
    * @returns Observable<any> - Datos crudos del API
    */
   obtenerPorId(identificador: number): Observable<any> {
-    return this.clienteHttp.get<any>(`${this.urlBase}/${identificador}`);
-  }
+  return this.clienteHttp.get<any>(`${this.urlBase}/${identificador}`);
+  // Nota: agregué el ` antes del $
+}
 
   /**
    * Crear una nueva reseña

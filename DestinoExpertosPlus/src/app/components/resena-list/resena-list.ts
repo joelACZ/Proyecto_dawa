@@ -10,6 +10,7 @@ import { Resena } from '../../models/Resena.model';
 interface ResenaConDetalles extends Resena {
   nombreCliente?: string;
   descripcionSolicitud?: string;
+  nombreProfesional?: string;
 }
 
 @Component({

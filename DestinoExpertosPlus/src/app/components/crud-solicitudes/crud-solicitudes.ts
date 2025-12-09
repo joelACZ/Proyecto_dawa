@@ -74,7 +74,7 @@ export class CrudSolicitudesComponent implements OnInit {
   ngOnInit(): void {
     this.inicializarComponente();
   }
-
+  
   abrirModalFormulario(): void {
     const modal = new (window as any).bootstrap.Modal(this.modalFormulario.nativeElement);
     modal.show();

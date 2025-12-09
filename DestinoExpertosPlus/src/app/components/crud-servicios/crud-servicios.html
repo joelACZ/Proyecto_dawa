@@ -234,7 +234,7 @@
 <div class="modal fade" id="servicioModal" #modalServicio>
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header">
+      <div class="modal-header bg-primary text-white">
         <h5 class="modal-title">{{ servicioEnEdicion ? 'Editar' : 'Nuevo' }} Servicio</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
@@ -242,7 +242,7 @@
         <div class="modal-body">
           <!-- CAMPO: Nombre con validaciones -->
           <div class="mb-3">
-            <label class="form-label">Nombre *</label>
+            <label class="form-label fw-bold">Nombre *</label>
             <input type="text" class="form-control" formControlName="nombre" placeholder="Nombre del servicio">
             <span class="error">
               @if (formularioServicio.get('nombre')?.invalid &&
@@ -259,7 +259,7 @@
 
           <!-- CAMPO: Categoría con validaciones -->
           <div class="mb-3">
-            <label class="form-label">Categoría *</label>
+            <label class="form-label fw-bold">Categoría *</label>
             <select class="form-select" formControlName="categoria">
               <option value="">Seleccionar categoría...</option>
               <option *ngFor="let categoria of categorias" [value]="categoria">
@@ -278,7 +278,7 @@
 
           <!-- CAMPO: Descripción con validaciones -->
           <div class="mb-3">
-            <label class="form-label">Descripción *</label>
+            <label class="form-label fw-bold">Descripción *</label>
             <textarea class="form-control" rows="3" formControlName="descripcion" 
                       placeholder="Descripción del servicio..."></textarea>
             <span class="error">
@@ -296,7 +296,7 @@
 
           <!-- CAMPO: Precio Base con validaciones -->
           <div class="mb-3">
-            <label class="form-label">Precio Base *</label>
+            <label class="form-label fw-bold">Precio Base *</label>
             <div class="input-group">
               <span class="input-group-text">$</span>
               <input type="number" class="form-control" formControlName="precioBase" step="0.01" min="0">
@@ -316,7 +316,7 @@
 
           <!-- CAMPO: Duración con validaciones -->
           <div class="mb-3">
-            <label class="form-label">Duración Estimada (minutos) *</label>
+            <label class="form-label fw-bold">Duración Estimada (minutos) *</label>
             <div class="input-group">
               <input type="number" class="form-control" formControlName="duracionEstimada" min="1">
               <span class="input-group-text">min</span>
@@ -336,11 +336,11 @@
 
           <!-- CAMPO: Profesional con validaciones -->
           <div class="mb-3">
-            <label class="form-label">Profesional *</label>
+            <label class="form-label fw-bold">Profesional *</label>
             <select class="form-select" formControlName="profesional_id">
               <option value="">Seleccionar profesional...</option>
               <option *ngFor="let profesional of profesionales" [value]="profesional.id">
-                {{ profesional.nombre }} - {{ profesional.especialidad || 'Sin especialidad' }}
+                {{ profesional.nombre }} 
               </option>
             </select>
             <span class="error">
