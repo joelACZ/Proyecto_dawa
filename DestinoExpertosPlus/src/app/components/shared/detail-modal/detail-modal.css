@@ -1,11 +1,10 @@
 
-/* detail-modal.css */
 
 :host {
   font-family: system-ui, -apple-system, sans-serif;
 }
 
-/* Asegurar que el modal esté por encima de todo */
+
 .fixed {
   position: fixed;
   top: 0;
@@ -22,7 +21,7 @@
   z-index: 9999;
 }
 
-/* Fondo oscuro con blur */
+
 .bg-black\/40 {
   background-color: rgba(0, 0, 0, 0.4);
 }

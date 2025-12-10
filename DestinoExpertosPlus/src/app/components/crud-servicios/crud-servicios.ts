@@ -1,4 +1,3 @@
-// crud-servicios.component.ts - REFACTORIZADO SEGÚN ARQUITECTURA SOLICITADA
 import { Component, ElementRef, ViewChild, OnInit, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -19,9 +18,9 @@ declare const bootstrap: any;
   imports: [DataTableComponent, CardComponent, ReactiveFormsModule, FormsModule, CommonModule, DetailModal],
 })
 export class CrudServicios implements OnInit, AfterViewInit {
-  private listaServiciosOriginales: any[] = []; // CACHE INTERNO - Datos crudos del servidor
-  serviciosParaTabla: any[] = []; // Datos transformados para la vista
-  servicioEnEdicion: any = null; // Estado temporal para edición
+  private listaServiciosOriginales: any[] = []; 
+  serviciosParaTabla: any[] = []; 
+  servicioEnEdicion: any = null; 
   modalRef: any;
   servicioDetalle: any = null;
   mostrarModalDetalle: boolean = false;
@@ -44,7 +43,6 @@ export class CrudServicios implements OnInit, AfterViewInit {
   constructor(
   private servicioServicios: ServServiciosJson,
   private constructorFormularios: FormBuilder,
-  // AÑADIR ESTO:
     private servicioProfesionales: ServProfesionalesJson
  ) {
    this.inicializarFormulario();
@@ -56,13 +54,10 @@ export class CrudServicios implements OnInit, AfterViewInit {
   
   public async cargarDatosIniciales(): Promise<void> {
     try {
-        // Carga el listado de profesionales
         const profesionales = await this.servicioProfesionales.obtenerTodos().toPromise();
         
-        // Asigna el resultado. (Asegúrate de que 'profesionales' es el arreglo de datos o ajusta si devuelve { data: [...] })
         this.profesionales = profesionales || []; 
         
-        // Carga los servicios (que ahora usarán la lista de profesionales cargada)
         this.cargarServicios();
     } catch (error) {
         console.error('Error cargando datos maestros:', error);
@@ -184,17 +179,15 @@ export class CrudServicios implements OnInit, AfterViewInit {
       profesionalNombre: this.obtenerNombreProfesional(servicio.profesional_id),
       activo: servicio.activo,
       activoFormateado: servicio.activo ? 'Sí' : 'No',
-      datosCompletos: servicio // Mantenemos referencia a datos originales
+      datosCompletos: servicio 
     }));
     
     this.calcularPaginacion();
   }
   
   private obtenerNombreProfesional(profesionalId: number | string): string {
-    // Usamos '==' para que funcione si el ID es un número o un string ('1' == 1)
     const profesional = this.profesionales.find(p => p.id == profesionalId);
     
-    // Devolvemos el nombre si lo encontramos, o un mensaje de fallback si no
     return profesional ? profesional.nombre : `Profesional #${profesionalId} (No encontrado)`;
 }
   

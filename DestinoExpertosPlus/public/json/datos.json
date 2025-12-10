@@ -256,21 +256,6 @@
       "disponibilidad": true
     },
     {
-      "id": "18",
-      "nombre": "Ana Lucía Mendoza",
-      "especialidad": "Arquitectura",
-      "telefono": "0923456789",
-      "email": "ana.mendoza@example.com",
-      "ubicacion": "Cuenca",
-      "oficios": [
-        "Planos arquitectónicos",
-        "Supervisión de obras",
-        "Diseño de interiores"
-      ],
-      "experiencia": 10,
-      "disponibilidad": false
-    },
-    {
       "id": "19",
       "nombre": "Luis Gómez",
       "especialidad": "Impermeabilización",
@@ -298,6 +283,19 @@
         "Mantenimiento de áreas verdes"
       ],
       "experiencia": 7,
+      "disponibilidad": true
+    },
+    {
+      "id": "3e69",
+      "nombre": "greghregh",
+      "especialidad": "herhe",
+      "email": "hreheh@gmail.com",
+      "telefono": "132156489498",
+      "ubicacion": "gregeg",
+      "oficios": [
+        "grege"
+      ],
+      "experiencia": 30,
       "disponibilidad": true
     }
   ],
@@ -501,6 +499,16 @@
       "duracionEstimada": 240,
       "profesional_id": 20,
       "activo": true
+    },
+    {
+      "nombre": "limpiar tuberia",
+      "categoria": "Plomería",
+      "descripcion": "fagerg",
+      "precioBase": 20,
+      "duracionEstimada": 2,
+      "profesional_id": 14,
+      "activo": false,
+      "id": "bd35"
     }
   ],
   "clientes": [
@@ -564,18 +572,6 @@
         "Remodelación"
       ],
       "notificaciones": true
-    },
-    {
-      "id": "6",
-      "nombre": "Diana Herrera",
-      "email": "diana.herrera@example.com",
-      "telefono": "0943334455",
-      "direccion": "Quito",
-      "preferencias": [
-        "Jardinería",
-        "Mantenimiento mensual"
-      ],
-      "notificaciones": false
     },
     {
       "id": "7",
@@ -744,18 +740,29 @@
         "Diseño de jardines"
       ],
       "notificaciones": true
+    },
+    {
+      "id": "bcc1",
+      "nombre": "nombferereg",
+      "email": "nombre@gmail.com",
+      "telefono": "1234567895",
+      "direccion": "grieojrgrioeegrg",
+      "preferencias": [
+        "greggerge"
+      ],
+      "notificaciones": false
     }
   ],
   "solicitudes": [
     {
-      "id": "1",
       "cliente_id": 1,
       "profesional_id": 1,
       "servicio_id": 1,
-      "estado": "en_proceso",
+      "estado": "cancelada",
       "descripcion": "No funciona un tomacorriente en la sala.",
       "ubicacion": "Quito",
       "urgencia": false,
+      "id": "1",
       "fecha": "2025-12-01T09:00:00Z"
     },
     {
@@ -966,6 +973,17 @@
       "ubicacion": "Quito",
       "urgencia": false,
       "fecha": "2025-12-18T16:00:00Z"
+    },
+    {
+      "id": "19d5",
+      "cliente_id": "4",
+      "profesional_id": "4",
+      "servicio_id": "3",
+      "estado": "completada",
+      "descripcion": "gregergre",
+      "ubicacion": "Quito",
+      "urgencia": false,
+      "fecha": "2025-12-10T02:46:04.798Z"
     }
   ],
   "resenas": [
@@ -1127,6 +1145,14 @@
       "calificacion": 4,
       "comentario": "Diseño del jardín muy bonito, pero falta implementación.",
       "fecha": "2025-12-19",
+      "anonima": true
+    },
+    {
+      "id": "9590",
+      "solicitud_id": 4,
+      "calificacion": 4,
+      "comentario": "nada bueno",
+      "fecha": "2025-12-10",
       "anonima": true
     }
   ]

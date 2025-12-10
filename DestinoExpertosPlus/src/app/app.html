@@ -1,5 +1,5 @@
 <div class="d-flex min-vh-100">
-  <!-- SIDEBAR -->
+  
   @if (showSidebar) {
     <aside class="bg-dark text-white p-4 sidebar">
       <h1 class="h2 fw-bold mb-5">Plataforma</h1>
@@ -17,9 +17,9 @@
     </aside>
   }
 
-  <!-- CONTENIDO PRINCIPAL -->
+  
   <main class="flex-grow-1 p-0" [class.main-with-sidebar]="showSidebar">
-    <!-- CONTENEDOR CON LÍMITES -->
+    
     <div class="container-lg py-4">
       <router-outlet></router-outlet>
     </div>

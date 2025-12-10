@@ -5,7 +5,7 @@ export interface Servicio extends Identifiable, WithStatus {
   categoria: string;
   descripcion: string;
   precioBase: number;
-  duracionEstimada: number; // en minutos
+  duracionEstimada: number;
   profesional_id: number;
 
 }
@@ -13,11 +13,3 @@ export interface Servicio extends Identifiable, WithStatus {
 export type ServicioCreate = Omit<Servicio, 'id'>;
 export type ServicioUpdate = Partial<Omit<Servicio, 'id'>>;
 
-// Tipos específicos para categorías
-export type CategoriaServicio = 
-  | 'hogar' 
-  | 'salud' 
-  | 'belleza' 
-  | 'tecnologia' 
-  | 'educacion' 
-  | 'otros';

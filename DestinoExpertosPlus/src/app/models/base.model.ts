@@ -1,4 +1,3 @@
-// Interfaces base para composición
 export interface Identifiable {
   id: number;
 }

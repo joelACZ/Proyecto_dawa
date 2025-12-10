@@ -23,9 +23,9 @@ declare const bootstrap: any;
   ],
 })
 export class CrudProfesionales implements OnInit, AfterViewInit {
-  private listaProfesionalesOriginales: any[] = []; // CACHE INTERNO - Datos crudos del servidor
-  profesionalesParaTabla: any[] = []; // Datos transformados para la vista
-  profesionalEnEdicion: any = null; // Estado temporal para edición
+  private listaProfesionalesOriginales: any[] = []; 
+  profesionalesParaTabla: any[] = []; 
+  profesionalEnEdicion: any = null; 
   modalRef: any;
   profesionalDetalle: any = null;
   mostrarModalDetalle: boolean = false;
@@ -164,7 +164,7 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
         : profesional.oficios || 'No especificados',
       experienciaFormateada: `${profesional.experiencia} años`,
       disponibilidadFormateada: profesional.disponibilidad ? 'Sí' : 'No',
-      datosCompletos: profesional, // Mantenemos referencia a datos originales
+      datosCompletos: profesional, 
     }));
     this.calcularPaginacion();
   }

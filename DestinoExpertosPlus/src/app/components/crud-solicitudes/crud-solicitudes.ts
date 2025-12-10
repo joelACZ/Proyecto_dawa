@@ -80,7 +80,6 @@ export class CrudSolicitudesComponent implements OnInit {
     modal.show();
   }
 
-  // Cerrar modal de formulario
   cerrarModalFormulario(): void {
     const modal = (window as any).bootstrap.Modal.getInstance(this.modalFormulario.nativeElement);
     if (modal) {
@@ -94,7 +93,6 @@ export class CrudSolicitudesComponent implements OnInit {
     modal.show();
   }
 
-  // Cerrar modal de detalles
   cerrarModalDetalle(): void {
     const modal = (window as any).bootstrap.Modal.getInstance(this.modalDetalle.nativeElement);
     if (modal) {
@@ -109,19 +107,16 @@ export class CrudSolicitudesComponent implements OnInit {
     this.cargando = true;
 
     try {
-      // Cargar datos maestros primero y ASIGNARLOS a las propiedades
       const [clientes, profesionales, servicios] = await Promise.all([
         this.servicioClientes.obtenerTodos().toPromise(),
         this.servicioProfesionales.obtenerTodos().toPromise(),
         this.servicioServicios.obtenerTodos().toPromise()
       ]);
 
-      // ESTAS ASIGNACIONES SON CRÍTICAS - faltaban en tu código
       this.clientes = clientes || [];
       this.profesionales = profesionales || [];
       this.servicios = servicios || [];
 
-      // Luego cargar las solicitudes
       await this.cargarSolicitudes();
     } catch (error) {
       console.error('Error en la inicialización:', error);
@@ -323,7 +318,6 @@ export class CrudSolicitudesComponent implements OnInit {
   }
 
   obtenerNombreCliente(id: any): string {
-  // Usamos == para permitir comparación entre string y number si fuera necesario
   const cliente = this.clientes.find(c => c.id == id);
   return cliente ? cliente.nombre : `Cliente #${id}`;
 }

@@ -1,4 +1,4 @@
-/* data-table.component.css */
+
 
 .data-table-container {
   width: 100%;
@@ -11,7 +11,7 @@
   background-color: white;
 }
 
-/* Estilos del encabezado */
+
 .data-table thead {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -27,7 +27,7 @@
   border: none;
 }
 
-/* Estilos del cuerpo */
+
 .data-table tbody tr {
   border-bottom: 1px solid #e9ecef;
   transition: all 0.2s ease;

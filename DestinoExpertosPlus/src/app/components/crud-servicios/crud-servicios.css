@@ -1,4 +1,4 @@
-/* Estilos para mensajes de error de validación */
+
 .error {
   color: #dc3545;
   font-size: 0.875rem;
@@ -6,7 +6,7 @@
   display: block;
 }
 
-/* Estilos para campos con error */
+
 .form-control.ng-invalid.ng-touched,
 .form-control.ng-invalid.ng-dirty,
 .form-select.ng-invalid.ng-touched,

@@ -17,7 +17,7 @@ export class DetailModal {
     this.close.emit();
   }
 
-  // Mostrar valores bonitos (boolean → SÍ/NO, array → lista, etc.)
+
   getDisplayValue(value: any): string {
     if (value === null || value === undefined) return 'N/A';
     if (typeof value === 'boolean') return value ? 'SÍ' : 'NO';
@@ -30,7 +30,7 @@ export class DetailModal {
     return String(value);
   }
 
-  // Formatear clave: cliente_id → Cliente Id, notificaciones → Notificaciones
+
   formatKey(key: string): string {
     return key
       .split('_')
@@ -38,7 +38,7 @@ export class DetailModal {
       .join(' ');
   }
 
-  // Orden alfabético de las claves (opcional pero recomendado)
+
   orderByKey(a: any, b: any): number {
     return a.key.localeCompare(b.key);
   }

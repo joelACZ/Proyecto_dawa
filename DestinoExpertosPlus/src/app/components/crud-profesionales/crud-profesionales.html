@@ -4,7 +4,7 @@
   content="Aquí puedes visualizar, editar y eliminar profesionales, así como gestionar sus detalles, certificaciones y disponibilidad.">
 </app-card>
 
-<!-- BUSCADOR Y BOTONES -->
+
 <div class="mb-4 mt-4 d-flex align-items-center gap-2">
   <input type="text" placeholder="Buscar profesionales..." 
          class="border p-2 rounded w-full md:w-80"
@@ -18,7 +18,7 @@
   </div>
 </div>
 
-<!-- FILTROS -->
+
 <div class="card mb-4">
   <div class="card-header">
     <h5 class="mb-0">
@@ -27,21 +27,21 @@
   </div>
   <div class="card-body">
     <div class="row g-3">
-      <!-- Filtro por Especialidad -->
+      
       <div class="col-md-3">
         <label class="form-label">Especialidad</label>
         <input type="text" class="form-control" placeholder="Buscar por especialidad..."
                [(ngModel)]="filtroEspecialidad" (input)="aplicarFiltros()" />
       </div>
 
-      <!-- Filtro por Experiencia -->
+      
       <div class="col-md-3">
         <label class="form-label">Experiencia mínima (años)</label>
         <input type="number" class="form-control" min="0" max="50" 
                [(ngModel)]="filtroExperienciaMin" (input)="aplicarFiltros()" />
       </div>
 
-      <!-- Filtro por Disponibilidad -->
+      
       <div class="col-md-3">
         <label class="form-label">Disponibilidad</label>
         <select class="form-select" [(ngModel)]="filtroDisponibilidad" (change)="aplicarFiltros()">
@@ -51,7 +51,7 @@
         </select>
       </div>
 
-      <!-- Botón Limpiar Filtros -->
+      
       <div class="col-md-3 d-flex align-items-end">
         <button class="btn btn-outline-secondary w-100" (click)="limpiarFiltros()">
           <i class="bi bi-x-circle me-1"></i> Limpiar Filtros
@@ -59,7 +59,7 @@
       </div>
     </div>
 
-    <!-- Indicadores de filtros activos -->
+    
     <div class="mt-3" *ngIf="filtroEspecialidad || filtroExperienciaMin > 0 || filtroDisponibilidad !== null">
       <small class="text-muted">
         <i class="bi bi-info-circle me-1"></i>Filtros activos:
@@ -80,7 +80,7 @@
   </div>
 </div>
 
-<!-- TABLA -->
+
 <app-data-table [data]="obtenerProfesionalesPaginados" [columns]="[
   { field: 'id', header: 'ID' },
   { field: 'nombre', header: 'Nombre' },
@@ -107,22 +107,20 @@
   </ng-template>
 </app-data-table>
 
-<!-- PAGINACIÓN -->
+
 <div class="d-flex justify-content-center align-items-center mt-3" *ngIf="totalPaginas > 1">
-  <!-- <div class="text-muted small">
-    Mostrando {{ obtenerRangoRegistros }} registros
-  </div>-->
+  
 
   <nav aria-label="Paginación de profesionales">
     <ul class="pagination mb-0">
-      <!-- Botón Anterior -->
+      
       <li class="page-item" [class.disabled]="paginaActual === 1">
         <a class="page-link" href="#" (click)="cambiarPagina(paginaActual - 1); $event.preventDefault()">
           <i class="bi bi-chevron-left"></i> Anterior
         </a>
       </li>
 
-      <!-- Números de página -->
+      
       <li class="page-item" *ngFor="let pagina of [].constructor(totalPaginas); let i = index"
           [class.active]="paginaActual === i + 1">
         <a class="page-link" href="#" (click)="cambiarPagina(i + 1); $event.preventDefault()">
@@ -130,7 +128,7 @@
         </a>
       </li>
 
-      <!-- Botón Siguiente -->
+      
       <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
         <a class="page-link" href="#" (click)="cambiarPagina(paginaActual + 1); $event.preventDefault()">
           Siguiente <i class="bi bi-chevron-right"></i>
@@ -140,14 +138,14 @@
   </nav>
 </div>
 
-<!-- MODAL REUTILIZABLE DE DETALLES -->
+
 <app-detail-modal
   [isVisible]="mostrarModalDetalle"
   [data]="profesionalDetalle"
   (close)="cerrarDetalle()">
 </app-detail-modal>
 
-<!-- MODAL DE NOTIFICACIÓN DE ÉXITO -->
+
 <div *ngIf="mostrarModalNotificacion" class="modal fade show d-block notification-modal success" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -170,7 +168,7 @@
   </div>
 </div>
 
-<!-- MODAL DE ERROR -->
+
 <div *ngIf="mostrarModalError" class="modal fade show d-block notification-modal error" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -193,7 +191,7 @@
   </div>
 </div>
 
-<!-- MODAL DE ELIMINAR -->
+
 <div *ngIf="mostrarModalEliminar" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -229,7 +227,7 @@
   </div>
 </div>
 
-<!-- MODAL CREAR/EDITAR CON TODAS LAS VALIDACIONES -->
+
 <div class="modal fade" id="profesionalModal" #modalProfesional>
   <div class="modal-dialog">
     <div class="modal-content">
@@ -239,7 +237,7 @@
       </div>
       <form [formGroup]="formularioProfesional">
         <div class="modal-body">
-          <!-- CAMPO: Nombre con validaciones -->
+          
           <div class="mb-3">
             <label class="form-label">Nombre *</label>
             <input type="text" class="form-control" formControlName="nombre" placeholder="Nombre completo">
@@ -256,7 +254,7 @@
             </span>
           </div>
 
-          <!-- CAMPO: Especialidad con validaciones -->
+          
           <div class="mb-3">
             <label class="form-label">Especialidad *</label>
             <input type="text" class="form-control" formControlName="especialidad" 
@@ -274,7 +272,7 @@
             </span>
           </div>
 
-          <!-- CAMPO: Email con validaciones -->
+          
           <div class="mb-3">
             <label class="form-label">Email *</label>
             <input type="email" class="form-control" formControlName="email" placeholder="correo@ejemplo.com">
@@ -291,7 +289,7 @@
             </span>
           </div>
 
-          <!-- CAMPO: Teléfono con validaciones -->
+          
           <div class="mb-3">
             <label class="form-label">Teléfono *</label>
             <input type="tel" class="form-control" formControlName="telefono" placeholder="123456789">
@@ -308,7 +306,7 @@
             </span>
           </div>
 
-          <!-- CAMPO: Ubicación con validaciones -->
+          
           <div class="mb-3">
             <label class="form-label">Ubicación</label>
             <input type="text" class="form-control" formControlName="ubicacion" 
@@ -323,7 +321,7 @@
             </span>
           </div>
 
-          <!-- CAMPO: Oficios con validaciones -->
+          
           <div class="mb-3">
             <label class="form-label">Oficios</label>
             <input type="text" class="form-control" formControlName="oficios" 
@@ -341,7 +339,7 @@
             </span>
           </div>
 
-          <!-- CAMPO: Experiencia con validaciones -->
+          
           <div class="mb-3">
             <label class="form-label">Experiencia (años) *</label>
             <div class="input-group">
@@ -364,7 +362,7 @@
             </span>
           </div>
 
-          <!-- CAMPO: Disponibilidad (checkbox) -->
+          
           <div class="form-check mb-3">
             <input class="form-check-input" type="checkbox" formControlName="disponibilidad" id="checkDisponibilidad">
             <label class="form-check-label" for="checkDisponibilidad">

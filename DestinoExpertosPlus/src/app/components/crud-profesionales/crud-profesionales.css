@@ -1,4 +1,4 @@
-/* Estilos para mensajes de error de validación */
+
 .error {
   color: #dc3545;
   font-size: 0.875rem;
@@ -6,7 +6,7 @@
   display: block;
 }
 
-/* Estilos para campos con error */
+
 .form-control.ng-invalid.ng-touched,
 .form-control.ng-invalid.ng-dirty,
 .form-select.ng-invalid.ng-touched,
@@ -14,7 +14,7 @@
   border-color: #dc3545;
 }
 
-/* Estilos para campos con error al recibir focus */
+
 .form-control.ng-invalid.ng-touched:focus,
 .form-control.ng-invalid.ng-dirty:focus,
 .form-select.ng-invalid.ng-touched:focus,
@@ -23,7 +23,7 @@
   box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
 }
 
-/* Estilos específicos para input-group con error */
+
 .input-group .form-control.ng-invalid.ng-touched,
 .input-group .form-control.ng-invalid.ng-dirty {
   border-color: #dc3545;

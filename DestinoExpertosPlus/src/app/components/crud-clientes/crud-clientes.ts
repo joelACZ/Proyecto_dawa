@@ -16,17 +16,11 @@ declare const bootstrap: any;
   imports: [DataTableComponent, CardComponent, ReactiveFormsModule, FormsModule, CommonModule, DetailModal],
 })
 export class CrudClientes implements OnInit {
-  // ============================================
-  // PROPIEDADES DE DATOS Y ESTADO
-  // ============================================
   private listaClientesOriginales: any[] = [];
   clientesParaTabla: any[] = [];
   clienteEnEdicion: any = null;
   referenciaModal: any;
 
-  // ============================================
-  // PROPIEDADES DE MODALES
-  // ============================================
   clienteDetalle: any = null;
   mostrarModalDetalle: boolean = false;
   mostrarModalEliminar = false;
@@ -36,26 +30,14 @@ export class CrudClientes implements OnInit {
   mensajeNotificacion = '';
   mensajeError = '';
 
-  // ============================================
-  // PROPIEDADES DE FORMULARIO
-  // ============================================
   formularioCliente!: FormGroup;
 
-  // ============================================
-  // PROPIEDADES DE PAGINACIÓN
-  // ============================================
   paginaActual: number = 1;
   itemsPorPagina: number = 8;
   totalPaginas: number = 1;
 
-  // ============================================
-  // REFERENCIAS
-  // ============================================
   @ViewChild('clienteModal') elementoModal!: ElementRef;
 
-  // ============================================
-  // CONSTRUCTOR
-  // ============================================
   constructor(
     private servicioClientes: ServClientesJson,
     private constructorFormularios: FormBuilder
@@ -71,9 +53,6 @@ export class CrudClientes implements OnInit {
     this.referenciaModal = new bootstrap.Modal(this.elementoModal.nativeElement);
   }
 
-  // ============================================
-  // MÉTODOS DE FORMULARIO
-  // ============================================
   private inicializarFormulario() {
     this.formularioCliente = this.constructorFormularios.group({
       nombre: ['', [Validators.required, Validators.minLength(2)]],
@@ -138,9 +117,6 @@ export class CrudClientes implements OnInit {
     });
   }
 
-  // ============================================
-  // CARGA Y PROCESAMIENTO DE DATOS
-  // ============================================
   private cargarClientes() {
     this.servicioClientes.obtenerTodos().subscribe({
       next: (datos) => {
@@ -170,9 +146,6 @@ export class CrudClientes implements OnInit {
     return preferencias || '';
   }
 
-  // ============================================
-  // BÚSQUEDA Y FILTRADO
-  // ============================================
   public buscarClientes(inputElemento: HTMLInputElement) {
     const terminoBusqueda = inputElemento.value.trim().toLowerCase();
     if (!terminoBusqueda) {
@@ -196,9 +169,6 @@ export class CrudClientes implements OnInit {
     this.paginaActual = 1;
   }
 
-  // ============================================
-  // PAGINACIÓN
-  // ============================================
   public get obtenerClientesPaginados(): any[] {
     const indiceInicio = (this.paginaActual - 1) * this.itemsPorPagina;
     const indiceFin = indiceInicio + this.itemsPorPagina;
@@ -224,9 +194,6 @@ export class CrudClientes implements OnInit {
     return `${indiceInicio}-${indiceFin} de ${this.clientesParaTabla.length}`;
   }
 
-  // ============================================
-  // MÉTODOS CRUD - CREAR/EDITAR
-  // ============================================
   public abrirModalNuevo() {
     this.clienteEnEdicion = null;
     this.formularioCliente.reset({ notificaciones: false });
@@ -253,9 +220,6 @@ export class CrudClientes implements OnInit {
     this.clienteEnEdicion = null;
   }
 
-  // ============================================
-  // MÉTODOS CRUD - ELIMINAR
-  // ============================================
   public abrirModalEliminacion(cliente: any) {
     this.clienteAEliminar = cliente;
     this.mostrarModalEliminar = true;
@@ -283,9 +247,6 @@ export class CrudClientes implements OnInit {
     this.clienteAEliminar = null;
   }
 
-  // ============================================
-  // MÉTODOS DE VISUALIZACIÓN/DETALLE
-  // ============================================
   public verDetalleCliente(cliente: any) {
     this.clienteDetalle = cliente;
     this.mostrarModalDetalle = true;
@@ -296,9 +257,6 @@ export class CrudClientes implements OnInit {
     this.clienteDetalle = null;
   }
 
-  // ============================================
-  // MÉTODOS DE NOTIFICACIÓN
-  // ============================================
   private mostrarNotificacion(texto: string) {
     this.mensajeNotificacion = texto;
     this.mostrarModalNotificacion = true;

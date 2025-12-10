@@ -24,7 +24,6 @@ export class App implements OnInit, OnDestroy {
     this.routerSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
-        // 🔥 OCULTAR sidebar solo en /menu
         this.showSidebar = !event.urlAfterRedirects.includes('/menu');
       });
   }

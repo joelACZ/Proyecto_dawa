@@ -3,7 +3,7 @@ import { Identifiable, WithContactInfo, WithLocation } from './base.model';
 export interface Profesional extends Identifiable, WithContactInfo, WithLocation {
   especialidad: string;
   oficios: string[];
-  experiencia: number; // en años
+  experiencia: number; 
   disponibilidad: boolean;
   
 }

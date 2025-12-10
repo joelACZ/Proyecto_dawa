@@ -1,6 +1,3 @@
-<!-- src/app/components/shared/detail-modal/detail-modal.component.html -->
-<!-- VERSIÓN ELEGANTE, MINIMALISTA Y PROFESIONAL (2025) -->
-
 <div *ngIf="isVisible && data" 
      class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50"
      (click)="onClose()">
@@ -9,7 +6,6 @@
        (click)="$event.stopPropagation()"
        style="animation: fadeInScale 0.25s ease-out forwards">
 
-    <!-- Header limpio y elegante -->
     <div class="px-8 py-6 border-b border-gray-200 bg-gray-50/70">
       <div class="flex justify-between items-start">
         <div>
@@ -30,16 +26,16 @@
       </div>
     </div>
 
-    <!-- Body con espaciado perfecto -->
+
     <div class="p-8 bg-white">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-7">
         <ng-container *ngFor="let item of data | keyvalue : orderByKey">
           <div *ngIf="item.key !== 'id'">
-            <!-- Etiqueta en mayúsculas sutil -->
+
             <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
               {{ item.key }}
             </p>
-            <!-- Valor destacado -->
+
             <p class="text-lg font-medium text-gray-900 break-words leading-relaxed">
               {{ getDisplayValue(item.value) }}
             </p>
@@ -47,13 +43,12 @@
         </ng-container>
       </div>
 
-      <!-- Si no hay campos (raro, pero por si acaso) -->
+
       <div *ngIf="(data | keyvalue).length <= 1" class="text-center py-16 text-gray-400">
         <p class="text-lg">No hay información adicional</p>
       </div>
     </div>
 
-    <!-- Footer minimalista -->
     <div class="px-8 py-5 border-t border-gray-200 bg-gray-50/50 flex justify-end">
       <button (click)="onClose()"
               class="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl 
@@ -64,7 +59,7 @@
   </div>
 </div>
 
-<!-- Animación sutil y elegante -->
+
 <style>
   @keyframes fadeInScale {
     from {
