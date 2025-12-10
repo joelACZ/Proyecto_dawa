@@ -1,423 +1,503 @@
 {
   "profesionales": [
     {
-      "id": 1,
+      "id": "1",
       "nombre": "Carlos Medina",
       "especialidad": "Electricista",
       "telefono": "0991234567",
       "email": "carlos.medina@example.com",
       "ubicacion": "Quito",
-      "oficios": ["Instalaciones eléctricas", "Reparaciones", "Mantenimiento"],
+      "oficios": [
+        "Instalaciones eléctricas",
+        "Reparaciones",
+        "Mantenimiento"
+      ],
       "experiencia": 6,
       "disponibilidad": true
     },
     {
-      "id": 2,
+      "id": "2",
       "nombre": "Andrea Torres",
       "especialidad": "Plomería",
       "telefono": "0987654321",
       "email": "andrea.torres@example.com",
       "ubicacion": "Guayaquil",
-      "oficios": ["Tuberías", "Desagües", "Instalaciones sanitarias"],
+      "oficios": [
+        "Tuberías",
+        "Desagües",
+        "Instalaciones sanitarias"
+      ],
       "experiencia": 4,
       "disponibilidad": false
     },
     {
-      "id": 3,
+      "id": "3",
       "nombre": "Javier Solís",
       "especialidad": "Carpintería",
       "telefono": "0976543210",
       "email": "javier.solis@example.com",
       "ubicacion": "Cuenca",
-      "oficios": ["Muebles a medida", "Reparación de estructuras", "Instalación de pisos de madera"],
+      "oficios": [
+        "Muebles a medida",
+        "Reparación de estructuras",
+        "Instalación de pisos de madera"
+      ],
       "experiencia": 10,
       "disponibilidad": true
     },
     {
-      "id": 4,
+      "id": "4",
       "nombre": "Mariana Ruiz",
       "especialidad": "Pintura",
       "telefono": "0965432109",
       "email": "mariana.ruiz@example.com",
       "ubicacion": "Quito",
-      "oficios": ["Pintura de interiores", "Pintura de exteriores", "Acabados decorativos"],
+      "oficios": [
+        "Pintura de interiores",
+        "Pintura de exteriores",
+        "Acabados decorativos"
+      ],
       "experiencia": 5,
       "disponibilidad": true
     },
     {
-      "id": 5,
+      "id": "5",
       "nombre": "Ricardo Pérez",
       "especialidad": "Albañilería",
       "telefono": "0954321098",
       "email": "ricardo.perez@example.com",
       "ubicacion": "Manta",
-      "oficios": ["Construcción de paredes", "Colocación de baldosas", "Remodelaciones"],
+      "oficios": [
+        "Construcción de paredes",
+        "Colocación de baldosas",
+        "Remodelaciones"
+      ],
       "experiencia": 12,
       "disponibilidad": false
     },
     {
-      "id": 6,
+      "id": "6",
       "nombre": "Sofía Castro",
       "especialidad": "Jardinería",
       "telefono": "0943210987",
       "email": "sofia.castro@example.com",
       "ubicacion": "Guayaquil",
-      "oficios": ["Mantenimiento de jardines", "Poda de árboles", "Instalación de sistemas de riego"],
+      "oficios": [
+        "Mantenimiento de jardines",
+        "Poda de árboles",
+        "Instalación de sistemas de riego"
+      ],
       "experiencia": 4,
       "disponibilidad": true
     },
     {
-      "id": 7,
+      "id": "7",
       "nombre": "Daniel Vargas",
       "especialidad": "Refrigeración",
       "telefono": "0932109876",
       "email": "daniel.vargas@example.com",
       "ubicacion": "Ambato",
-      "oficios": ["Reparación de aires acondicionados", "Mantenimiento de neveras", "Instalación de equipos"],
+      "oficios": [
+        "Reparación de aires acondicionados",
+        "Mantenimiento de neveras",
+        "Instalación de equipos"
+      ],
       "experiencia": 7,
       "disponibilidad": true
     },
     {
-      "id": 8,
+      "id": "8",
       "nombre": "Lorena Díaz",
       "especialidad": "Limpieza Profunda",
       "telefono": "0921098765",
       "email": "lorena.diaz@example.com",
       "ubicacion": "Quito",
-      "oficios": ["Limpieza de oficinas", "Limpieza post-construcción", "Lavado de alfombras"],
+      "oficios": [
+        "Limpieza de oficinas",
+        "Limpieza post-construcción",
+        "Lavado de alfombras"
+      ],
       "experiencia": 2,
       "disponibilidad": false
     },
     {
-      "id": 9,
+      "id": "9",
       "nombre": "Gustavo León",
       "especialidad": "Herrería",
       "telefono": "0910987654",
       "email": "gustavo.leon@example.com",
       "ubicacion": "Portoviejo",
-      "oficios": ["Fabricación de rejas", "Soldadura", "Reparación de estructuras metálicas"],
+      "oficios": [
+        "Fabricación de rejas",
+        "Soldadura",
+        "Reparación de estructuras metálicas"
+      ],
       "experiencia": 9,
       "disponibilidad": true
     },
     {
-      "id": 10,
+      "id": "10",
       "nombre": "Elena Mendoza",
       "especialidad": "Gasfitería",
       "telefono": "0909876543",
       "email": "elena.mendoza@example.com",
       "ubicacion": "Cuenca",
-      "oficios": ["Detección de fugas", "Instalación de calentadores", "Mantenimiento de tuberías de gas"],
+      "oficios": [
+        "Detección de fugas",
+        "Instalación de calentadores",
+        "Mantenimiento de tuberías de gas"
+      ],
       "experiencia": 6,
       "disponibilidad": true
     },
     {
-      "id": 11,
+      "id": "11",
       "nombre": "Felipe Guerrero",
       "especialidad": "Cerrajería",
       "telefono": "0998765432",
       "email": "felipe.guerrero@example.com",
       "ubicacion": "Guayaquil",
-      "oficios": ["Apertura de puertas", "Cambio de cerraduras", "Instalación de sistemas de seguridad"],
+      "oficios": [
+        "Apertura de puertas",
+        "Cambio de cerraduras",
+        "Instalación de sistemas de seguridad"
+      ],
       "experiencia": 4,
       "disponibilidad": true
     },
     {
-      "id": 12,
+      "id": "12",
       "nombre": "Valeria Rojas",
       "especialidad": "Tecnología/Redes",
       "telefono": "0987654320",
       "email": "valeria.rojas@example.com",
       "ubicacion": "Quito",
-      "oficios": ["Instalación de redes", "Soporte técnico a equipos", "Configuración de routers"],
+      "oficios": [
+        "Instalación de redes",
+        "Soporte técnico a equipos",
+        "Configuración de routers"
+      ],
       "experiencia": 8,
       "disponibilidad": false
     },
     {
-      "id": 13,
+      "id": "13",
       "nombre": "Alejandro Silva",
       "especialidad": "Tapicería",
       "telefono": "0976543219",
       "email": "alejandro.silva@example.com",
       "ubicacion": "Riobamba",
-      "oficios": ["Restauración de muebles", "Tapizado de vehículos", "Diseño de cojines"],
+      "oficios": [
+        "Restauración de muebles",
+        "Tapizado de vehículos",
+        "Diseño de cojines"
+      ],
       "experiencia": 15,
       "disponibilidad": true
     },
     {
-      "id": 14,
+      "id": "14",
       "nombre": "Carolina Morales",
       "especialidad": "Vidriería",
       "telefono": "0965432100",
       "email": "carolina.morales@example.com",
       "ubicacion": "Loja",
-      "oficios": ["Corte e instalación de vidrios", "Vitrinas comerciales", "Espejos a medida"],
+      "oficios": [
+        "Corte e instalación de vidrios",
+        "Vitrinas comerciales",
+        "Espejos a medida"
+      ],
       "experiencia": 7,
       "disponibilidad": true
     },
     {
-      "id": 15,
+      "id": "15",
       "nombre": "Héctor Zambrano",
       "especialidad": "Electrónica",
       "telefono": "0954321090",
       "email": "hector.zambrano@example.com",
       "ubicacion": "Machala",
-      "oficios": ["Reparación de electrodomésticos", "Instalación de cámaras de seguridad", "Circuitos y cableado"],
+      "oficios": [
+        "Reparación de electrodomésticos",
+        "Instalación de cámaras de seguridad",
+        "Circuitos y cableado"
+      ],
       "experiencia": 11,
       "disponibilidad": false
     },
     {
-      "id": 16,
+      "id": "16",
       "nombre": "Patricia Ortega",
       "especialidad": "Decoración de Interiores",
       "telefono": "0945678901",
       "email": "patricia.ortega@example.com",
       "ubicacion": "Quito",
-      "oficios": ["Diseño de espacios", "Selección de muebles", "Iluminación"],
+      "oficios": [
+        "Diseño de espacios",
+        "Selección de muebles",
+        "Iluminación"
+      ],
       "experiencia": 8,
       "disponibilidad": true
     },
     {
-      "id": 17,
+      "id": "17",
       "nombre": "Jorge Castillo",
       "especialidad": "Fontanería",
       "telefono": "0934567890",
       "email": "jorge.castillo@example.com",
       "ubicacion": "Guayaquil",
-      "oficios": ["Instalación de grifos", "Reparación de cisternas", "Mantenimiento de sistemas de agua"],
+      "oficios": [
+        "Instalación de grifos",
+        "Reparación de cisternas",
+        "Mantenimiento de sistemas de agua"
+      ],
       "experiencia": 5,
       "disponibilidad": true
     },
     {
-      "id": 18,
+      "id": "18",
       "nombre": "Ana Lucía Mendoza",
       "especialidad": "Arquitectura",
       "telefono": "0923456789",
       "email": "ana.mendoza@example.com",
       "ubicacion": "Cuenca",
-      "oficios": ["Planos arquitectónicos", "Supervisión de obras", "Diseño de interiores"],
+      "oficios": [
+        "Planos arquitectónicos",
+        "Supervisión de obras",
+        "Diseño de interiores"
+      ],
       "experiencia": 10,
       "disponibilidad": false
     },
     {
-      "id": 19,
+      "id": "19",
       "nombre": "Luis Gómez",
       "especialidad": "Impermeabilización",
       "telefono": "0912345678",
       "email": "luis.gomez@example.com",
       "ubicacion": "Ambato",
-      "oficios": ["Impermeabilización de techos", "Aislamiento térmico", "Reparación de filtraciones"],
+      "oficios": [
+        "Impermeabilización de techos",
+        "Aislamiento térmico",
+        "Reparación de filtraciones"
+      ],
       "experiencia": 6,
       "disponibilidad": true
     },
     {
-      "id": 20,
+      "id": "20",
       "nombre": "Mónica Herrera",
       "especialidad": "Diseño de Jardines",
       "telefono": "0901234567",
       "email": "monica.herrera@example.com",
       "ubicacion": "Quito",
-      "oficios": ["Diseño paisajístico", "Selección de plantas", "Mantenimiento de áreas verdes"],
+      "oficios": [
+        "Diseño paisajístico",
+        "Selección de plantas",
+        "Mantenimiento de áreas verdes"
+      ],
       "experiencia": 7,
       "disponibilidad": true
     }
   ],
   "servicios": [
     {
-      "id": 1,
       "nombre": "Instalación Eléctrica",
       "categoria": "Electricidad",
       "descripcion": "Instalación de cableado, lámparas y tomacorrientes.",
-      "precioBase": 35.00,
-      "duracionEstimada": 60,
+      "precioBase": 35,
+      "duracionEstimada": 61,
       "profesional_id": 1,
-      "activo": true
+      "activo": true,
+      "id": "1"
     },
     {
-      "id": 2,
+      "id": "2",
       "nombre": "Reparación de Tuberías",
       "categoria": "Plomería",
       "descripcion": "Reparación de fugas y tuberías dañadas.",
-      "precioBase": 25.00,
+      "precioBase": 25,
       "duracionEstimada": 45,
       "profesional_id": 2,
       "activo": true
     },
     {
-      "id": 3,
+      "id": "3",
       "nombre": "Fabricación de Muebles a Medida",
       "categoria": "Carpintería",
       "descripcion": "Diseño y construcción de muebles personalizados.",
-      "precioBase": 200.00,
+      "precioBase": 200,
       "duracionEstimada": 180,
       "profesional_id": 3,
       "activo": true
     },
     {
-      "id": 4,
+      "id": "4",
       "nombre": "Pintura de Interiores",
       "categoria": "Pintura",
       "descripcion": "Pintura de paredes y techos en interiores.",
-      "precioBase": 50.00,
+      "precioBase": 50,
       "duracionEstimada": 120,
       "profesional_id": 4,
       "activo": true
     },
     {
-      "id": 5,
+      "id": "5",
       "nombre": "Construcción de Paredes",
       "categoria": "Albañilería",
       "descripcion": "Construcción y reparación de paredes de ladrillo o bloque.",
-      "precioBase": 150.00,
+      "precioBase": 150,
       "duracionEstimada": 240,
       "profesional_id": 5,
       "activo": true
     },
     {
-      "id": 6,
+      "id": "6",
       "nombre": "Mantenimiento de Jardines",
       "categoria": "Jardinería",
       "descripcion": "Poda, riego y cuidado general de jardines.",
-      "precioBase": 40.00,
+      "precioBase": 40,
       "duracionEstimada": 90,
       "profesional_id": 6,
       "activo": true
     },
     {
-      "id": 7,
+      "id": "7",
       "nombre": "Reparación de Aires Acondicionados",
       "categoria": "Refrigeración",
       "descripcion": "Diagnóstico y reparación de equipos de aire acondicionado.",
-      "precioBase": 60.00,
+      "precioBase": 60,
       "duracionEstimada": 90,
       "profesional_id": 7,
       "activo": true
     },
     {
-      "id": 8,
+      "id": "8",
       "nombre": "Limpieza Post-Construcción",
       "categoria": "Limpieza Profunda",
       "descripcion": "Limpieza profunda después de obras o remodelaciones.",
-      "precioBase": 70.00,
+      "precioBase": 70,
       "duracionEstimada": 150,
       "profesional_id": 8,
       "activo": true
     },
     {
-      "id": 9,
+      "id": "9",
       "nombre": "Fabricación de Rejas",
       "categoria": "Herrería",
       "descripcion": "Diseño y fabricación de rejas de seguridad.",
-      "precioBase": 180.00,
+      "precioBase": 180,
       "duracionEstimada": 210,
       "profesional_id": 9,
       "activo": true
     },
     {
-      "id": 10,
+      "id": "10",
       "nombre": "Instalación de Calentadores",
       "categoria": "Gasfitería",
       "descripcion": "Instalación y mantenimiento de calentadores de agua.",
-      "precioBase": 90.00,
+      "precioBase": 90,
       "duracionEstimada": 120,
       "profesional_id": 10,
       "activo": true
     },
     {
-      "id": 11,
+      "id": "11",
       "nombre": "Cambio de Cerraduras",
       "categoria": "Cerrajería",
       "descripcion": "Cambio e instalación de cerraduras y sistemas de seguridad.",
-      "precioBase": 30.00,
+      "precioBase": 30,
       "duracionEstimada": 45,
       "profesional_id": 11,
       "activo": true
     },
     {
-      "id": 12,
+      "id": "12",
       "nombre": "Instalación de Redes",
       "categoria": "Tecnología/Redes",
       "descripcion": "Configuración de redes cableadas e inalámbricas.",
-      "precioBase": 55.00,
+      "precioBase": 55,
       "duracionEstimada": 90,
       "profesional_id": 12,
       "activo": true
     },
     {
-      "id": 13,
+      "id": "13",
       "nombre": "Tapizado de Muebles",
       "categoria": "Tapicería",
       "descripcion": "Restauración y tapizado de sofás, sillas y otros muebles.",
-      "precioBase": 120.00,
+      "precioBase": 120,
       "duracionEstimada": 180,
       "profesional_id": 13,
       "activo": true
     },
     {
-      "id": 14,
+      "id": "14",
       "nombre": "Instalación de Vidrios",
       "categoria": "Vidriería",
       "descripcion": "Corte e instalación de vidrios para ventanas y puertas.",
-      "precioBase": 75.00,
+      "precioBase": 75,
       "duracionEstimada": 120,
       "profesional_id": 14,
       "activo": true
     },
     {
-      "id": 15,
+      "id": "15",
       "nombre": "Reparación de Electrodomésticos",
       "categoria": "Electrónica",
       "descripcion": "Reparación de televisores, lavadoras y otros electrodomésticos.",
-      "precioBase": 45.00,
+      "precioBase": 45,
       "duracionEstimada": 90,
       "profesional_id": 15,
       "activo": true
     },
     {
-      "id": 16,
+      "id": "16",
       "nombre": "Diseño de Interiores",
       "categoria": "Decoración",
       "descripcion": "Asesoría en diseño y decoración de interiores.",
-      "precioBase": 100.00,
+      "precioBase": 100,
       "duracionEstimada": 120,
       "profesional_id": 16,
       "activo": true
     },
     {
-      "id": 17,
+      "id": "17",
       "nombre": "Instalación de Grifos",
       "categoria": "Fontanería",
       "descripcion": "Instalación y reparación de grifos y llaves de agua.",
-      "precioBase": 35.00,
+      "precioBase": 35,
       "duracionEstimada": 60,
       "profesional_id": 17,
       "activo": true
     },
     {
-      "id": 18,
+      "id": "18",
       "nombre": "Planos Arquitectónicos",
       "categoria": "Arquitectura",
       "descripcion": "Elaboración de planos para construcción o remodelación.",
-      "precioBase": 300.00,
+      "precioBase": 300,
       "duracionEstimada": 360,
       "profesional_id": 18,
       "activo": true
     },
     {
-      "id": 19,
+      "id": "19",
       "nombre": "Impermeabilización de Techos",
       "categoria": "Impermeabilización",
       "descripcion": "Aplicación de materiales impermeables en techos y azoteas.",
-      "precioBase": 120.00,
+      "precioBase": 120,
       "duracionEstimada": 180,
       "profesional_id": 19,
       "activo": true
     },
     {
-      "id": 20,
+      "id": "20",
       "nombre": "Diseño de Jardines",
       "categoria": "Jardinería",
       "descripcion": "Diseño y planificación de jardines y áreas verdes.",
-      "precioBase": 150.00,
+      "precioBase": 150,
       "duracionEstimada": 240,
       "profesional_id": 20,
       "activo": true
@@ -425,189 +505,250 @@
   ],
   "clientes": [
     {
-      "id": 1,
+      "id": "1",
       "nombre": "Javier López",
       "email": "javier.lopez@example.com",
       "telefono": "0973332211",
       "direccion": "Cuenca",
-      "preferencias": ["Electricidad", "Urgente"],
-      "notificaciones": true
+      "preferencias": [
+        "Electricidad",
+        "Urgente"
+      ],
+      "notificaciones": false,
+      "preferenciasFormateadas": "Electricidad, Urgente",
+      "notificacionesFormateada": "Sí"
     },
     {
-      "id": 2,
+      "id": "2",
       "nombre": "María González",
       "email": "maria.gonzalez@example.com",
       "telefono": "0981112299",
       "direccion": "Quito",
-      "preferencias": ["Plomería"],
+      "preferencias": [
+        "Plomería"
+      ],
       "notificaciones": false
     },
     {
-      "id": 3,
+      "id": "3",
       "nombre": "Andrés Cárdenas",
       "email": "andres.cardenas@example.com",
       "telefono": "0961112233",
       "direccion": "Quito",
-      "preferencias": ["Carpintería", "Muebles a medida"],
+      "preferencias": [
+        "Carpintería",
+        "Muebles a medida"
+      ],
       "notificaciones": false
     },
     {
-      "id": 4,
+      "id": "4",
       "nombre": "Lucía Velasco",
       "email": "lucia.velasco@example.com",
       "telefono": "0954445566",
       "direccion": "Manta",
-      "preferencias": ["Pintura", "Acabados premium"],
+      "preferencias": [
+        "Pintura",
+        "Acabados premium"
+      ],
       "notificaciones": true
     },
     {
-      "id": 5,
+      "id": "5",
       "nombre": "Roberto Mora",
       "email": "roberto.mora@example.com",
       "telefono": "0990001122",
       "direccion": "Ambato",
-      "preferencias": ["Albañilería", "Remodelación"],
+      "preferencias": [
+        "Albañilería",
+        "Remodelación"
+      ],
       "notificaciones": true
     },
     {
-      "id": 6,
+      "id": "6",
       "nombre": "Diana Herrera",
       "email": "diana.herrera@example.com",
       "telefono": "0943334455",
       "direccion": "Quito",
-      "preferencias": ["Jardinería", "Mantenimiento mensual"],
+      "preferencias": [
+        "Jardinería",
+        "Mantenimiento mensual"
+      ],
       "notificaciones": false
     },
     {
-      "id": 7,
+      "id": "7",
       "nombre": "Fernando Reyes",
       "email": "fernando.reyes@example.com",
       "telefono": "0932221100",
       "direccion": "Portoviejo",
-      "preferencias": ["Refrigeración", "Reparación AC"],
+      "preferencias": [
+        "Refrigeración",
+        "Reparación AC"
+      ],
       "notificaciones": true
     },
     {
-      "id": 8,
+      "id": "8",
       "nombre": "Gabriela Paz",
       "email": "gabriela.paz@example.com",
       "telefono": "0925556677",
       "direccion": "Guayaquil",
-      "preferencias": ["Limpieza Profunda", "Post-construcción"],
+      "preferencias": [
+        "Limpieza Profunda",
+        "Post-construcción"
+      ],
       "notificaciones": true
     },
     {
-      "id": 9,
+      "id": "9",
       "nombre": "Héctor Solano",
       "email": "hector.solano@example.com",
       "telefono": "0918889900",
       "direccion": "Cuenca",
-      "preferencias": ["Herrería", "Instalación de rejas"],
+      "preferencias": [
+        "Herrería",
+        "Instalación de rejas"
+      ],
       "notificaciones": false
     },
     {
-      "id": 10,
+      "id": "10",
       "nombre": "Carolina Flores",
       "email": "carolina.flores@example.com",
       "telefono": "0907778899",
       "direccion": "Quito",
-      "preferencias": ["Gasfitería", "Revisión de fugas"],
+      "preferencias": [
+        "Gasfitería",
+        "Revisión de fugas"
+      ],
       "notificaciones": true
     },
     {
-      "id": 11,
+      "id": "11",
       "nombre": "Jorge Vidal",
       "email": "jorge.vidal@example.com",
       "telefono": "0996665544",
       "direccion": "Riobamba",
-      "preferencias": ["Cerrajería", "Urgente"],
+      "preferencias": [
+        "Cerrajería",
+        "Urgente"
+      ],
       "notificaciones": true
     },
     {
-      "id": 12,
+      "id": "12",
       "nombre": "María Naranjo",
       "email": "maria.naranjo@example.com",
       "telefono": "0985554433",
       "direccion": "Guayaquil",
-      "preferencias": ["Tecnología/Redes", "Soporte a domicilio"],
+      "preferencias": [
+        "Tecnología/Redes",
+        "Soporte a domicilio"
+      ],
       "notificaciones": true
     },
     {
-      "id": 13,
+      "id": "13",
       "nombre": "Luis Bravo",
       "email": "luis.bravo@example.com",
       "telefono": "0974443322",
       "direccion": "Loja",
-      "preferencias": ["Tapicería", "Restauración de sillones"],
+      "preferencias": [
+        "Tapicería",
+        "Restauración de sillones"
+      ],
       "notificaciones": false
     },
     {
-      "id": 14,
+      "id": "14",
       "nombre": "Verónica Salgado",
       "email": "veronica.salgado@example.com",
       "telefono": "0963332211",
       "direccion": "Quito",
-      "preferencias": ["Vidriería", "Instalación de ventanas"],
+      "preferencias": [
+        "Vidriería",
+        "Instalación de ventanas"
+      ],
       "notificaciones": true
     },
     {
-      "id": 15,
+      "id": "15",
       "nombre": "Emilio Dávila",
       "email": "emilio.davila@example.com",
       "telefono": "0952221100",
       "direccion": "Machala",
-      "preferencias": ["Electrónica", "Reparación de TV"],
+      "preferencias": [
+        "Electrónica",
+        "Reparación de TV"
+      ],
       "notificaciones": true
     },
     {
-      "id": 16,
+      "id": "16",
       "nombre": "Claudia Romero",
       "email": "claudia.romero@example.com",
       "telefono": "0941112233",
       "direccion": "Ambato",
-      "preferencias": ["Decoración", "Diseño de interiores"],
+      "preferencias": [
+        "Decoración",
+        "Diseño de interiores"
+      ],
       "notificaciones": true
     },
     {
-      "id": 17,
+      "id": "17",
       "nombre": "Carlos Mendoza",
       "email": "carlos.mendoza@example.com",
       "telefono": "0939998877",
       "direccion": "Guayaquil",
-      "preferencias": ["Fontanería", "Instalación de grifos"],
+      "preferencias": [
+        "Fontanería",
+        "Instalación de grifos"
+      ],
       "notificaciones": false
     },
     {
-      "id": 18,
+      "id": "18",
       "nombre": "Ana Lucía Paredes",
       "email": "ana.paredes@example.com",
       "telefono": "0928887766",
       "direccion": "Quito",
-      "preferencias": ["Arquitectura", "Planos"],
+      "preferencias": [
+        "Arquitectura",
+        "Planos"
+      ],
       "notificaciones": true
     },
     {
-      "id": 19,
+      "id": "19",
       "nombre": "Ricardo Velasco",
       "email": "ricardo.velasco@example.com",
       "telefono": "0917776655",
       "direccion": "Cuenca",
-      "preferencias": ["Impermeabilización", "Reparación de filtraciones"],
+      "preferencias": [
+        "Impermeabilización",
+        "Reparación de filtraciones"
+      ],
       "notificaciones": false
     },
     {
-      "id": 20,
+      "id": "20",
       "nombre": "Sofía Ortega",
       "email": "sofia.ortega@example.com",
       "telefono": "0906665544",
       "direccion": "Quito",
-      "preferencias": ["Jardinería", "Diseño de jardines"],
+      "preferencias": [
+        "Jardinería",
+        "Diseño de jardines"
+      ],
       "notificaciones": true
     }
   ],
   "solicitudes": [
     {
-      "id": 1,
+      "id": "1",
       "cliente_id": 1,
       "profesional_id": 1,
       "servicio_id": 1,
@@ -618,7 +759,7 @@
       "fecha": "2025-12-01T09:00:00Z"
     },
     {
-      "id": 2,
+      "id": "2",
       "cliente_id": 2,
       "profesional_id": 2,
       "servicio_id": 2,
@@ -629,7 +770,7 @@
       "fecha": "2025-11-20T10:00:00Z"
     },
     {
-      "id": 3,
+      "id": "3",
       "cliente_id": 3,
       "profesional_id": 3,
       "servicio_id": 3,
@@ -640,7 +781,7 @@
       "fecha": "2025-12-05T14:00:00Z"
     },
     {
-      "id": 4,
+      "id": "4",
       "cliente_id": 4,
       "profesional_id": 4,
       "servicio_id": 4,
@@ -651,7 +792,7 @@
       "fecha": "2025-12-03T11:00:00Z"
     },
     {
-      "id": 5,
+      "id": "5",
       "cliente_id": 5,
       "profesional_id": 5,
       "servicio_id": 5,
@@ -662,7 +803,7 @@
       "fecha": "2025-11-25T08:30:00Z"
     },
     {
-      "id": 6,
+      "id": "6",
       "cliente_id": 6,
       "profesional_id": 6,
       "servicio_id": 6,
@@ -673,7 +814,7 @@
       "fecha": "2025-12-10T15:00:00Z"
     },
     {
-      "id": 7,
+      "id": "7",
       "cliente_id": 7,
       "profesional_id": 7,
       "servicio_id": 7,
@@ -684,7 +825,7 @@
       "fecha": "2025-12-02T16:30:00Z"
     },
     {
-      "id": 8,
+      "id": "8",
       "cliente_id": 8,
       "profesional_id": 8,
       "servicio_id": 8,
@@ -695,7 +836,7 @@
       "fecha": "2025-11-30T10:00:00Z"
     },
     {
-      "id": 9,
+      "id": "9",
       "cliente_id": 9,
       "profesional_id": 9,
       "servicio_id": 9,
@@ -706,7 +847,7 @@
       "fecha": "2025-12-15T09:00:00Z"
     },
     {
-      "id": 10,
+      "id": "10",
       "cliente_id": 10,
       "profesional_id": 10,
       "servicio_id": 10,
@@ -717,7 +858,7 @@
       "fecha": "2025-12-07T13:00:00Z"
     },
     {
-      "id": 11,
+      "id": "11",
       "cliente_id": 11,
       "profesional_id": 11,
       "servicio_id": 11,
@@ -728,7 +869,7 @@
       "fecha": "2025-12-01T17:00:00Z"
     },
     {
-      "id": 12,
+      "id": "12",
       "cliente_id": 12,
       "profesional_id": 12,
       "servicio_id": 12,
@@ -739,7 +880,7 @@
       "fecha": "2025-12-12T11:30:00Z"
     },
     {
-      "id": 13,
+      "id": "13",
       "cliente_id": 13,
       "profesional_id": 13,
       "servicio_id": 13,
@@ -750,7 +891,7 @@
       "fecha": "2025-12-08T10:00:00Z"
     },
     {
-      "id": 14,
+      "id": "14",
       "cliente_id": 14,
       "profesional_id": 14,
       "servicio_id": 14,
@@ -761,7 +902,7 @@
       "fecha": "2025-11-28T14:00:00Z"
     },
     {
-      "id": 15,
+      "id": "15",
       "cliente_id": 15,
       "profesional_id": 15,
       "servicio_id": 15,
@@ -772,7 +913,7 @@
       "fecha": "2025-12-09T09:30:00Z"
     },
     {
-      "id": 16,
+      "id": "16",
       "cliente_id": 16,
       "profesional_id": 16,
       "servicio_id": 16,
@@ -783,7 +924,7 @@
       "fecha": "2025-12-06T15:00:00Z"
     },
     {
-      "id": 17,
+      "id": "17",
       "cliente_id": 17,
       "profesional_id": 17,
       "servicio_id": 17,
@@ -794,7 +935,7 @@
       "fecha": "2025-12-04T12:00:00Z"
     },
     {
-      "id": 18,
+      "id": "18",
       "cliente_id": 18,
       "profesional_id": 18,
       "servicio_id": 18,
@@ -805,7 +946,7 @@
       "fecha": "2025-12-20T10:00:00Z"
     },
     {
-      "id": 19,
+      "id": "19",
       "cliente_id": 19,
       "profesional_id": 19,
       "servicio_id": 19,
@@ -816,7 +957,7 @@
       "fecha": "2025-12-03T08:00:00Z"
     },
     {
-      "id": 20,
+      "id": "20",
       "cliente_id": 20,
       "profesional_id": 20,
       "servicio_id": 20,
@@ -829,7 +970,7 @@
   ],
   "resenas": [
     {
-      "id": 1,
+      "id": "1",
       "solicitud_id": 1,
       "calificacion": 5,
       "comentario": "Excelente servicio, puntual y profesional.",
@@ -837,7 +978,7 @@
       "anonima": false
     },
     {
-      "id": 2,
+      "id": "2",
       "solicitud_id": 2,
       "calificacion": 4,
       "comentario": "Buen trabajo, pero llegó un poco tarde.",
@@ -845,7 +986,7 @@
       "anonima": true
     },
     {
-      "id": 3,
+      "id": "3",
       "solicitud_id": 3,
       "calificacion": 5,
       "comentario": "Mueble quedó perfecto, muy satisfecho.",
@@ -853,7 +994,7 @@
       "anonima": false
     },
     {
-      "id": 4,
+      "id": "4",
       "solicitud_id": 4,
       "calificacion": 4,
       "comentario": "Buen trabajo, pero podría mejorar la limpieza después.",
@@ -861,7 +1002,7 @@
       "anonima": true
     },
     {
-      "id": 5,
+      "id": "5",
       "solicitud_id": 5,
       "calificacion": 5,
       "comentario": "Pared quedó muy bien construida, recomendado.",
@@ -869,7 +1010,7 @@
       "anonima": false
     },
     {
-      "id": 6,
+      "id": "6",
       "solicitud_id": 6,
       "calificacion": 3,
       "comentario": "El jardín quedó bien, pero faltó podar algunos arbustos.",
@@ -877,7 +1018,7 @@
       "anonima": true
     },
     {
-      "id": 7,
+      "id": "7",
       "solicitud_id": 7,
       "calificacion": 5,
       "comentario": "Reparación rápida y eficiente del aire acondicionado.",
@@ -885,7 +1026,7 @@
       "anonima": false
     },
     {
-      "id": 8,
+      "id": "8",
       "solicitud_id": 8,
       "calificacion": 4,
       "comentario": "Limpieza muy completa, pero un poco cara.",
@@ -893,7 +1034,7 @@
       "anonima": true
     },
     {
-      "id": 9,
+      "id": "9",
       "solicitud_id": 9,
       "calificacion": 5,
       "comentario": "Rejas muy bien hechas y resistentes.",
@@ -901,7 +1042,7 @@
       "anonima": false
     },
     {
-      "id": 10,
+      "id": "10",
       "solicitud_id": 10,
       "calificacion": 5,
       "comentario": "Instalación del calentador sin problemas, excelente.",
@@ -909,7 +1050,7 @@
       "anonima": false
     },
     {
-      "id": 11,
+      "id": "11",
       "solicitud_id": 11,
       "calificacion": 4,
       "comentario": "Cambio de cerradura rápido y seguro.",
@@ -917,7 +1058,7 @@
       "anonima": true
     },
     {
-      "id": 12,
+      "id": "12",
       "solicitud_id": 12,
       "calificacion": 5,
       "comentario": "Red configurada perfectamente, sin fallos.",
@@ -925,7 +1066,7 @@
       "anonima": false
     },
     {
-      "id": 13,
+      "id": "13",
       "solicitud_id": 13,
       "calificacion": 5,
       "comentario": "Sofá quedó como nuevo, muy buen trabajo.",
@@ -933,7 +1074,7 @@
       "anonima": false
     },
     {
-      "id": 14,
+      "id": "14",
       "solicitud_id": 14,
       "calificacion": 4,
       "comentario": "Vidrios instalados correctamente, pero demoró un poco.",
@@ -941,7 +1082,7 @@
       "anonima": true
     },
     {
-      "id": 15,
+      "id": "15",
       "solicitud_id": 15,
       "calificacion": 3,
       "comentario": "Lavadora funciona, pero el técnico llegó tarde.",
@@ -949,7 +1090,7 @@
       "anonima": true
     },
     {
-      "id": 16,
+      "id": "16",
       "solicitud_id": 16,
       "calificacion": 5,
       "comentario": "Excelente asesoría en diseño, muy creativa.",
@@ -957,7 +1098,7 @@
       "anonima": false
     },
     {
-      "id": 17,
+      "id": "17",
       "solicitud_id": 17,
       "calificacion": 4,
       "comentario": "Grifo instalado sin fugas, buen servicio.",
@@ -965,7 +1106,7 @@
       "anonima": false
     },
     {
-      "id": 18,
+      "id": "18",
       "solicitud_id": 18,
       "calificacion": 5,
       "comentario": "Planos muy detallados y profesionales.",
@@ -973,7 +1114,7 @@
       "anonima": false
     },
     {
-      "id": 19,
+      "id": "19",
       "solicitud_id": 19,
       "calificacion": 5,
       "comentario": "Techo impermeabilizado, sin filtraciones.",
@@ -981,7 +1122,7 @@
       "anonima": false
     },
     {
-      "id": 20,
+      "id": "20",
       "solicitud_id": 20,
       "calificacion": 4,
       "comentario": "Diseño del jardín muy bonito, pero falta implementación.",
