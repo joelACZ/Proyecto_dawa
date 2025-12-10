@@ -19,7 +19,8 @@
       <span class="input-group-text">
         <i class="bi bi-search"></i>
       </span>
-      <input type="text" class="form-control" placeholder="Buscar reseñas...">
+      <input type="text" class="form-control" placeholder="Buscar reseñas..." 
+             (input)="buscarResena($any($event.target).value)">
     </div>
   </div>
 
@@ -40,7 +41,7 @@
           <div class="d-flex align-items-center">
             <!-- Avatar con iniciales (solo si NO es anónima) -->
             <div *ngIf="!resena.anonima" class="avatar me-3">
-              {{ obtenerIniciales(resena.nombreCliente!) }}
+              {{ obtenerIniciales(resena.nombreCliente) }}
             </div>
             <div *ngIf="resena.anonima" class="avatar avatar-anonimo me-3">
               <i class="bi bi-person-fill"></i>
@@ -80,11 +81,11 @@
           <div class="servicio-info mt-3 p-2 bg-light rounded">
             <small class="text-muted d-block mb-1">
               <i class="bi bi-gear me-1"></i>
-              <strong>Profesional:</strong> Juan Pérez
+              <strong>Profesional:</strong> {{ resena.profesionalNombre || 'Profesional no asignado' }}
             </small>
             <small class="text-muted d-block">
               <i class="bi bi-tools me-1"></i>
-              <strong>Servicio:</strong> {{ resena.descripcionSolicitud }}
+              <strong>Servicio:</strong> {{ resena.servicioDescripcion }}
             </small>
           </div>
         </div>

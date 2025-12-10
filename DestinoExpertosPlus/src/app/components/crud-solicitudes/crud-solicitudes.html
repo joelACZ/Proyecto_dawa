@@ -123,77 +123,100 @@
   }
 
   <!-- TABLA-MATRIZ CENTRAL -->
-  <div class="card shadow-sm">
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead class="table-light">
-            <tr>
-              <th style="width: 50px">
-                <input type="checkbox" class="form-check-input">
-              </th>
-              <th>ID</th>
-              <th>Cliente</th>
-              <th>Profesional</th>
-              <th>Servicio</th>
-              <th>Estado</th>
-              <th>Urgencia</th>
-              <th>Fecha</th>
-              <th style="width: 150px">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (solicitud of solicitudes; track solicitud.id) {
-              <tr>
-                <td>
-                  <input type="checkbox" class="form-check-input" [value]="solicitud.id">
-                </td>
-                <td class="fw-bold">#{{ solicitud.id }}</td>
-                <td>{{ obtenerNombreCliente(solicitud.cliente_id) }}</td>
-                <td>{{ obtenerNombreProfesional(solicitud.profesional_id) }}</td>
-                <td>{{ obtenerNombreServicio(solicitud.servicio_id) }}</td>
-                <td>
-                  <span class="badge" [ngClass]="obtenerClaseEstado(solicitud.estado)">
-                    {{ solicitud.estado }}
-                  </span>
-                </td>
-                <td>
-                  @if (solicitud.urgencia) {
-                    <span class="badge" [ngClass]="obtenerClaseUrgencia(solicitud.nivelUrgencia)">
-                      URGENTE
-                    </span>
-                  } @else {
-                    <span class="badge bg-secondary">Normal</span>
-                  }
-                </td>
-                <td>{{ formatearFecha(solicitud.fecha) }}</td>
-                <td>
-                  <div class="btn-group btn-group-sm" role="group">
-                    <button class="btn btn-outline-info" title="Ver" (click)="verDetalle(solicitud)">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-outline-warning" title="Editar" (click)="prepararEdicion(solicitud); abrirModalFormulario()">
-                      <i class="bi bi-pencil"></i>
-                    </button>
-                    <button class="btn btn-outline-danger" title="Eliminar" (click)="eliminarSolicitud(solicitud.id)">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="9" class="text-center py-4 text-muted">
-                  <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                  No se encontraron solicitudes
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+<div class="card shadow-sm" style="border-radius:12px; overflow:hidden; border:none;">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table mb-0" style="border-collapse:collapse;">
+
+        <!-- ENCABEZADO: cada columna con color -->
+        <thead>
+          <tr>
+            <th style="padding:14px; background:#2a9bc0; color:#fff;">ID</th>
+            <th style="padding:14px; background:#2a9bc0; color:#fff;">Cliente</th>
+            <th style="padding:14px; background:#2a9bc0; color:#fff;">Profesional</th>
+            <th style="padding:14px; background:#2a9bc0; color:#fff;">Servicio</th>
+            <th style="padding:14px; background:#2a9bc0; color:#fff;">Estado</th>
+            <th style="padding:14px; background:#2a9bc0; color:#fff;">Urgencia</th>
+            <th style="padding:14px; background:#2a9bc0; color:#fff;">Fecha</th>
+            <th style="padding:14px; background:#2a9bc0; color:#fff;">Acciones</th>
+          </tr>
+        </thead>
+
+        <!-- CUERPO -->
+        <tbody>
+
+          @for (solicitud of solicitudes; track solicitud.id) {
+
+          <tr style="background:#f2f8fb;">
+            <td style="padding:18px; font-weight:bold;">#{{ solicitud.id }}</td>
+            <td style="padding:18px;">{{ obtenerNombreCliente(solicitud.cliente_id) }}</td>
+            <td style="padding:18px;">{{ obtenerNombreProfesional(solicitud.profesional_id) }}</td>
+            <td style="padding:18px;">{{ obtenerNombreServicio(solicitud.servicio_id) }}</td>
+
+            <td style="padding:18px;">
+              <span style="background:#52abc7; color:white; padding:6px 12px; border-radius:8px;">
+                {{ solicitud.estado }}
+              </span>
+            </td>
+
+            <td style="padding:18px;">
+              @if (solicitud.urgencia) {
+                <span style="background:#2a9bc0; color:white; padding:6px 12px; border-radius:8px;">
+                  URGENTE
+                </span>
+              } @else {
+                <span style="background:#72b5cf; color:white; padding:6px 12px; border-radius:8px;">
+                  Normal
+                </span>
+              }
+            </td>
+
+            <td style="padding:18px;">{{ formatearFecha(solicitud.fecha) }}</td>
+
+            <td style="padding:18px;">
+              <div style="display:flex; gap:8px;">
+
+                <button
+                  title="Ver"
+                  (click)="verDetalle(solicitud)"
+                  style="background:#2a9bc0; border:none; padding:8px 10px; border-radius:10px; color:white;">
+                  <i class="bi bi-eye"></i>
+                </button>
+
+                <button
+                  title="Editar"
+                  (click)="prepararEdicion(solicitud); abrirModalFormulario()"
+                  style="background:#52abc7; border:none; padding:8px 10px; border-radius:10px; color:white;">
+                  <i class="bi bi-pencil"></i>
+                </button>
+
+                <button
+                  title="Eliminar"
+                  (click)="eliminarSolicitud(solicitud.id)"
+                  style="background:#72b5cf; border:none; padding:8px 10px; border-radius:10px; color:white;">
+                  <i class="bi bi-trash"></i>
+                </button>
+
+              </div>
+            </td>
+          </tr>
+
+          } @empty {
+
+          <tr style="background:#a2c4d8; text-align:center;">
+            <td colspan="8" style="padding:40px; color:#2a9bc0;">
+              <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+              No se encontraron solicitudes
+            </td>
+          </tr>
+
+          }
+
+        </tbody>
+      </table>
     </div>
   </div>
+</div>
 
   <!-- PAGINACIÓN CÓSMICA -->
   <div class="d-flex justify-content-between align-items-center mt-3">
