@@ -7,6 +7,8 @@ import { CardComponent } from '../shared/cards/cards';
 import { DetailModal } from '../shared/detail-modal/detail-modal';
 import { CATEGORIAS_SERVICIOS } from '../../models/categoria.model';
 import { ServProfesionalesJson } from '../../services/profesionales-service';
+import { ServServicioAPI } from '../../services/servicio-service-API';
+import { ServProfesionalAPI } from '../../services/profesionales-service-API';
 
 declare const bootstrap: any;
 
@@ -41,9 +43,9 @@ export class CrudServicios implements OnInit, AfterViewInit {
   categorias = CATEGORIAS_SERVICIOS;
   
   constructor(
-  private servicioServicios: ServServiciosJson,
+  private servicioServicios: ServServicioAPI,
   private constructorFormularios: FormBuilder,
-    private servicioProfesionales: ServProfesionalesJson
+    private servicioProfesionales: ServProfesionalAPI
  ) {
    this.inicializarFormulario();
  }

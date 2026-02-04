@@ -2,14 +2,16 @@ import { Component, ElementRef, ViewChild, OnInit, AfterViewInit } from '@angula
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ServResenasJson } from '../../services/resena-service';
-import { SolicitudService } from '../../services/solicitud-service';
+import { ServClientesJson } from '../../services/cliente-service'; // Importado para cargar clientes
+import { ServServiciosJson } from '../../services/servicio-service';
+import { Router } from '@angular/router';
 
 import { DataTableComponent } from '../shared/data-table/data-table';
 import { CardComponent } from '../shared/cards/cards';
 import { DetailModal } from '../shared/detail-modal/detail-modal';
-import { ServServiciosJson } from '../../services/servicio-service';
-import { Router } from '@angular/router';
-
+import { ServResenaAPI } from '../../services/resena-service-API';
+import { ServServicioAPI } from '../../services/servicio-service-API';
+import { ServClientesAPI } from '../../services/cliente-service-API';
 
 declare const bootstrap: any;
 
@@ -18,7 +20,7 @@ declare const bootstrap: any;
   standalone: true,
   templateUrl: './crud-resenas.html',
   styleUrls: ['./crud-resenas.css'],
-  imports: [DataTableComponent, CardComponent, ReactiveFormsModule, FormsModule, CommonModule, DetailModal, ],
+  imports: [DataTableComponent, CardComponent, ReactiveFormsModule, FormsModule, CommonModule],
 })
 export class CrudResenas implements OnInit, AfterViewInit {
   private listaResenasOriginales: any[] = [];
@@ -40,7 +42,7 @@ export class CrudResenas implements OnInit, AfterViewInit {
   filtroCalificacion: string = '';
   filtroFechaInicio: string = '';
   filtroFechaFin: string = '';
-  solicitudes: any[] = [];
+  clientes: any[] = []; // Cambiado de solicitudes a clientes
   servicios: any[] = [];
 
   opcionesFiltroCalificacion = [
@@ -63,10 +65,10 @@ export class CrudResenas implements OnInit, AfterViewInit {
   @ViewChild('elementoModal') elementoModal!: ElementRef;
 
   constructor(
-    private servicioResenas: ServResenasJson,
-    private servicioSolicitudes: SolicitudService,
+    private servicioResenas: ServResenaAPI,
+    private servicioClientes: ServClientesAPI, // Inyectado para el nuevo modelo
     private constructorFormularios: FormBuilder,
-    private servicioServicios: ServServiciosJson, 
+    private servicioServicios: ServServicioAPI, 
     private router: Router
   ) {
     this.inicializarFormulario();
@@ -74,9 +76,8 @@ export class CrudResenas implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.cargarDatosIniciales();
-    this.cargarSolicitudes();
+    this.cargarClientes(); // Cargar clientes en lugar de solicitudes
     this.cargarServicios();
-
   }
 
   ngAfterViewInit() {
@@ -89,21 +90,28 @@ export class CrudResenas implements OnInit, AfterViewInit {
     this.cargarResenas();
   }
 
-
-
   public cargarServicios() {
-  this.servicioServicios.obtenerTodos().subscribe({
-    next: (servicios) => {
-      this.servicios = servicios;
-    },
-    error: (error) => {
-      console.error('Error al cargar servicios:', error);
-    }
-  });
-}
+    this.servicioServicios.obtenerTodos().subscribe({
+      next: (servicios) => {
+        this.servicios = servicios;
+      },
+      error: (error) => console.error('Error al cargar servicios:', error)
+    });
+  }
+
+  public cargarClientes() {
+    this.servicioClientes.obtenerTodos().subscribe({
+      next: (clientes) => {
+        this.clientes = clientes;
+      },
+      error: (error) => console.error('Error al cargar clientes:', error)
+    });
+  }
+
   public inicializarFormulario() {
     this.formResena = this.constructorFormularios.group({
-      solicitud_id: ['', [Validators.required]],
+      servicio_id: ['', [Validators.required]], // Cambiado a servicio_id
+      cliente_id: ['', [Validators.required]],  // Nuevo campo cliente_id
       calificacion: ['', [Validators.required, Validators.min(1), Validators.max(5)]],
       comentario: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]],
       fecha: ['', [Validators.required]],
@@ -129,7 +137,8 @@ export class CrudResenas implements OnInit, AfterViewInit {
   public prepararDatosParaGuardar(datos: any): any {
     return {
       ...datos,
-      solicitud_id: Number(datos.solicitud_id),
+      servicio_id: String(datos.servicio_id), // Conversión a String para consistencia con JSON
+      cliente_id: String(datos.cliente_id),   // Conversión a String
       calificacion: Number(datos.calificacion),
       anonima: Boolean(datos.anonima)
     };
@@ -142,10 +151,7 @@ export class CrudResenas implements OnInit, AfterViewInit {
         this.cerrarModalPrincipal();
         this.mostrarNotificacion('Reseña creada correctamente');
       },
-      error: (error) => {
-        console.error('Error al crear reseña:', error);
-        this.mostrarError('Error al crear reseña');
-      }
+      error: (error) => this.mostrarError('Error al crear reseña')
     });
   }
 
@@ -156,10 +162,7 @@ export class CrudResenas implements OnInit, AfterViewInit {
         this.cerrarModalPrincipal();
         this.mostrarNotificacion('Reseña actualizada correctamente');
       },
-      error: (error) => {
-        console.error('Error al actualizar reseña:', error);
-        this.mostrarError('Error al actualizar reseña');
-      }
+      error: (error) => this.mostrarError('Error al actualizar reseña')
     });
   }
 
@@ -169,78 +172,39 @@ export class CrudResenas implements OnInit, AfterViewInit {
         this.listaResenasOriginales = datosCrudos;
         this.formatearDatosParaTabla();
       },
-      error: (error) => {
-        console.error('Error al cargar reseñas:', error);
-        this.mostrarError('Error al cargar reseñas');
-      }
-    });
-  }
-
-  public cargarSolicitudes() {
-    this.servicioSolicitudes.obtenerTodas().subscribe({
-      next: (solicitudes) => {
-        this.solicitudes = solicitudes;
-        console.log('Solicitudes cargadas:', this.solicitudes);
-      },
-      error: (error) => {
-        console.error('Error al cargar solicitudes:', error);
-      }
+      error: (error) => this.mostrarError('Error al cargar reseñas')
     });
   }
 
   public navegarAListaResenas(): void {
     this.router.navigate(['/resena-list']);
   }
+
   public formatearDatosParaTabla() {
     let resenasAMostrar = [...this.listaResenasOriginales];
 
+    // Aplicar filtros existentes
     if (this.filtroCalificacion) {
       const filtro = Number(this.filtroCalificacion);
       resenasAMostrar = resenasAMostrar.filter(resena => resena.calificacion === filtro);
     }
 
-    if (this.filtroFechaInicio) {
-      const fechaInicio = new Date(this.filtroFechaInicio);
-      resenasAMostrar = resenasAMostrar.filter(resena => new Date(resena.fecha) >= fechaInicio);
-    }
-
-    if (this.filtroFechaFin) {
-      const fechaFin = new Date(this.filtroFechaFin);
-      fechaFin.setHours(23, 59, 59, 999);
-      resenasAMostrar = resenasAMostrar.filter(resena => new Date(resena.fecha) <= fechaFin);
-    }
-
-    this.resenasParaTabla = resenasAMostrar.map(resena => ({
-      id: resena.id,
-      solicitud_id: resena.solicitud_id,
-      calificacionFormateada: '⭐'.repeat(resena.calificacion),
-      comentario: resena.comentario,
-      fecha: new Date(resena.fecha).toLocaleDateString('es-ES'),
-      anonimaFormateada: resena.anonima ? 'Sí' : 'No',
-      datosCompletos: resena
-    }));
+    this.resenasParaTabla = resenasAMostrar.map(resena => {
+      // Buscar nombre del servicio directamente por ID
+      const servicio = this.servicios.find(s => String(s.id) === String(resena.servicio_id));
+      
+      return {
+        id: resena.id,
+        servicio_nombre: servicio?.nombre || 'Servicio no encontrado',
+        calificacionFormateada: '⭐'.repeat(resena.calificacion),
+        comentario: resena.comentario,
+        fecha: new Date(resena.fecha).toLocaleDateString('es-ES'),
+        anonimaFormateada: resena.anonima ? 'Sí' : 'No',
+        datosCompletos: resena
+      };
+    });
 
     this.calcularPaginacion();
-  }
-
-  public buscarResenas(elementoInput: HTMLInputElement) {
-    const terminoBusqueda = elementoInput.value.trim();
-    if (!terminoBusqueda) {
-      this.cargarResenas();
-      this.paginaActual = 1;
-      return;
-    }
-    this.servicioResenas.buscarPorTermino(terminoBusqueda).subscribe({
-      next: (resultadosBusqueda) => {
-        this.listaResenasOriginales = resultadosBusqueda;
-        this.formatearDatosParaTabla();
-        this.paginaActual = 1;
-      },
-      error: (error) => {
-        console.error('Error en búsqueda:', error);
-        this.mostrarError('Error al buscar reseñas');
-      }
-    });
   }
 
   public aplicarFiltros(): void {
@@ -264,9 +228,6 @@ export class CrudResenas implements OnInit, AfterViewInit {
 
   public calcularPaginacion(): void {
     this.totalPaginas = Math.ceil(this.resenasParaTabla.length / this.itemsPorPagina);
-    if (this.paginaActual > this.totalPaginas && this.totalPaginas > 0) {
-      this.paginaActual = this.totalPaginas;
-    }
   }
 
   public cambiarPagina(pagina: number): void {
@@ -275,12 +236,6 @@ export class CrudResenas implements OnInit, AfterViewInit {
     }
   }
 
-  public get rangoRegistros(): string {
-    const inicio = (this.paginaActual - 1) * this.itemsPorPagina + 1;
-    const fin = Math.min(this.paginaActual * this.itemsPorPagina, this.resenasParaTabla.length);
-    return `${inicio}-${fin} de ${this.resenasParaTabla.length}`;
-  }
-
   public abrirNuevo() {
     this.resenaEnEdicion = null;
     this.formResena.reset({
@@ -288,9 +243,7 @@ export class CrudResenas implements OnInit, AfterViewInit {
       anonima: false,
       fecha: new Date().toISOString().split('T')[0]
     });
-    if (this.modalRef) {
-      this.modalRef.show();
-    }
+    if (this.modalRef) this.modalRef.show();
   }
 
   public abrirEdicion(datosResena: any) {
@@ -299,9 +252,7 @@ export class CrudResenas implements OnInit, AfterViewInit {
       ...datosResena.datosCompletos,
       fecha: new Date(datosResena.datosCompletos.fecha).toISOString().split('T')[0]
     });
-    if (this.modalRef) {
-      this.modalRef.show();
-    }
+    if (this.modalRef) this.modalRef.show();
   }
 
   public abrirModalEliminar(resena: any) {
@@ -317,53 +268,24 @@ export class CrudResenas implements OnInit, AfterViewInit {
         this.cargarResenas();
         this.cerrarModalEliminar();
       },
-      error: (error) => {
-        console.error('Error al eliminar reseña:', error);
-        this.mostrarError('Error al eliminar reseña');
-        this.cerrarModalEliminar();
-      }
+      error: (error) => this.cerrarModalEliminar()
     });
   }
 
-  public cerrarModalEliminar() {
-    this.mostrarModalEliminar = false;
-    this.resenaAEliminar = null;
-  }
-
-  public cerrarModalPrincipal() {
-    if (this.modalRef) {
-      this.modalRef.hide();
-    }
-  }
-
-  public verDetalle(resena: any) {
-    this.resenaDetalle = resena.datosCompletos;
-    this.mostrarModalDetalle = true;
-  }
-
-  public cerrarDetalle() {
-    this.mostrarModalDetalle = false;
-    this.resenaDetalle = null;
-  }
+  public cerrarModalEliminar() { this.mostrarModalEliminar = false; }
+  public cerrarModalPrincipal() { if (this.modalRef) this.modalRef.hide(); }
+  public verDetalle(resena: any) { this.resenaDetalle = resena.datosCompletos; this.mostrarModalDetalle = true; }
+  public cerrarDetalle() { this.mostrarModalDetalle = false; }
 
   public mostrarNotificacion(mensaje: string) {
     this.mensajeNotificacion = mensaje;
     this.mostrarModalNotificacion = true;
-    setTimeout(() => {
-      this.mostrarModalNotificacion = false;
-    }, 3000);
+    setTimeout(() => this.mostrarModalNotificacion = false, 3000);
   }
 
   public mostrarError(mensaje: string) {
     this.mensajeError = mensaje;
     this.mostrarModalError = true;
-    setTimeout(() => {
-      this.mostrarModalError = false;
-    }, 3000);
+    setTimeout(() => this.mostrarModalError = false, 3000);
   }
-
-  obtenerNombreServicio(servicioId: number): string {
-  const servicio = this.servicios.find(s => s.id === servicioId);
-  return servicio ? servicio.nombre : 'Sin servicio';
-}
 }

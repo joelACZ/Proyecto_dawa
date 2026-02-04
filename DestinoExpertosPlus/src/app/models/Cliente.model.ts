@@ -1,7 +1,7 @@
 import { Identifiable, WithContactInfo, WithLocation } from './base.model';
 
 export interface Cliente extends Identifiable, WithContactInfo, WithLocation {
-  preferencias: string[];
+  preferencias: string;
   notificaciones: boolean;
  
 }

@@ -6,7 +6,8 @@ export interface Servicio extends Identifiable, WithStatus {
   descripcion: string;
   precioBase: number;
   duracionEstimada: number;
-  profesional_id: number;
+  profesional_id?: number;
+   // profesional_id?: Profesional_id ;//
 
 }
 

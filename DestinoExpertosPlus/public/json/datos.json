@@ -989,7 +989,8 @@
   "resenas": [
     {
       "id": "1",
-      "solicitud_id": 1,
+      "servicio_id": 1,
+      "cliente_id": 1,
       "calificacion": 5,
       "comentario": "Excelente servicio, puntual y profesional.",
       "fecha": "2025-12-02",
@@ -997,7 +998,8 @@
     },
     {
       "id": "2",
-      "solicitud_id": 2,
+      "servicio_id": 2,
+      "cliente_id": 2,
       "calificacion": 4,
       "comentario": "Buen trabajo, pero llegó un poco tarde.",
       "fecha": "2025-11-20",
@@ -1006,6 +1008,7 @@
     {
       "id": "3",
       "solicitud_id": 3,
+      "cliente_id": 3,
       "calificacion": 5,
       "comentario": "Mueble quedó perfecto, muy satisfecho.",
       "fecha": "2025-12-06",
@@ -1013,7 +1016,8 @@
     },
     {
       "id": "4",
-      "solicitud_id": 4,
+      "servicio_id": 4,
+      "cliente_id": 4,
       "calificacion": 4,
       "comentario": "Buen trabajo, pero podría mejorar la limpieza después.",
       "fecha": "2025-12-04",
@@ -1021,7 +1025,8 @@
     },
     {
       "id": "5",
-      "solicitud_id": 5,
+      "servicio_id": 5,
+      "cliente_id": 5,
       "calificacion": 5,
       "comentario": "Pared quedó muy bien construida, recomendado.",
       "fecha": "2025-11-26",
@@ -1029,7 +1034,8 @@
     },
     {
       "id": "6",
-      "solicitud_id": 6,
+      "servicio_id": 6,
+      "cliente_id": 6,
       "calificacion": 3,
       "comentario": "El jardín quedó bien, pero faltó podar algunos arbustos.",
       "fecha": "2025-12-11",
@@ -1037,7 +1043,8 @@
     },
     {
       "id": "7",
-      "solicitud_id": 7,
+      "servicio_id": 7,
+      "cliente_id": 7,
       "calificacion": 5,
       "comentario": "Reparación rápida y eficiente del aire acondicionado.",
       "fecha": "2025-12-03",
@@ -1045,7 +1052,8 @@
     },
     {
       "id": "8",
-      "solicitud_id": 8,
+      "servicio_id": 8,
+      "cliente_id": 8,
       "calificacion": 4,
       "comentario": "Limpieza muy completa, pero un poco cara.",
       "fecha": "2025-12-01",
@@ -1053,7 +1061,8 @@
     },
     {
       "id": "9",
-      "solicitud_id": 9,
+      "servicio_id": 9,
+      "cliente_id": 9,
       "calificacion": 5,
       "comentario": "Rejas muy bien hechas y resistentes.",
       "fecha": "2025-12-16",
@@ -1061,7 +1070,8 @@
     },
     {
       "id": "10",
-      "solicitud_id": 10,
+      "servicio_id": 10,
+      "cliente_id": 10,
       "calificacion": 5,
       "comentario": "Instalación del calentador sin problemas, excelente.",
       "fecha": "2025-12-08",
@@ -1069,7 +1079,8 @@
     },
     {
       "id": "11",
-      "solicitud_id": 11,
+      "servicio_id": 11,
+      "cliente_id": 11,
       "calificacion": 4,
       "comentario": "Cambio de cerradura rápido y seguro.",
       "fecha": "2025-12-02",
@@ -1077,7 +1088,8 @@
     },
     {
       "id": "12",
-      "solicitud_id": 12,
+      "servicio_id": 12,
+      "cliente_id": 12,
       "calificacion": 5,
       "comentario": "Red configurada perfectamente, sin fallos.",
       "fecha": "2025-12-13",
@@ -1085,7 +1097,8 @@
     },
     {
       "id": "13",
-      "solicitud_id": 13,
+      "servicio_id": 13,
+      "cliente_id": 13,
       "calificacion": 5,
       "comentario": "Sofá quedó como nuevo, muy buen trabajo.",
       "fecha": "2025-12-09",
@@ -1093,7 +1106,8 @@
     },
     {
       "id": "14",
-      "solicitud_id": 14,
+      "servicio_id": 14,
+      "cliente_id": 14,
       "calificacion": 4,
       "comentario": "Vidrios instalados correctamente, pero demoró un poco.",
       "fecha": "2025-11-29",
@@ -1101,7 +1115,8 @@
     },
     {
       "id": "15",
-      "solicitud_id": 15,
+      "servicio_id": 15,
+      "cliente_id": 15,
       "calificacion": 3,
       "comentario": "Lavadora funciona, pero el técnico llegó tarde.",
       "fecha": "2025-12-10",
@@ -1109,7 +1124,8 @@
     },
     {
       "id": "16",
-      "solicitud_id": 16,
+      "servicio_id": 16,
+      "cliente_id": 16,
       "calificacion": 5,
       "comentario": "Excelente asesoría en diseño, muy creativa.",
       "fecha": "2025-12-07",
@@ -1117,7 +1133,8 @@
     },
     {
       "id": "17",
-      "solicitud_id": 17,
+      "servicio_id": 17,
+      "cliente_id": 17,
       "calificacion": 4,
       "comentario": "Grifo instalado sin fugas, buen servicio.",
       "fecha": "2025-12-05",
@@ -1125,7 +1142,8 @@
     },
     {
       "id": "18",
-      "solicitud_id": 18,
+      "servicio_id": 18,
+      "cliente_id": 18,
       "calificacion": 5,
       "comentario": "Planos muy detallados y profesionales.",
       "fecha": "2025-12-21",
@@ -1133,7 +1151,8 @@
     },
     {
       "id": "19",
-      "solicitud_id": 19,
+      "servicio_id": 19,
+      "cliente_id": 19,
       "calificacion": 5,
       "comentario": "Techo impermeabilizado, sin filtraciones.",
       "fecha": "2025-12-04",
@@ -1141,18 +1160,11 @@
     },
     {
       "id": "20",
-      "solicitud_id": 20,
+      "servicio_id": 20,
+      "cliente_id": 20,
       "calificacion": 4,
       "comentario": "Diseño del jardín muy bonito, pero falta implementación.",
       "fecha": "2025-12-19",
-      "anonima": true
-    },
-    {
-      "id": "9590",
-      "solicitud_id": 4,
-      "calificacion": 4,
-      "comentario": "nada bueno",
-      "fecha": "2025-12-10",
       "anonima": true
     }
   ]

@@ -5,6 +5,7 @@ import { ServProfesionalesJson } from '../../services/profesionales-service';
 import { DataTableComponent } from '../shared/data-table/data-table';
 import { CardComponent } from '../shared/cards/cards';
 import { DetailModal } from '../shared/detail-modal/detail-modal';
+import { ServProfesionalAPI } from '../../services/profesionales-service-API';
 
 declare const bootstrap: any;
 
@@ -44,7 +45,7 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
   filtroDisponibilidad: string | null = null;
   @ViewChild('modalProfesional') elementoModal!: ElementRef;
   constructor(
-    private servicioProfesionales: ServProfesionalesJson,
+    private servicioProfesionales: ServProfesionalAPI ,
     private constructorFormularios: FormBuilder
   ) {
     this.inicializarFormulario();

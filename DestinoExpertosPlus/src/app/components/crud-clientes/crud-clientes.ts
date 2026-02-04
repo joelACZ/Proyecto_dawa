@@ -5,6 +5,7 @@ import { ServClientesJson } from '../../services/cliente-service';
 import { DataTableComponent } from '../shared/data-table/data-table';
 import { CardComponent } from '../shared/cards/cards';
 import { DetailModal } from '../shared/detail-modal/detail-modal';
+import { ServClientesAPI } from '../../services/cliente-service-API';
 
 declare const bootstrap: any;
 
@@ -39,7 +40,7 @@ export class CrudClientes implements OnInit {
   @ViewChild('clienteModal') elementoModal!: ElementRef;
 
   constructor(
-    private servicioClientes: ServClientesJson,
+    private servicioClientes: ServClientesAPI,
     private constructorFormularios: FormBuilder
   ) {
     this.inicializarFormulario();
@@ -82,9 +83,7 @@ export class CrudClientes implements OnInit {
   private prepararDatosParaGuardar(datos: any): any {
     return {
       ...datos,
-      preferencias: datos.preferencias
-        ? datos.preferencias.split(',').map((p: string) => p.trim()).filter(Boolean)
-        : []
+    preferencias: datos.preferencias ? datos.preferencias.toString() : ''
     };
   }
 

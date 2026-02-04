@@ -6,72 +6,10 @@
 </app-card>
 
 <div class="mb-4 mt-4 d-flex align-items-center gap-2">
-  <input
-    type="text"
-    placeholder="Buscar reseñas..."
-    class="border p-2 rounded w-full md:w-64"
-    #txtBuscar
-    (input)="buscarResenas(txtBuscar)"
-  />
-
+  <input type="text" placeholder="Buscar reseñas..." class="border p-2 rounded w-full md:w-64" #txtBuscar />
   <div style="margin-left: auto" class="d-flex gap-2">
-    <button
-      class="btn btn-light border font-weight-bold py-2 px-4 rounded transition"
-      (click)="abrirNuevo()"
-    >
-      + Nueva Reseña
-    </button>
-
-    <button
-      class="btn btn-light border font-weight-bold py-2 px-4 rounded transition"
-      (click)="navegarAListaResenas()"
-    >
-      <i class="bi bi-list-ul me-1"></i> Lista de Reseñas
-    </button>
-  </div>
-</div>
-
-<div class="card mb-4">
-  <div class="card-header">
-    <h5 class="mb-0"><i class="bi bi-funnel me-2"></i>Filtros de Búsqueda</h5>
-  </div>
-  <div class="card-body">
-    <div class="row g-3">
-      <div class="col-md-3">
-        <label class="form-label">Calificación</label>
-        <select class="form-select" [(ngModel)]="filtroCalificacion" (change)="aplicarFiltros()">
-          <option *ngFor="let opcion of opcionesFiltroCalificacion" [value]="opcion.valor">
-            {{ opcion.texto }}
-          </option>
-        </select>
-      </div>
-
-      <div class="col-md-3">
-        <label class="form-label">Fecha Desde</label>
-        <input
-          type="date"
-          class="form-control"
-          [(ngModel)]="filtroFechaInicio"
-          (change)="aplicarFiltros()"
-        />
-      </div>
-
-      <div class="col-md-3">
-        <label class="form-label">Fecha Hasta</label>
-        <input
-          type="date"
-          class="form-control"
-          [(ngModel)]="filtroFechaFin"
-          (change)="aplicarFiltros()"
-        />
-      </div>
-
-      <div class="col-md-3 d-flex align-items-end">
-        <button class="btn btn-outline-secondary w-100" (click)="limpiarFiltros()">
-          <i class="bi bi-x-circle me-1"></i> Limpiar Filtros
-        </button>
-      </div>
-    </div>
+    <button class="btn btn-light border font-weight-bold py-2 px-4 rounded transition" (click)="abrirNuevo()">+ Nueva Reseña</button>
+    <button class="btn btn-light border font-weight-bold py-2 px-4 rounded transition" (click)="navegarAListaResenas()"><i class="bi bi-list-ul me-1"></i> Lista de Reseñas</button>
   </div>
 </div>
 
@@ -79,7 +17,7 @@
   [data]="resenasPaginadas"
   [columns]="[
     { field: 'id', header: 'ID' },
-    { field: 'solicitud_id', header: 'Solicitud ID' },
+    { field: 'servicio_nombre', header: 'Servicio' },
     { field: 'calificacionFormateada', header: 'Calificación' },
     { field: 'comentario', header: 'Comentario' },
     { field: 'fecha', header: 'Fecha' },
@@ -88,155 +26,13 @@
 >
   <ng-template #actions let-row>
     <div class="d-flex gap-2">
-      <button (click)="verDetalle(row)" class="btn action-btn unified">
-        <i class="bi bi-eye"></i>
-      </button>
-      <button (click)="abrirEdicion(row)" class="btn action-btn unified">
-        <i class="bi bi-pencil"></i>
-      </button>
-      <button (click)="abrirModalEliminar(row)" class="btn action-btn unified">
-        <i class="bi bi-trash"></i>
-      </button>
+      <button (click)="verDetalle(row)" class="btn action-btn unified"><i class="bi bi-eye"></i></button>
+      <button (click)="abrirEdicion(row)" class="btn action-btn unified"><i class="bi bi-pencil"></i></button>
+      <button (click)="abrirModalEliminar(row)" class="btn action-btn unified"><i class="bi bi-trash"></i></button>
     </div>
   </ng-template>
 </app-data-table>
 
-<div class="d-flex justify-content-center align-items-center mt-3" *ngIf="totalPaginas > 1">
-  <nav aria-label="Paginación de reseñas">
-    <ul class="pagination mb-0">
-      <li class="page-item" [class.disabled]="paginaActual === 1">
-        <a
-          class="page-link"
-          href="#"
-          (click)="cambiarPagina(paginaActual - 1); $event.preventDefault()"
-        >
-          <i class="bi bi-chevron-left"></i> Anterior
-        </a>
-      </li>
-
-      <li
-        class="page-item"
-        *ngFor="let pagina of [].constructor(totalPaginas); let i = index"
-        [class.active]="paginaActual === i + 1"
-      >
-        <a class="page-link" href="#" (click)="cambiarPagina(i + 1); $event.preventDefault()">
-          {{ i + 1 }}
-        </a>
-      </li>
-
-      <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
-        <a
-          class="page-link"
-          href="#"
-          (click)="cambiarPagina(paginaActual + 1); $event.preventDefault()"
-        >
-          Siguiente <i class="bi bi-chevron-right"></i>
-        </a>
-      </li>
-    </ul>
-  </nav>
-</div>
-
-<app-detail-modal
-  [isVisible]="mostrarModalDetalle"
-  [data]="resenaDetalle"
-  (close)="cerrarDetalle()"
->
-</app-detail-modal>
-
-<div
-  *ngIf="mostrarModalNotificacion"
-  class="modal fade show d-block notification-modal success"
-  tabindex="-1"
-  style="background-color: rgba(0, 0, 0, 0.5)"
->
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="btn-close" (click)="mostrarModalNotificacion = false"></button>
-      </div>
-      <div class="modal-body">
-        <div class="modal-icon">
-          <i class="bi bi-check-circle-fill"></i>
-        </div>
-        <h5 class="modal-title mb-3">¡Éxito!</h5>
-        <p class="mb-0">{{ mensajeNotificacion }}</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-success" (click)="mostrarModalNotificacion = false">
-          Aceptar
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div
-  *ngIf="mostrarModalError"
-  class="modal fade show d-block notification-modal error"
-  tabindex="-1"
-  style="background-color: rgba(0, 0, 0, 0.5)"
->
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="btn-close" (click)="mostrarModalError = false"></button>
-      </div>
-      <div class="modal-body">
-        <div class="modal-icon">
-          <i class="bi bi-exclamation-triangle-fill"></i>
-        </div>
-        <h5 class="modal-title mb-3">Error</h5>
-        <p class="mb-0">{{ mensajeError }}</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" (click)="mostrarModalError = false">
-          Aceptar
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div
-  *ngIf="mostrarModalEliminar"
-  class="modal fade show d-block"
-  tabindex="-1"
-  style="background-color: rgba(0, 0, 0, 0.5)"
->
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header border-0">
-        <h5 class="modal-title text-danger">
-          <i class="bi bi-exclamation-triangle me-2"></i>
-          Confirmar Eliminación
-        </h5>
-        <button type="button" class="btn-close" (click)="cerrarModalEliminar()"></button>
-      </div>
-      <div class="modal-body text-center">
-        <div class="mb-4">
-          <i class="bi bi-trash3-fill text-danger" style="font-size: 3rem"></i>
-        </div>
-        <h6 class="mb-3">¿Está seguro de eliminar la reseña #{{ resenaAEliminar?.id }}?</h6>
-        <div class="alert alert-light border">
-          <p class="mb-1"><strong>Comentario:</strong></p>
-          <p class="mb-0 text-muted">"{{ resenaAEliminar?.comentario }}"</p>
-        </div>
-        <p class="text-muted small mt-3">Esta acción no se puede deshacer.</p>
-      </div>
-      <div class="modal-footer border-0 justify-content-center">
-        <button type="button" class="btn btn-secondary me-3" (click)="cerrarModalEliminar()">
-          <i class="bi bi-x-circle me-1"></i> Cancelar
-        </button>
-        <button type="button" class="btn btn-danger" (click)="confirmarEliminacion()">
-          <i class="bi bi-trash3 me-1"></i> Sí, eliminar
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL CREAR/EDITAR -->
 <div class="modal fade" id="resenaModal" #elementoModal>
   <div class="modal-dialog">
     <div class="modal-content">
@@ -246,90 +42,50 @@
       </div>
       <form [formGroup]="formResena">
         <div class="modal-body">
+          
           <div class="mb-3">
-            <label class="form-label fw-bold">Solicitud *</label>
-            <select class="form-select" formControlName="solicitud_id">
-              <option value="">Seleccionar solicitud...</option>
-              <option *ngFor="let solicitud of solicitudes" [value]="solicitud.id">
-                #{{ solicitud.id }} - {{ obtenerNombreServicio(solicitud.id) }}
-              </option>
+            <label class="form-label fw-bold">Servicio *</label>
+            <select class="form-select" formControlName="servicio_id">
+              <option value="">Seleccionar servicio...</option>
+              <option *ngFor="let s of servicios" [value]="s.id">{{ s.nombre }}</option>
             </select>
-            <span class="error">
-              @if (formResena.get('solicitud_id')?.invalid && (formResena.get('solicitud_id')?.dirty
-              || formResena.get('solicitud_id')?.touched)) { @if
-              (formResena.get('solicitud_id')?.errors?.['required']) { Debe seleccionar una
-              solicitud.} @if (formResena.get('solicitud_id')?.errors?.['min']) { Debe seleccionar
-              una solicitud válida. } }
-            </span>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Cliente *</label>
+            <select class="form-select" formControlName="cliente_id">
+              <option value="">Seleccionar cliente...</option>
+              <option *ngFor="let c of clientes" [value]="c.id">{{ c.nombre }}</option>
+            </select>
           </div>
 
           <div class="mb-3">
             <label class="form-label fw-bold">Calificación *</label>
             <select class="form-select" formControlName="calificacion">
               <option value="">Seleccionar</option>
-              <option *ngFor="let o of opcionesCalificacion" [value]="o.valor">
-                {{ o.texto }}
-              </option>
+              <option *ngFor="let o of opcionesCalificacion" [value]="o.valor">{{ o.texto }}</option>
             </select>
-            <span class="error">
-              @if (formResena.get('calificacion')?.invalid && (formResena.get('calificacion')?.dirty
-              || formResena.get('calificacion')?.touched)) { @if
-              (formResena.get('calificacion')?.errors?.['required']) { La calificación es
-              obligatoria. } @if (formResena.get('calificacion')?.errors?.['min'] ||
-              formResena.get('calificacion')?.errors?.['max']) { La calificación debe estar entre 1
-              y 5 estrellas. } }
-            </span>
           </div>
 
           <div class="mb-3">
             <label class="form-label fw-bold">Comentario *</label>
-            <textarea
-              class="form-control"
-              rows="4"
-              formControlName="comentario"
-              placeholder="Escriba su comentario aquí..."
-            ></textarea>
-            <span class="error">
-              @if (formResena.get('comentario')?.invalid && (formResena.get('comentario')?.dirty ||
-              formResena.get('comentario')?.touched)) { @if
-              (formResena.get('comentario')?.errors?.['required']) { El comentario es obligatorio. }
-              @if (formResena.get('comentario')?.errors?.['minlength']) { El comentario debe tener
-              al menos 10 caracteres. } @if (formResena.get('comentario')?.errors?.['maxlength']) {
-              El comentario no debe exceder los 500 caracteres. } }
-            </span>
-            <small class="form-text text-muted">
-              {{ formResena.get('comentario')?.value?.length || 0 }}/500 caracteres
-            </small>
+            <textarea class="form-control" rows="4" formControlName="comentario"></textarea>
           </div>
 
           <div class="mb-3">
             <label class="form-label fw-bold">Fecha *</label>
             <input type="date" class="form-control" formControlName="fecha" />
-            <span class="error">
-              @if (formResena.get('fecha')?.invalid && (formResena.get('fecha')?.dirty ||
-              formResena.get('fecha')?.touched)) { @if
-              (formResena.get('fecha')?.errors?.['required']) { La fecha es obligatoria. } }
-            </span>
           </div>
 
           <div class="form-check">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              formControlName="anonima"
-              id="checkAnonima"
-            />
+            <input class="form-check-input" type="checkbox" formControlName="anonima" id="checkAnonima" />
             <label class="form-check-label" for="checkAnonima">Reseña anónima</label>
           </div>
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="cerrarModalPrincipal()">
-            Cancelar
-          </button>
-          <button type="button" class="btn btn-primary" (click)="guardarResena()">
-            {{ resenaEnEdicion ? 'Actualizar' : 'Guardar' }}
-          </button>
+          <button type="button" class="btn btn-secondary" (click)="cerrarModalPrincipal()">Cancelar</button>
+          <button type="button" class="btn btn-primary" (click)="guardarResena()">{{ resenaEnEdicion ? 'Actualizar' : 'Guardar' }}</button>
         </div>
       </form>
     </div>

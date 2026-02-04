@@ -5,6 +5,10 @@ import { SolicitudService } from '../../services/solicitud-service';
 import { ServClientesJson } from '../../services/cliente-service';
 import { ServProfesionalesJson } from '../../services/profesionales-service';
 import { ServServiciosJson } from '../../services/servicio-service';
+import { ServSolicitudAPI } from '../../services/solicitud-service-API';
+import { ServClientesAPI } from '../../services/cliente-service-API';
+import { ServProfesionalAPI } from '../../services/profesionales-service-API';
+import { ServServicioAPI } from '../../services/servicio-service-API';
 
 
 @Component({
@@ -65,10 +69,10 @@ export class CrudSolicitudesComponent implements OnInit {
   protected solicitudSeleccionada: any = null;
 
   constructor(
-    private servicioSolicitudes: SolicitudService,
-    private servicioClientes: ServClientesJson,
-    private servicioProfesionales: ServProfesionalesJson,
-    private servicioServicios: ServServiciosJson
+    private servicioSolicitudes: ServSolicitudAPI,
+    private servicioClientes: ServClientesAPI,
+    private servicioProfesionales: ServProfesionalAPI,
+    private servicioServicios: ServServicioAPI
   ) { }
 
   ngOnInit(): void {
