@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { firstValueFrom, forkJoin } from 'rxjs';
-import { ServResenasJson } from '../../services/resena-service';
-import { ServClientesJson } from '../../services/cliente-service';
-import { ServServiciosJson } from '../../services/servicio-service';
-import { ServProfesionalesJson } from '../../services/profesionales-service';
+
 import { SolicitudService } from '../../services/solicitud-service';
+import { ServClientesAPI } from '../../services/cliente-service-API';
+import { ServResenaAPI } from '../../services/resena-service-API';
+import { ServServicioAPI } from '../../services/servicio-service-API';
+import { ServProfesionalAPI } from '../../services/profesionales-service-API';
+import { ServSolicitudAPI } from '../../services/solicitud-service-API';
 
 @Component({
   selector: 'app-resena-list',
@@ -23,20 +25,18 @@ export class ResenaListComponent implements OnInit {
   servicios: any[] = [];
   cargando = false;
 
-  constructor(
-    private servResenas: ServResenasJson,
-    private servicioClientes: ServClientesJson,
-    private servicioProfesionales: ServProfesionalesJson,
-    private servicioServicios: ServServiciosJson,
-    private solicitudService: SolicitudService,
+constructor(
+    private servicioResenas: ServResenaAPI,
+    private servicioClientes: ServClientesAPI,
+    private servicioProfesionales: ServProfesionalAPI,
+    private servicioServicios: ServServicioAPI,
+    private solicitudService: ServSolicitudAPI, // Centralizado
     private router: Router
   ) { }
 
   ngOnInit(): void {
-    console.log('ngOnInit ejecutado');
     this.inicializarComponente();
   }
-
   
   private async inicializarComponente(): Promise<void> {
     this.cargando = true;
@@ -49,7 +49,7 @@ export class ResenaListComponent implements OnInit {
           clientes: this.servicioClientes.obtenerTodos(),
           profesionales: this.servicioProfesionales.obtenerTodos(),
           servicios: this.servicioServicios.obtenerTodos(),
-          resenas: this.servResenas.obtenerTodas(),
+          resenas: this.servicioResenas.obtenerTodas(),
           solicitudes: this.solicitudService.obtenerTodas()
         })
       );

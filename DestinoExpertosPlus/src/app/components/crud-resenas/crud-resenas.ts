@@ -8,11 +8,13 @@ import { Router } from '@angular/router';
 
 import { DataTableComponent } from '../shared/data-table/data-table';
 import { CardComponent } from '../shared/cards/cards';
-import { DetailModal } from '../shared/detail-modal/detail-modal';
+
 import { ServResenaAPI } from '../../services/resena-service-API';
 import { ServServicioAPI } from '../../services/servicio-service-API';
 import { ServClientesAPI } from '../../services/cliente-service-API';
+import { forkJoin } from 'rxjs';
 
+import { DetailModal } from '../shared/detail-modal/detail-modal'; 
 declare const bootstrap: any;
 
 @Component({
@@ -20,7 +22,7 @@ declare const bootstrap: any;
   standalone: true,
   templateUrl: './crud-resenas.html',
   styleUrls: ['./crud-resenas.css'],
-  imports: [DataTableComponent, CardComponent, ReactiveFormsModule, FormsModule, CommonModule],
+  imports: [DataTableComponent, CardComponent, ReactiveFormsModule, FormsModule, CommonModule, DetailModal],
 })
 export class CrudResenas implements OnInit, AfterViewInit {
   private listaResenasOriginales: any[] = [];
@@ -85,11 +87,22 @@ export class CrudResenas implements OnInit, AfterViewInit {
       this.modalRef = new bootstrap.Modal(this.elementoModal.nativeElement);
     }
   }
-
-  public cargarDatosIniciales(): void {
-    this.cargarResenas();
-  }
-
+public cargarDatosIniciales(): void {
+  // Espera a que ambas peticiones terminen antes de formatear
+  forkJoin({
+    servicios: this.servicioServicios.obtenerTodos(),
+    resenas: this.servicioResenas.obtenerTodas(),
+    clientes: this.servicioClientes.obtenerTodos()
+  }).subscribe({
+    next: (resultado) => {
+      this.servicios = resultado.servicios;
+      this.clientes = resultado.clientes;
+      this.listaResenasOriginales = resultado.resenas;
+      this.formatearDatosParaTabla(); // Ahora sí, los servicios ya existen
+    },
+    error: (err) => this.mostrarError('Error al cargar datos')
+  });
+}
   public cargarServicios() {
     this.servicioServicios.obtenerTodos().subscribe({
       next: (servicios) => {
@@ -134,15 +147,17 @@ export class CrudResenas implements OnInit, AfterViewInit {
     }
   }
 
-  public prepararDatosParaGuardar(datos: any): any {
-    return {
-      ...datos,
-      servicio_id: String(datos.servicio_id), // Conversión a String para consistencia con JSON
-      cliente_id: String(datos.cliente_id),   // Conversión a String
-      calificacion: Number(datos.calificacion),
-      anonima: Boolean(datos.anonima)
-    };
-  }
+public prepararDatosParaGuardar(datos: any): any {
+  return {
+    id: this.resenaEnEdicion?.id ? Number(this.resenaEnEdicion.id) : 0, // Incluir ID
+    servicio_id: Number(datos.servicio_id), // Cambiar String por Number
+    cliente_id: Number(datos.cliente_id),   // Cambiar String por Number
+    calificacion: Number(datos.calificacion),
+    comentario: datos.comentario,
+    fecha: datos.fecha, 
+    anonima: Boolean(datos.anonima)
+  };
+}
 
   public ejecutarCreacion(datos: any) {
     this.servicioResenas.crear(datos).subscribe({
