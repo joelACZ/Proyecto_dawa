@@ -14,7 +14,6 @@ export interface WithContactInfo {
 }
 
 export interface WithLocation {
-  ubicacion: string;
   direccion?: string;
 }
 

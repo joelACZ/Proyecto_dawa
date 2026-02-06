@@ -1,7 +1,6 @@
 import { Component, ElementRef, ViewChild, OnInit, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ServProfesionalesJson } from '../../services/profesionales-service';
 import { DataTableComponent } from '../shared/data-table/data-table';
 import { CardComponent } from '../shared/cards/cards';
 import { DetailModal } from '../shared/detail-modal/detail-modal';
@@ -24,9 +23,9 @@ declare const bootstrap: any;
   ],
 })
 export class CrudProfesionales implements OnInit, AfterViewInit {
-  private listaProfesionalesOriginales: any[] = []; 
-  profesionalesParaTabla: any[] = []; 
-  profesionalEnEdicion: any = null; 
+  private listaProfesionalesOriginales: any[] = [];
+  profesionalesParaTabla: any[] = [];
+  profesionalEnEdicion: any = null;
   modalRef: any;
   profesionalDetalle: any = null;
   mostrarModalDetalle: boolean = false;
@@ -43,47 +42,56 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
   filtroEspecialidad: string = '';
   filtroExperienciaMin: number = 0;
   filtroDisponibilidad: string | null = null;
+
   @ViewChild('modalProfesional') elementoModal!: ElementRef;
+
   constructor(
-    private servicioProfesionales: ServProfesionalAPI ,
+    private servicioProfesionales: ServProfesionalAPI,
     private constructorFormularios: FormBuilder
   ) {
     this.inicializarFormulario();
   }
+
   ngOnInit() {
     this.cargarDatosIniciales();
   }
+
   public cargarDatosIniciales(): void {
     this.cargarProfesionales();
   }
+
   ngAfterViewInit() {
     this.modalRef = new bootstrap.Modal(this.elementoModal.nativeElement);
   }
+
   public inicializarFormulario() {
     this.formularioProfesional = this.constructorFormularios.group({
       nombre: ['', [Validators.required, Validators.minLength(2)]],
       especialidad: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
       telefono: ['', [Validators.required, Validators.pattern(/^[0-9]{9,}$/)]],
-      ubicacion: ['', [Validators.minLength(3)]],
       oficios: ['', [Validators.minLength(3)]],
       experiencia: [0, [Validators.required, Validators.min(0), Validators.max(50)]],
       disponibilidad: [true],
     });
   }
+
   public guardarProfesional() {
     if (this.formularioProfesional.invalid) {
       this.formularioProfesional.markAllAsTouched();
       return;
     }
+
     const datosFormulario = this.formularioProfesional.value;
     const datosParaServidor = this.prepararDatosParaGuardar(datosFormulario);
+
     if (this.profesionalEnEdicion?.id) {
       this.ejecutarActualizacion(this.profesionalEnEdicion.id, datosParaServidor);
     } else {
       this.ejecutarCreacion(datosParaServidor);
     }
   }
+
   public prepararDatosParaGuardar(datos: any): any {
     return {
       ...datos,
@@ -96,6 +104,7 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
       experiencia: Number(datos.experiencia),
     };
   }
+
   public ejecutarCreacion(datos: any) {
     this.servicioProfesionales.crear(datos).subscribe({
       next: () => {
@@ -109,6 +118,7 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
       },
     });
   }
+
   public ejecutarActualizacion(id: number, datos: any) {
     this.servicioProfesionales.actualizar(id, datos).subscribe({
       next: () => {
@@ -122,6 +132,7 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
       },
     });
   }
+
   public cargarProfesionales() {
     this.servicioProfesionales.obtenerTodos().subscribe({
       next: (datosCrudos) => {
@@ -134,48 +145,56 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
       },
     });
   }
+
   public formatearDatosParaTabla() {
     let profesionalesAMostrar = [...this.listaProfesionalesOriginales];
+
     if (this.filtroEspecialidad) {
       const filtroLower = this.filtroEspecialidad.toLowerCase();
       profesionalesAMostrar = profesionalesAMostrar.filter((profesional) =>
         profesional.especialidad?.toLowerCase().includes(filtroLower)
       );
     }
+
     if (this.filtroExperienciaMin > 0) {
       profesionalesAMostrar = profesionalesAMostrar.filter(
         (profesional) => profesional.experiencia >= this.filtroExperienciaMin
       );
     }
+
     if (this.filtroDisponibilidad !== null) {
       const estaDisponible = this.filtroDisponibilidad === 'true';
       profesionalesAMostrar = profesionalesAMostrar.filter(
         (profesional) => profesional.disponibilidad === estaDisponible
       );
     }
+
     this.profesionalesParaTabla = profesionalesAMostrar.map((profesional) => ({
       id: profesional.id,
       nombre: profesional.nombre,
       especialidad: profesional.especialidad,
       email: profesional.email,
       telefono: profesional.telefono,
-      ubicacionFormateada: profesional.ubicacion || 'No especificada',
       oficiosFormateados: Array.isArray(profesional.oficios)
         ? profesional.oficios.join(', ')
         : profesional.oficios || 'No especificados',
       experienciaFormateada: `${profesional.experiencia} años`,
       disponibilidadFormateada: profesional.disponibilidad ? 'Sí' : 'No',
-      datosCompletos: profesional, 
+      datosCompletos: profesional,
     }));
+
     this.calcularPaginacion();
   }
+
   public buscarProfesionales(elementoInput: HTMLInputElement) {
     const terminoBusqueda = elementoInput.value.trim();
+
     if (!terminoBusqueda) {
       this.formatearDatosParaTabla();
       this.paginaActual = 1;
       return;
     }
+
     this.servicioProfesionales.buscar(terminoBusqueda).subscribe({
       next: (resultadosBusqueda) => {
         this.listaProfesionalesOriginales = resultadosBusqueda;
@@ -188,10 +207,12 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
       },
     });
   }
+
   public aplicarFiltros(): void {
     this.paginaActual = 1;
     this.formatearDatosParaTabla();
   }
+
   public limpiarFiltros(): void {
     this.filtroEspecialidad = '';
     this.filtroExperienciaMin = 0;
@@ -199,22 +220,26 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
     this.paginaActual = 1;
     this.formatearDatosParaTabla();
   }
+
   public get obtenerProfesionalesPaginados(): any[] {
     const indiceInicio = (this.paginaActual - 1) * this.itemsPorPagina;
     const indiceFin = indiceInicio + this.itemsPorPagina;
     return this.profesionalesParaTabla.slice(indiceInicio, indiceFin);
   }
+
   public calcularPaginacion(): void {
     this.totalPaginas = Math.ceil(this.profesionalesParaTabla.length / this.itemsPorPagina);
     if (this.paginaActual > this.totalPaginas && this.totalPaginas > 0) {
       this.paginaActual = this.totalPaginas;
     }
   }
+
   public cambiarPagina(pagina: number): void {
     if (pagina >= 1 && pagina <= this.totalPaginas) {
       this.paginaActual = pagina;
     }
   }
+
   public get obtenerRangoRegistros(): string {
     const inicio = (this.paginaActual - 1) * this.itemsPorPagina + 1;
     const fin = Math.min(
@@ -223,6 +248,7 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
     );
     return `${inicio}-${fin} de ${this.profesionalesParaTabla.length}`;
   }
+
   public abrirNuevo() {
     this.profesionalEnEdicion = null;
     this.formularioProfesional.reset({
@@ -231,6 +257,7 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
     });
     this.modalRef.show();
   }
+
   public abrirEdicion(datosProfesional: any) {
     this.profesionalEnEdicion = { ...datosProfesional.datosCompletos };
     this.formularioProfesional.patchValue({
@@ -241,12 +268,15 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
     });
     this.modalRef.show();
   }
+
   public abrirModalEliminar(profesional: any) {
     this.profesionalAEliminar = profesional.datosCompletos;
     this.mostrarModalEliminar = true;
   }
+
   public confirmarEliminacion() {
     if (!this.profesionalAEliminar?.id) return;
+
     this.servicioProfesionales.eliminar(this.profesionalAEliminar.id).subscribe({
       next: () => {
         this.mostrarNotificacion('Profesional eliminado correctamente');
@@ -260,21 +290,26 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
       },
     });
   }
+
   public cerrarModalEliminar() {
     this.mostrarModalEliminar = false;
     this.profesionalAEliminar = null;
   }
+
   public cerrarModalPrincipal() {
     this.modalRef.hide();
   }
+
   public verDetalle(profesional: any) {
     this.profesionalDetalle = profesional.datosCompletos;
     this.mostrarModalDetalle = true;
   }
+
   public cerrarDetalle() {
     this.mostrarModalDetalle = false;
     this.profesionalDetalle = null;
   }
+
   public mostrarNotificacion(mensaje: string) {
     this.mensajeNotificacion = mensaje;
     this.mostrarModalNotificacion = true;
@@ -282,6 +317,7 @@ export class CrudProfesionales implements OnInit, AfterViewInit {
       this.mostrarModalNotificacion = false;
     }, 3000);
   }
+
   public mostrarError(mensaje: string) {
     this.mensajeError = mensaje;
     this.mostrarModalError = true;
