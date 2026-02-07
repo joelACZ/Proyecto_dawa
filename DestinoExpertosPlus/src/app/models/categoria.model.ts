@@ -1,23 +1,6 @@
-export const CATEGORIAS_SERVICIOS = [
-  'Electricista',
-  'Plomería',
-  'Carpinteria',
-  'Pintura',
-  'Albañilería',
-  'Jardinería',
-  'Refrigeración',
-  'limpieza Profunda',
-  'Herrería',
-  'Gasfitería',
-  'Cerrajería',
-  'Tecnologia/Redes',
-  'Tapicería',
-  'Electrónica',
-  'Decoración de Interiores',
-  'Fontanería',
-  'Arquitectura',
-  'Impermeabilización',
-  'Diseño de Jardines',
-  'Vidriería',
-  'Otros'
-];
+import { Servicio } from "./Servicio.model";
+
+export interface Categoria {
+  nombre: string;  // ¡Este es el PRIMARY KEY, NO HAY ID!
+  servicios?: Servicio[]; // Opcional
+}
