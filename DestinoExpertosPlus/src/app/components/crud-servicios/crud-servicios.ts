@@ -1,14 +1,17 @@
 import { Component, ElementRef, ViewChild, OnInit, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ServServiciosJson } from '../../services/servicio-service';
+
+// Componentes compartidos
 import { DataTableComponent } from '../shared/data-table/data-table';
 import { CardComponent } from '../shared/cards/cards';
 import { DetailModal } from '../shared/detail-modal/detail-modal';
-import { CATEGORIAS_SERVICIOS } from '../../models/categoria.model';
-import { ServProfesionalesJson } from '../../services/profesionales-service';
+
+// Servicios y Modelos
 import { ServServicioAPI } from '../../services/servicio-service-API';
 import { ServProfesionalAPI } from '../../services/profesionales-service-API';
+import { ServCategoriasAPI, Categoria } from '../../services/categoria-service-Api';
+import { Servicio } from '../../models/Servicio.model';
 
 declare const bootstrap: any;
 
@@ -17,314 +20,255 @@ declare const bootstrap: any;
   standalone: true,
   templateUrl: './crud-servicios.html',
   styleUrls: ['./crud-servicios.css'],
-  imports: [DataTableComponent, CardComponent, ReactiveFormsModule, FormsModule, CommonModule, DetailModal],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    DataTableComponent,
+    CardComponent,
+    DetailModal
+  ],
 })
 export class CrudServicios implements OnInit, AfterViewInit {
-  private listaServiciosOriginales: any[] = []; 
-  serviciosParaTabla: any[] = []; 
-  servicioEnEdicion: any = null; 
-  modalRef: any;
-  servicioDetalle: any = null;
-  mostrarModalDetalle: boolean = false;
-  mostrarModalEliminar = false;
-  mostrarModalNotificacion = false;
-  mostrarModalError = false;
-  servicioAEliminar: any = null;
-  mensajeNotificacion = '';
-  mensajeError = '';
-  formularioServicio!: FormGroup;
-  paginaActual: number = 1;
-  itemsPorPagina: number = 8;
-  totalPaginas: number = 1;
-  filtroCategoria: string = '';
-  filtroActivo: string | null = null;
+  // Datos
+  public listaServiciosOriginales: Servicio[] = [];
+  public serviciosFiltrados: Servicio[] = [];
+  public servicioEnEdicion: Servicio | null = null;
+  public servicioDetalle: Servicio | null = null;
+  public servicioAEliminar: Servicio | null = null;
+
+  // Formulario y UI
+  public formularioServicio!: FormGroup;
+  public modalRef: any;
+  public mensajeNotificacion = '';
+  public mensajeError = '';
+
+  // Visibilidad de Modales
+  public mostrarModalDetalle = false;
+  public mostrarModalEliminar = false;
+  public mostrarModalNotificacion = false;
+  public mostrarModalError = false;
+
+  // Paginación y Filtros
+  public paginaActual = 1;
+  public itemsPorPagina = 8;
+  public filtroBusqueda = '';
+  public filtroCategoria = '';
+  public profesionales: any[] = [];
+  public categorias: Categoria[] = [];
+
   @ViewChild('modalServicio') elementoModal!: ElementRef;
-  profesionales: any[] = [];
-  categorias = CATEGORIAS_SERVICIOS;
-  
+
   constructor(
-  private servicioServicios: ServServicioAPI,
-  private constructorFormularios: FormBuilder,
-    private servicioProfesionales: ServProfesionalAPI
- ) {
-   this.inicializarFormulario();
- }
-  
+    private fb: FormBuilder,
+    private srvServicios: ServServicioAPI,
+    private srvProfesionales: ServProfesionalAPI,
+    private srvCategorias: ServCategoriasAPI
+  ) {
+    this.inicializarFormulario();
+  }
+
   ngOnInit() {
     this.cargarDatosIniciales();
   }
-  
-  public async cargarDatosIniciales(): Promise<void> {
-    try {
-        const profesionales = await this.servicioProfesionales.obtenerTodos().toPromise();
-        
-        this.profesionales = profesionales || []; 
-        
-        this.cargarServicios();
-    } catch (error) {
-        console.error('Error cargando datos maestros:', error);
-        this.mostrarError('Error al cargar clientes y profesionales.');
-    }
-}
-  
+
   ngAfterViewInit() {
-    this.modalRef = new bootstrap.Modal(this.elementoModal.nativeElement);
+    if (this.elementoModal) {
+      this.modalRef = new bootstrap.Modal(this.elementoModal.nativeElement);
+    }
   }
-  
-  public inicializarFormulario() {
-    this.formularioServicio = this.constructorFormularios.group({
+
+  private inicializarFormulario() {
+    this.formularioServicio = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(3)]],
       categoria: ['', Validators.required],
       descripcion: ['', [Validators.required, Validators.minLength(5)]],
       precioBase: [0, [Validators.required, Validators.min(0)]],
-      duracionEstimada: [0, [Validators.required, Validators.min(1)]],
-      profesional_id: ['', Validators.required],
-      activo: [true]
+      duracionEstimada: [60, [Validators.required, Validators.min(1)]],
+      profesional_id: [''],
+      activo: [true],
     });
   }
-  
+
+  public cargarDatosIniciales() {
+    this.cargarServicios();
+    this.cargarProfesionales();
+    this.cargarCategorias();
+  }
+
+  public cargarServicios() {
+    this.srvServicios.obtenerTodos().subscribe({
+      next: (datos) => {
+        this.listaServiciosOriginales = datos;
+        this.filtrarServicios();
+      },
+      error: (err) => {
+        console.error(err);
+        this.mostrarError('Error al cargar los servicios');
+      }
+    });
+  }
+
+  public cargarProfesionales() {
+    this.srvProfesionales.obtenerTodos().subscribe({
+      next: (datos) => {
+        this.profesionales = datos;
+      },
+      error: (err) => {
+        console.error(err);
+        this.mostrarError('Error al cargar los profesionales');
+      }
+    });
+  }
+
+  public cargarCategorias() {
+    this.srvCategorias.obtenerTodas().subscribe({
+      next: (datos) => {
+        this.categorias = datos;
+      },
+      error: (err) => {
+        console.error(err);
+        this.mostrarError('Error al cargar las categorías');
+      }
+    });
+  }
+
+  public buscarServicios(event: any) {
+    this.filtroBusqueda = event.target.value;
+    this.filtrarServicios();
+  }
+
+  public filtrarServicios() {
+    let filtrados = [...this.listaServiciosOriginales];
+
+    if (this.filtroBusqueda) {
+      const term = this.filtroBusqueda.toLowerCase();
+      filtrados = filtrados.filter(s =>
+        s.nombre.toLowerCase().includes(term) ||
+        s.descripcion.toLowerCase().includes(term)
+      );
+    }
+
+    if (this.filtroCategoria) {
+      filtrados = filtrados.filter(s => s.categoria === this.filtroCategoria);
+    }
+
+    this.serviciosFiltrados = filtrados.map(s => ({
+      ...s,
+      profesional_nombre: this.profesionales.find(p => p.id === s.profesional_id)?.nombre || 'Sin asignar'
+    }));
+
+  }
+
   public guardarServicio() {
     if (this.formularioServicio.invalid) {
       this.formularioServicio.markAllAsTouched();
       return;
     }
-    
-    const datosFormulario = this.formularioServicio.value;
-    const datosParaServidor = this.prepararDatosParaGuardar(datosFormulario);
-    
-    if (this.servicioEnEdicion?.id) {
-      this.ejecutarActualizacion(this.servicioEnEdicion.id, datosParaServidor);
-    } else {
-      this.ejecutarCreacion(datosParaServidor);
-    }
-  }
-  
-  public prepararDatosParaGuardar(datos: any): any {
-    return {
-      ...datos,
-      precioBase: Number(datos.precioBase),
-      duracionEstimada: Number(datos.duracionEstimada),
-      profesional_id: Number(datos.profesional_id)
+
+    const formValue = this.formularioServicio.value;
+    const payload: any = {
+      ...formValue,
+      precioBase: Number(formValue.precioBase),
+      duracionEstimada: Number(formValue.duracionEstimada),
+      profesional_id: formValue.profesional_id ? Number(formValue.profesional_id) : null,
+      id: this.servicioEnEdicion ? this.servicioEnEdicion.id : 0
     };
+
+    if (this.servicioEnEdicion) {
+      this.srvServicios.actualizar(this.servicioEnEdicion.id, payload).subscribe({
+        next: () => this.finalizarGuardado('Servicio actualizado con éxito'),
+        error: (err) => this.manejarErrorAPI(err)
+      });
+    } else {
+      this.srvServicios.crear(payload).subscribe({
+        next: () => this.finalizarGuardado('Servicio creado con éxito'),
+        error: (err) => this.manejarErrorAPI(err)
+      });
+    }
   }
-  
-  public ejecutarCreacion(datos: any) {
-    this.servicioServicios.crear(datos).subscribe({
-      next: () => {
-        this.cargarServicios();
-        this.cerrarModalPrincipal();
-        this.mostrarNotificacion('Servicio creado correctamente');
-      },
-      error: (error) => {
-        console.error('Error al crear servicio:', error);
-        this.mostrarError('Error al crear servicio');
-      }
+
+  private finalizarGuardado(mensaje: string) {
+    this.mostrarNotificacion(mensaje);
+    this.cargarServicios();
+    this.modalRef.hide();
+  }
+
+  private manejarErrorAPI(err: any) {
+    console.error('Error en la API:', err);
+    const detalle = err.error?.title || err.error?.message || 'Datos inválidos';
+    this.mostrarError(`Error al guardar: ${detalle}`);
+  }
+
+  public verDetalleServicio(service: any) {
+  this.servicioDetalle = service;
+  this.mostrarModalDetalle = true;
+  }
+
+  public abrirEdicion(servicio: Servicio) {
+    this.servicioEnEdicion = servicio;
+    this.formularioServicio.patchValue({
+      ...servicio,
+      profesional_id: servicio.profesional_id?.toString() || ''
     });
+    this.modalRef.show();
   }
-  
-  public ejecutarActualizacion(id: number, datos: any) {
-    this.servicioServicios.actualizar(id, datos).subscribe({
-      next: () => {
-        this.cargarServicios();
-        this.cerrarModalPrincipal();
-        this.mostrarNotificacion('Servicio actualizado correctamente');
-      },
-      error: (error) => {
-        console.error('Error al actualizar servicio:', error);
-        this.mostrarError('Error al actualizar servicio');
-      }
-    });
-  }
-  
-  public cargarServicios() {
-    this.servicioServicios.obtenerTodos().subscribe({
-      next: (datosCrudos) => {
-        this.listaServiciosOriginales = datosCrudos;
-        this.formatearDatosParaTabla();
-      },
-      error: (error) => {
-        console.error('Error al cargar servicios:', error);
-        this.mostrarError('Error al cargar servicios');
-      }
-    });
-  }
-  
-  public formatearDatosParaTabla() {
-    let serviciosAMostrar = [...this.listaServiciosOriginales];
-    
-    if (this.filtroCategoria) {
-      serviciosAMostrar = serviciosAMostrar.filter(servicio =>
-        servicio.categoria === this.filtroCategoria
-      );
-    }
-    
-    if (this.filtroActivo !== null) {
-      const estaActivo = this.filtroActivo === 'true';
-      serviciosAMostrar = serviciosAMostrar.filter(servicio =>
-        servicio.activo === estaActivo
-      );
-    }
-    
-    this.serviciosParaTabla = serviciosAMostrar.map(servicio => ({
-      id: servicio.id,
-      nombre: servicio.nombre,
-      categoria: servicio.categoria,
-      descripcion: servicio.descripcion,
-      descripcionCorta: servicio.descripcion.length > 50 
-        ? servicio.descripcion.substring(0, 50) + '...' 
-        : servicio.descripcion,
-      precioBase: servicio.precioBase,
-      precioBaseFormateado: `$${servicio.precioBase.toFixed(2)}`,
-      duracionEstimada: servicio.duracionEstimada,
-      duracionFormateada: `${servicio.duracionEstimada} min`,
-      profesional_id: servicio.profesional_id,
-      profesionalNombre: this.obtenerNombreProfesional(servicio.profesional_id),
-      activo: servicio.activo,
-      activoFormateado: servicio.activo ? 'Sí' : 'No',
-      datosCompletos: servicio 
-    }));
-    
-    this.calcularPaginacion();
-  }
-  
-  private obtenerNombreProfesional(profesionalId: number | string): string {
-    const profesional = this.profesionales.find(p => p.id == profesionalId);
-    
-    return profesional ? profesional.nombre : `Profesional #${profesionalId} (No encontrado)`;
-}
-  
-  public buscarServicios(elementoInput: HTMLInputElement) {
-    const terminoBusqueda = elementoInput.value.trim();
-    
-    if (!terminoBusqueda) {
-      this.formatearDatosParaTabla();
-      this.paginaActual = 1;
-      return;
-    }
-    
-    this.servicioServicios.buscar(terminoBusqueda).subscribe({
-      next: (resultadosBusqueda) => {
-        this.listaServiciosOriginales = resultadosBusqueda;
-        this.formatearDatosParaTabla();
-        this.paginaActual = 1;
-      },
-      error: (error) => {
-        console.error('Error en búsqueda:', error);
-        this.mostrarError('Error al buscar servicios');
-      }
-    });
-  }
-  
-  public aplicarFiltros(): void {
-    this.paginaActual = 1;
-    this.formatearDatosParaTabla();
-  }
-  
-  public limpiarFiltros(): void {
-    this.filtroCategoria = '';
-    this.filtroActivo = null;
-    this.paginaActual = 1;
-    this.formatearDatosParaTabla();
-  }
-  
-  public get obtenerServiciosPaginados(): any[] {
-    const indiceInicio = (this.paginaActual - 1) * this.itemsPorPagina;
-    const indiceFin = indiceInicio + this.itemsPorPagina;
-    return this.serviciosParaTabla.slice(indiceInicio, indiceFin);
-  }
-  
-  public calcularPaginacion(): void {
-    this.totalPaginas = Math.ceil(this.serviciosParaTabla.length / this.itemsPorPagina);
-    if (this.paginaActual > this.totalPaginas && this.totalPaginas > 0) {
-      this.paginaActual = this.totalPaginas;
-    }
-  }
-  
-  public cambiarPagina(pagina: number): void {
-    if (pagina >= 1 && pagina <= this.totalPaginas) {
-      this.paginaActual = pagina;
-    }
-  }
-  
-  public get obtenerRangoRegistros(): string {
-    const inicio = (this.paginaActual - 1) * this.itemsPorPagina + 1;
-    const fin = Math.min(this.paginaActual * this.itemsPorPagina, this.serviciosParaTabla.length);
-    return `${inicio}-${fin} de ${this.serviciosParaTabla.length}`;
-  }
-  
+
   public abrirNuevo() {
     this.servicioEnEdicion = null;
     this.formularioServicio.reset({
       precioBase: 0,
-      duracionEstimada: 0,
+      duracionEstimada: 60,
       activo: true
     });
     this.modalRef.show();
   }
-  
-  public abrirEdicion(datosServicio: any) {
-    this.servicioEnEdicion = { ...datosServicio.datosCompletos };
-    this.formularioServicio.patchValue({
-      ...datosServicio.datosCompletos,
-      profesional_id: datosServicio.datosCompletos.profesional_id.toString()
-    });
-    this.modalRef.show();
-  }
-  
-  public abrirModalEliminar(servicio: any) {
-    this.servicioAEliminar = servicio.datosCompletos;
+
+  public abrirModalEliminar(servicio: Servicio) {
+    this.servicioAEliminar = servicio;
     this.mostrarModalEliminar = true;
   }
-  
-  public confirmarEliminacion() {
-    if (!this.servicioAEliminar?.id) return;
-    
-    this.servicioServicios.eliminar(this.servicioAEliminar.id).subscribe({
-      next: () => {
-        this.mostrarNotificacion('Servicio eliminado correctamente');
-        this.cargarServicios();
-        this.cerrarModalEliminar();
-      },
-      error: (error) => {
-        console.error('Error al eliminar servicio:', error);
-        this.mostrarError('Error al eliminar servicio');
-        this.cerrarModalEliminar();
-      }
-    });
-  }
-  
+
   public cerrarModalEliminar() {
     this.mostrarModalEliminar = false;
     this.servicioAEliminar = null;
   }
-  
-  public cerrarModalPrincipal() {
-    this.modalRef.hide();
+
+  public confirmarEliminacion() {
+    if (!this.servicioAEliminar) return;
+    this.srvServicios.eliminar(this.servicioAEliminar.id).subscribe({
+      next: () => {
+        this.cargarServicios();
+        this.mostrarModalEliminar = false;
+        this.mostrarNotificacion('Servicio eliminado correctamente');
+      },
+      error: () => this.mostrarError('No se pudo eliminar el servicio')
+    });
   }
-  
-  public verDetalle(servicio: any) {
-    this.servicioDetalle = servicio.datosCompletos;
-    this.mostrarModalDetalle = true;
+
+  public cambiarPagina(pagina: number) {
+    if (pagina >= 1 && pagina <= this.totalPaginas) {
+      this.paginaActual = pagina;
+    }
   }
-  
-  public cerrarDetalle() {
-    this.mostrarModalDetalle = false;
-    this.servicioDetalle = null;
+
+  get totalPaginas(): number {
+    return Math.ceil(this.serviciosFiltrados.length / this.itemsPorPagina);
   }
-  
-  public mostrarNotificacion(mensaje: string) {
-    this.mensajeNotificacion = mensaje;
+
+  get obtenerServiciosPaginados(): Servicio[] {
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    return this.serviciosFiltrados.slice(inicio, inicio + this.itemsPorPagina);
+  }
+
+  public mostrarNotificacion(msj: string) {
+    this.mensajeNotificacion = msj;
     this.mostrarModalNotificacion = true;
-    setTimeout(() => {
-      this.mostrarModalNotificacion = false;
-    }, 3000);
+    setTimeout(() => this.mostrarModalNotificacion = false, 3000);
   }
-  
-  public mostrarError(mensaje: string) {
-    this.mensajeError = mensaje;
+
+  public mostrarError(msj: string) {
+    this.mensajeError = msj;
     this.mostrarModalError = true;
-    setTimeout(() => {
-      this.mostrarModalError = false;
-    }, 3000);
   }
 }

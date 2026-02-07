@@ -1,382 +1,154 @@
 <app-card
   title="Gestión de Profesionales"
-  subtitle="Administra los profesionales disponibles en la plataforma"
-  content="Aquí puedes visualizar, editar y eliminar profesionales, así como gestionar sus detalles, certificaciones y disponibilidad.">
+  subtitle="Mantenimiento de especialistas y técnicos"
+  content="Administra la información de contacto, especialidades y disponibilidad de los profesionales.">
 </app-card>
 
-
-<div class="mb-4 mt-4 d-flex align-items-center gap-2">
-  <input type="text" placeholder="Buscar profesionales..." 
-         class="border p-2 rounded w-full md:w-80"
-         #txtBuscar (input)="buscarProfesionales(txtBuscar)" />
-
-  <div style="margin-left: auto;" class="d-flex gap-2">
-    <button class="btn btn-light border font-weight-bold py-2 px-4 rounded transition"
-            (click)="abrirNuevo()">
-      <i class="bi bi-person-plus"></i> Nuevo Profesional
-    </button>
-  </div>
-</div>
-
-
-<div class="card mb-4">
-  <div class="card-header">
-    <h5 class="mb-0">
-      <i class="bi bi-funnel me-2"></i>Filtros de Búsqueda
-    </h5>
-  </div>
+<div class="card my-4 shadow-sm">
   <div class="card-body">
-    <div class="row g-3">
-      
+    <div class="row g-3 align-items-end">
       <div class="col-md-3">
-        <label class="form-label">Especialidad</label>
-        <input type="text" class="form-control" placeholder="Buscar por especialidad..."
-               [(ngModel)]="filtroEspecialidad" (input)="aplicarFiltros()" />
+        <label class="form-label fw-bold">Especialidad</label>
+        <input type="text" class="form-control" placeholder="Ej: Plomería" 
+               [(ngModel)]="filtroEspecialidad" (input)="procesarDatosYFiltrar()">
       </div>
-
-      
-      <div class="col-md-3">
-        <label class="form-label">Experiencia mínima (años)</label>
-        <input type="number" class="form-control" min="0" max="50" 
-               [(ngModel)]="filtroExperienciaMin" (input)="aplicarFiltros()" />
+      <div class="col-md-2">
+        <label class="form-label fw-bold">Exp. Mínima</label>
+        <input type="number" class="form-control" [(ngModel)]="filtroExperienciaMin" (input)="procesarDatosYFiltrar()">
       </div>
-
-      
       <div class="col-md-3">
-        <label class="form-label">Disponibilidad</label>
-        <select class="form-select" [(ngModel)]="filtroDisponibilidad" (change)="aplicarFiltros()">
+        <label class="form-label fw-bold">Disponibilidad</label>
+        <select class="form-select" [(ngModel)]="filtroDisponibilidad" (change)="procesarDatosYFiltrar()">
           <option value="">Todos</option>
           <option value="true">Disponibles</option>
-          <option value="false">No disponibles</option>
+          <option value="false">No Disponibles</option>
         </select>
       </div>
-
-      
-      <div class="col-md-3 d-flex align-items-end">
-        <button class="btn btn-outline-secondary w-100" (click)="limpiarFiltros()">
-          <i class="bi bi-x-circle me-1"></i> Limpiar Filtros
+      <div class="col-md-4 text-end">
+        <button class="btn btn-outline-secondary me-2" (click)="filtroEspecialidad=''; filtroExperienciaMin=0; filtroDisponibilidad=null; procesarDatosYFiltrar()">
+          <i class="bi bi-eraser"></i> Limpiar
+        </button>
+        <button class="btn btn-primary" (click)="abrirNuevo()">
+          <i class="bi bi-person-plus"></i> Nuevo
         </button>
       </div>
     </div>
-
-    
-    <div class="mt-3" *ngIf="filtroEspecialidad || filtroExperienciaMin > 0 || filtroDisponibilidad !== null">
-      <small class="text-muted">
-        <i class="bi bi-info-circle me-1"></i>Filtros activos:
-        <span class="badge bg-primary ms-2" *ngIf="filtroEspecialidad">
-          Especialidad: {{ filtroEspecialidad }}
-        </span>
-        <span class="badge bg-primary ms-2" *ngIf="filtroExperienciaMin > 0">
-          Experiencia ≥ {{ filtroExperienciaMin }} años
-        </span>
-        <span class="badge bg-primary ms-2" *ngIf="filtroDisponibilidad === 'true'">
-          Disponibles
-        </span>
-        <span class="badge bg-primary ms-2" *ngIf="filtroDisponibilidad === 'false'">
-          No disponibles
-        </span>
-      </small>
-    </div>
   </div>
 </div>
 
-
-<app-data-table [data]="obtenerProfesionalesPaginados" [columns]="[
+<app-data-table [data]="datosPaginados" [columns]="[
   { field: 'id', header: 'ID' },
   { field: 'nombre', header: 'Nombre' },
   { field: 'especialidad', header: 'Especialidad' },
   { field: 'email', header: 'Email' },
   { field: 'telefono', header: 'Teléfono' },
-  { field: 'ubicacionFormateada', header: 'Ubicación' },
-  { field: 'oficiosFormateados', header: 'Oficios' },
-  { field: 'experienciaFormateada', header: 'Experiencia' },
-  { field: 'disponibilidadFormateada', header: 'Disponible' }
+  { field: 'experienciaDisplay', header: 'Experiencia' },
+  { field: 'disponibilidadDisplay', header: 'Disponible' }
 ]">
   <ng-template #actions let-row>
-    <div class="d-flex gap-2">
-      <button (click)="verDetalle(row)" class="btn action-btn unified"> 
+    <div class="btn-group">
+      <button class="btn action-btn unified" (click)="profesionalDetalle = row; mostrarModalDetalle = true">
         <i class="bi bi-eye"></i>
       </button>
-      <button (click)="abrirEdicion(row)" class="btn action-btn unified">
+      <button class="btn action-btn unified" (click)="abrirEdicion(row)">
         <i class="bi bi-pencil"></i>
       </button>
-      <button (click)="abrirModalEliminar(row)" class="btn action-btn unified">
+      <button class="btn action-btn unified" (click)="profesionalAEliminar = row; mostrarModalEliminar = true">
         <i class="bi bi-trash"></i>
       </button>
     </div>
   </ng-template>
 </app-data-table>
 
+<nav *ngIf="totalPaginas > 1" class="mt-4">
+  <ul class="pagination justify-content-center">
+    <li class="page-item" [class.disabled]="paginaActual === 1">
+      <a class="page-link" (click)="paginaActual = paginaActual - 1; $event.preventDefault()" href="#">Anterior</a>
+    </li>
+    <li class="page-item active"><a class="page-link">{{paginaActual}} de {{totalPaginas}}</a></li>
+    <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+      <a class="page-link" (click)="paginaActual = paginaActual + 1; $event.preventDefault()" href="#">Siguiente</a>
+    </li>
+  </ul>
+</nav>
 
-<div class="d-flex justify-content-center align-items-center mt-3" *ngIf="totalPaginas > 1">
-  
-
-  <nav aria-label="Paginación de profesionales">
-    <ul class="pagination mb-0">
-      
-      <li class="page-item" [class.disabled]="paginaActual === 1">
-        <a class="page-link" href="#" (click)="cambiarPagina(paginaActual - 1); $event.preventDefault()">
-          <i class="bi bi-chevron-left"></i> Anterior
-        </a>
-      </li>
-
-      
-      <li class="page-item" *ngFor="let pagina of [].constructor(totalPaginas); let i = index"
-          [class.active]="paginaActual === i + 1">
-        <a class="page-link" href="#" (click)="cambiarPagina(i + 1); $event.preventDefault()">
-          {{ i + 1 }}
-        </a>
-      </li>
-
-      
-      <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
-        <a class="page-link" href="#" (click)="cambiarPagina(paginaActual + 1); $event.preventDefault()">
-          Siguiente <i class="bi bi-chevron-right"></i>
-        </a>
-      </li>
-    </ul>
-  </nav>
-</div>
-
-
-<app-detail-modal
-  [isVisible]="mostrarModalDetalle"
-  [data]="profesionalDetalle"
-  (close)="cerrarDetalle()">
-</app-detail-modal>
-
-
-<div *ngIf="mostrarModalNotificacion" class="modal fade show d-block notification-modal success" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-  <div class="modal-dialog modal-dialog-centered">
+<div class="modal fade" id="profesionalModal" #modalProfesional tabindex="-1">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="btn-close" (click)="mostrarModalNotificacion = false"></button>
-      </div>
-      <div class="modal-body">
-        <div class="modal-icon">
-          <i class="bi bi-check-circle-fill"></i>
-        </div>
-        <h5 class="modal-title mb-3">¡Éxito!</h5>
-        <p class="mb-0">{{ mensajeNotificacion }}</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-success" (click)="mostrarModalNotificacion = false">
-          Aceptar
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<div *ngIf="mostrarModalError" class="modal fade show d-block notification-modal error" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="btn-close" (click)="mostrarModalError = false"></button>
-      </div>
-      <div class="modal-body">
-        <div class="modal-icon">
-          <i class="bi bi-exclamation-triangle-fill"></i>
-        </div>
-        <h5 class="modal-title mb-3">Error</h5>
-        <p class="mb-0">{{ mensajeError }}</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" (click)="mostrarModalError = false">
-          Aceptar
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<div *ngIf="mostrarModalEliminar" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header border-0">
-        <h5 class="modal-title text-danger">
-          <i class="bi bi-exclamation-triangle me-2"></i>
-          Confirmar Eliminación
-        </h5>
-        <button type="button" class="btn-close" (click)="cerrarModalEliminar()"></button>
-      </div>
-      <div class="modal-body text-center">
-        <div class="mb-4">
-          <i class="bi bi-trash3-fill text-danger" style="font-size: 3rem;"></i>
-        </div>
-        <h6 class="mb-3">¿Está seguro de eliminar al profesional #{{ profesionalAEliminar?.id }}?</h6>
-        <div class="alert alert-light border">
-          <p class="mb-1"><strong>Profesional:</strong></p>
-          <p class="mb-0 text-muted">{{ profesionalAEliminar?.nombre }} - {{ profesionalAEliminar?.especialidad }}</p>
-        </div>
-        <p class="text-muted small mt-3">
-          Esta acción no se puede deshacer. El profesional ya no estará disponible para asignar servicios.
-        </p>
-      </div>
-      <div class="modal-footer border-0 justify-content-center">
-        <button type="button" class="btn btn-secondary me-3" (click)="cerrarModalEliminar()">
-          <i class="bi bi-x-circle me-1"></i> Cancelar
-        </button>
-        <button type="button" class="btn btn-danger" (click)="confirmarEliminacion()">
-          <i class="bi bi-trash3 me-1"></i> Sí, eliminar
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<div class="modal fade" id="profesionalModal" #modalProfesional>
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">{{ profesionalEnEdicion ? 'Editar' : 'Nuevo' }} Profesional</h5>
+      <div class="modal-header bg-light">
+        <h5 class="modal-title">{{ profesionalEnEdicion ? 'Editar' : 'Registrar' }} Profesional</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <form [formGroup]="formularioProfesional">
+      <form [formGroup]="formularioProfesional" (ngSubmit)="guardar()">
         <div class="modal-body">
-          
-          <div class="mb-3">
-            <label class="form-label">Nombre *</label>
-            <input type="text" class="form-control" formControlName="nombre" placeholder="Nombre completo">
-            <span class="error">
-              @if (formularioProfesional.get('nombre')?.invalid &&
-                  (formularioProfesional.get('nombre')?.dirty || formularioProfesional.get('nombre')?.touched)) {
-                @if (formularioProfesional.get('nombre')?.errors?.['required']) {
-                  El nombre es obligatorio.
-                }
-                @if (formularioProfesional.get('nombre')?.errors?.['minlength']) {
-                  El nombre debe tener al menos 2 caracteres.
-                }
-              }
-            </span>
-          </div>
-
-          
-          <div class="mb-3">
-            <label class="form-label">Especialidad *</label>
-            <input type="text" class="form-control" formControlName="especialidad" 
-                   placeholder="Ej: Electricidad, Plomería, Carpintería">
-            <span class="error">
-              @if (formularioProfesional.get('especialidad')?.invalid &&
-                  (formularioProfesional.get('especialidad')?.dirty || formularioProfesional.get('especialidad')?.touched)) {
-                @if (formularioProfesional.get('especialidad')?.errors?.['required']) {
-                  La especialidad es obligatoria.
-                }
-                @if (formularioProfesional.get('especialidad')?.errors?.['minlength']) {
-                  La especialidad debe tener al menos 2 caracteres.
-                }
-              }
-            </span>
-          </div>
-
-          
-          <div class="mb-3">
-            <label class="form-label">Email *</label>
-            <input type="email" class="form-control" formControlName="email" placeholder="correo@ejemplo.com">
-            <span class="error">
-              @if (formularioProfesional.get('email')?.invalid &&
-                  (formularioProfesional.get('email')?.dirty || formularioProfesional.get('email')?.touched)) {
-                @if (formularioProfesional.get('email')?.errors?.['required']) {
-                  El email es obligatorio.
-                }
-                @if (formularioProfesional.get('email')?.errors?.['email']) {
-                  Ingrese un email válido.
-                }
-              }
-            </span>
-          </div>
-
-          
-          <div class="mb-3">
-            <label class="form-label">Teléfono *</label>
-            <input type="tel" class="form-control" formControlName="telefono" placeholder="123456789">
-            <span class="error">
-              @if (formularioProfesional.get('telefono')?.invalid &&
-                  (formularioProfesional.get('telefono')?.dirty || formularioProfesional.get('telefono')?.touched)) {
-                @if (formularioProfesional.get('telefono')?.errors?.['required']) {
-                  El teléfono es obligatorio.
-                }
-                @if (formularioProfesional.get('telefono')?.errors?.['pattern']) {
-                  Ingrese un número de teléfono válido (mínimo 9 dígitos).
-                }
-              }
-            </span>
-          </div>
-
-          
-          <div class="mb-3">
-            <label class="form-label">Ubicación</label>
-            <input type="text" class="form-control" formControlName="ubicacion" 
-                   placeholder="Ej: Ciudad, Dirección, Barrio">
-            <span class="error">
-              @if (formularioProfesional.get('ubicacion')?.invalid &&
-                  (formularioProfesional.get('ubicacion')?.dirty || formularioProfesional.get('ubicacion')?.touched)) {
-                @if (formularioProfesional.get('ubicacion')?.errors?.['minlength']) {
-                  La ubicación debe tener al menos 3 caracteres.
-                }
-              }
-            </span>
-          </div>
-
-          
-          <div class="mb-3">
-            <label class="form-label">Oficios</label>
-            <input type="text" class="form-control" formControlName="oficios" 
-                   placeholder="Ej: Electricista, Fontanero, Carpintero">
-            <small class="form-text text-muted">
-              Separe los oficios con comas
-            </small>
-            <span class="error">
-              @if (formularioProfesional.get('oficios')?.invalid &&
-                  (formularioProfesional.get('oficios')?.dirty || formularioProfesional.get('oficios')?.touched)) {
-                @if (formularioProfesional.get('oficios')?.errors?.['minlength']) {
-                  Los oficios deben tener al menos 3 caracteres.
-                }
-              }
-            </span>
-          </div>
-
-          
-          <div class="mb-3">
-            <label class="form-label">Experiencia (años) *</label>
-            <div class="input-group">
-              <input type="number" class="form-control" formControlName="experiencia" min="0" max="50">
-              <span class="input-group-text">años</span>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Nombre Completo *</label>
+              <input type="text" class="form-control" formControlName="nombre">
             </div>
-            <span class="error">
-              @if (formularioProfesional.get('experiencia')?.invalid &&
-                  (formularioProfesional.get('experiencia')?.dirty || formularioProfesional.get('experiencia')?.touched)) {
-                @if (formularioProfesional.get('experiencia')?.errors?.['required']) {
-                  La experiencia es obligatoria.
-                }
-                @if (formularioProfesional.get('experiencia')?.errors?.['min']) {
-                  La experiencia no puede ser negativa.
-                }
-                @if (formularioProfesional.get('experiencia')?.errors?.['max']) {
-                  La experiencia no puede superar los 50 años.
-                }
-              }
-            </span>
-          </div>
-
-          
-          <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" formControlName="disponibilidad" id="checkDisponibilidad">
-            <label class="form-check-label" for="checkDisponibilidad">
-              Profesional disponible para asignar servicios
-            </label>
+            <div class="col-md-6">
+              <label class="form-label">Especialidad Principal *</label>
+              <input type="text" class="form-control" formControlName="especialidad">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Correo Electrónico *</label>
+              <input type="email" class="form-control" formControlName="email">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Teléfono *</label>
+              <input type="text" class="form-control" formControlName="telefono">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Dirección</label>
+              <input type="text" class="form-control" formControlName="direccion">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Oficios Secundarios (Separa por comas)</label>
+              <textarea class="form-control" formControlName="oficios" rows="2"></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Años de Experiencia</label>
+              <input type="number" class="form-control" formControlName="experiencia">
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" formControlName="disponibilidad" id="dispCheck">
+                <label class="form-check-label" for="dispCheck">Disponible para servicios</label>
+              </div>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">Cancelar</button>
-          <button type="button" class="btn btn-primary" (click)="guardarProfesional()">
-            {{ profesionalEnEdicion ? 'Actualizar' : 'Guardar' }}
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="formularioProfesional.invalid">
+            {{ profesionalEnEdicion ? 'Guardar Cambios' : 'Crear Profesional' }}
           </button>
         </div>
       </form>
     </div>
+  </div>
+</div>
+
+<div *ngIf="mostrarModalEliminar" class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body text-center py-4">
+        <i class="bi bi-exclamation-triangle text-danger display-4"></i>
+        <h4 class="mt-3">¿Confirmar eliminación?</h4>
+        <p>Esta acción no se puede deshacer para el profesional: <br><strong>{{profesionalAEliminar?.nombre}}</strong></p>
+        <div class="mt-4">
+          <button class="btn btn-light me-2" (click)="mostrarModalEliminar = false">Cancelar</button>
+          <button class="btn btn-danger" (click)="confirmarEliminacion()">Sí, Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-detail-modal [isVisible]="mostrarModalDetalle" [data]="profesionalDetalle" (close)="mostrarModalDetalle = false"></app-detail-modal>
+
+<div *ngIf="mostrarModalNotificacion" class="position-fixed bottom-0 end-0 p-3" style="z-index: 2000">
+  <div class="alert alert-success shadow">
+    <i class="bi bi-check-circle me-2"></i> {{mensajeNotificacion}}
   </div>
 </div>
