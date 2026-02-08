@@ -1,10 +1,12 @@
 import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+
 import { DataTableComponent } from '../shared/data-table/data-table';
 import { CardComponent } from '../shared/cards/cards';
 import { DetailModal } from '../shared/detail-modal/detail-modal';
 import { ServClientesAPI } from '../../services/cliente-service-API';
+import { RouterModule } from '@angular/router';
 
 declare const bootstrap: any;
 
@@ -13,7 +15,9 @@ declare const bootstrap: any;
   standalone: true,
   templateUrl: './crud-clientes.html',
   styleUrls: ['./crud-clientes.css'],
-  imports: [DataTableComponent, CardComponent, ReactiveFormsModule, FormsModule, CommonModule, DetailModal],
+  imports: [DataTableComponent, CardComponent, ReactiveFormsModule, FormsModule, CommonModule, DetailModal, 
+    RouterModule
+  ],
 })
 export class CrudClientes implements OnInit {
   private listaClientesOriginales: any[] = [];

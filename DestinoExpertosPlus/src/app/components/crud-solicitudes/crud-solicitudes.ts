@@ -9,11 +9,12 @@ import { ServSolicitudAPI } from '../../services/solicitud-service-API';
 import { ServClientesAPI } from '../../services/cliente-service-API';
 import { ServProfesionalAPI } from '../../services/profesionales-service-API';
 import { ServServicioAPI } from '../../services/servicio-service-API';
+import { RouterModule } from '@angular/router';
 
 
 @Component({
   selector: 'app-crud-solicitudes',
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule],
   templateUrl: './crud-solicitudes.html',
   styleUrl: './crud-solicitudes.css',
 })

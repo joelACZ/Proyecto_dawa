@@ -43,7 +43,7 @@
   { field: 'descripcion', header: 'Descripción' },
   { field: 'precioBase', header: 'Precio Base' },
   { field: 'duracionEstimada', header: 'Duración (min)' },
-  { field: 'profesional_id', header: 'Profesional' },
+  { field: 'profesional_nombre', header: 'Profesional' }, 
   { field: 'activo', header: 'Estado' }
 ]">
   <ng-template #actions let-row>
@@ -145,6 +145,12 @@
     </div>
   </div>
 </div>
+
+<app-detail-modal
+  [isVisible]="mostrarModalDetalle"
+  [data]="servicioDetalle"
+  (close)="cerrarDetalle()">
+</app-detail-modal>
 
 <div *ngIf="mostrarModalEliminar" class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
   <div class="modal-dialog modal-dialog-centered">

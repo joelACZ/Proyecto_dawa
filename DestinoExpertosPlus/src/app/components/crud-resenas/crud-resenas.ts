@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { ServResenasJson } from '../../services/resena-service';
 import { ServClientesJson } from '../../services/cliente-service'; // Importado para cargar clientes
 import { ServServiciosJson } from '../../services/servicio-service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 import { DataTableComponent } from '../shared/data-table/data-table';
 import { CardComponent } from '../shared/cards/cards';
@@ -22,7 +22,8 @@ declare const bootstrap: any;
   standalone: true,
   templateUrl: './crud-resenas.html',
   styleUrls: ['./crud-resenas.css'],
-  imports: [DataTableComponent, CardComponent, ReactiveFormsModule, FormsModule, CommonModule, DetailModal],
+  imports: [DataTableComponent, CardComponent, ReactiveFormsModule, FormsModule, CommonModule, DetailModal,    
+    RouterModule],
 })
 export class CrudResenas implements OnInit, AfterViewInit {
   private listaResenasOriginales: any[] = [];
