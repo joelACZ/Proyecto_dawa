@@ -6,7 +6,7 @@ import { Observable, map } from 'rxjs';
   providedIn: 'root'
 })
 export class SolicitudService {
-  private readonly API_URL = 'http://localhost:3000/solicitudes';
+  private readonly API_URL = 'http://localhost:5257/api/solicitudes';
 
   constructor(private http: HttpClient) { }
 

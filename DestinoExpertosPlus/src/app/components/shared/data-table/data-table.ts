@@ -1,10 +1,10 @@
 import { Component, Input, ContentChild, TemplateRef } from '@angular/core';
-import { NgFor, NgTemplateOutlet } from '@angular/common';
+import { CommonModule, NgFor, NgIf, NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'app-data-table',
   standalone: true,
-  imports: [NgFor, NgTemplateOutlet],   
+  imports: [NgFor, NgIf, NgTemplateOutlet, CommonModule],   
   templateUrl: './data-table.html',
   styleUrls: ['./data-table.css'] 
 })
