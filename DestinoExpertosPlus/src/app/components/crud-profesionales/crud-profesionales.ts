@@ -10,6 +10,7 @@ import { ServProfesionalAPI } from '../../services/profesionales-service-API';
 import { DataTableComponent } from '../shared/data-table/data-table';
 import { CardComponent } from '../shared/cards/cards';
 import { DetailModal } from '../shared/detail-modal/detail-modal';
+import { RouterModule } from '@angular/router';
 
 declare const bootstrap: any;
 
@@ -24,7 +25,7 @@ declare const bootstrap: any;
     FormsModule,
     DataTableComponent,
     CardComponent,
-    DetailModal
+    DetailModal,    RouterModule
   ],
 })
 export class CrudProfesionales implements OnInit, AfterViewInit {

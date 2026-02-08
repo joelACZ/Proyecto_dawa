@@ -1,26 +1,94 @@
 <div class="d-flex min-vh-100">
   
-  @if (showSidebar) {
+  @if (showSidebar && !isLoginPage()) {
     <aside class="bg-dark text-white p-4 sidebar">
-      <h1 class="h2 fw-bold mb-5">Plataforma</h1>
-      <nav class="d-flex flex-column gap-3">
-        <a routerLink="/menu" class="nav-link-custom active">
-          <i class="bi bi-house-door me-3"></i> Menú Principal
+      <div class="sidebar-header mb-4">
+        <h1 class="h4 fw-bold">Plataforma Expertos</h1>
+        <div class="text-light small">
+          <i class="bi bi-person-circle me-1"></i>
+          {{ auth.getUsername() }}
+          <span class="badge bg-info ms-2">{{ auth.getUserRole() }}</span>
+        </div>
+      </div>
+      
+      <nav class="d-flex flex-column gap-2">
+        
+        <!-- Menú Principal -->
+        <a href="javascript:void(0)" (click)="goToRoute('/menu')" 
+           [class.active]="currentRoute === '/menu'" class="nav-link-custom">
+          <i class="bi bi-house-door me-2"></i> Menú Principal
         </a>
-        <hr class="border-secondary">
-        <a routerLink="/crud-clientes" class="nav-link-custom"> <i class="bi bi-people me-3"></i> Clientes </a>
-        <a routerLink="/crud-servicios" class="nav-link-custom"> <i class="bi bi-briefcase me-3"></i> Servicios </a>
-        <a routerLink="/crud-resenas" class="nav-link-custom"> <i class="bi bi-star me-3"></i> Reseñas </a>
-        <a routerLink="/crud-profesionales" class="nav-link-custom"> <i class="bi bi-person-badge me-3"></i> Profesionales </a>
-        <a routerLink="/crud-solicitudes" class="nav-link-custom"> <i class="bi bi-journal-text me-3"></i> Solicitudes </a>
+        
+        <hr class="border-secondary my-2">
+        
+        <!-- Solo Administrador -->
+        @if (auth.getUserRole() === 'Administrador') {
+          <a href="javascript:void(0)" (click)="goToRoute('/crud-clientes')" 
+             [class.active]="currentRoute.includes('/crud-clientes')" class="nav-link-custom">
+            <i class="bi bi-people me-2"></i> Clientes
+          </a>
+          <a href="javascript:void(0)" (click)="goToRoute('/crud-profesionales')" 
+             [class.active]="currentRoute.includes('/crud-profesionales')" class="nav-link-custom">
+            <i class="bi bi-person-badge me-2"></i> Profesionales
+          </a>
+          <a href="javascript:void(0)" (click)="goToRoute('/crud-servicios')" 
+             [class.active]="currentRoute.includes('/crud-servicios')" class="nav-link-custom">
+            <i class="bi bi-briefcase me-2"></i> Servicios
+          </a>
+          <a href="javascript:void(0)" (click)="goToRoute('/crud-solicitudes')" 
+             [class.active]="currentRoute.includes('/crud-solicitudes')" class="nav-link-custom">
+            <i class="bi bi-journal-text me-2"></i> Solicitudes
+          </a>
+        }
+        
+        <!-- Solo Profesional -->
+        @if (auth.getUserRole() === 'Profesional') {
+          <a href="javascript:void(0)" (click)="goToRoute('/crud-servicios')" 
+             [class.active]="currentRoute.includes('/crud-servicios')" class="nav-link-custom">
+            <i class="bi bi-briefcase me-2"></i> Mis Servicios
+          </a>
+          <a href="javascript:void(0)" (click)="goToRoute('/crud-solicitudes')" 
+             [class.active]="currentRoute.includes('/crud-solicitudes')" class="nav-link-custom">
+            <i class="bi bi-journal-text me-2"></i> Mis Solicitudes
+          </a>
+        }
+        
+        <!-- Solo Cliente -->
+        @if (auth.getUserRole() === 'Cliente') {
+          <a href="javascript:void(0)" (click)="goToRoute('/crud-solicitudes')" 
+             [class.active]="currentRoute.includes('/crud-solicitudes')" class="nav-link-custom">
+            <i class="bi bi-journal-text me-2"></i> Mis Solicitudes
+          </a>
+          <a href="javascript:void(0)" (click)="goToRoute('/crud-resenas')" 
+             [class.active]="currentRoute.includes('/crud-resenas')" class="nav-link-custom">
+            <i class="bi bi-star me-2"></i> Mis Reseñas
+          </a>
+        }
+        
+        <!-- Todos los roles -->
+        <a href="javascript:void(0)" (click)="goToRoute('/crud-resenas')" 
+           [class.active]="currentRoute.includes('/crud-resenas')" class="nav-link-custom">
+          <i class="bi bi-star me-2"></i> Reseñas
+        </a>
+        
+        <a href="javascript:void(0)" (click)="goToRoute('/resena-list')" 
+           [class.active]="currentRoute.includes('/resena-list')" class="nav-link-custom">
+          <i class="bi bi-eye me-2"></i> Reseñas Públicas
+        </a>
+        
+        <hr class="border-secondary my-2">
+        
+        <!-- Botón Cerrar Sesión -->
+        <button class="btn btn-outline-light w-100 mt-2" (click)="logout()">
+          <i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión
+        </button>
+        
       </nav>
     </aside>
   }
 
-  
-  <main class="flex-grow-1 p-0" [class.main-with-sidebar]="showSidebar">
-    
-    <div class="container-lg py-4">
+  <main class="flex-grow-1 p-0" [class.main-with-sidebar]="showSidebar && !isLoginPage()">
+    <div class="container-fluid py-3">
       <router-outlet></router-outlet>
     </div>
   </main>

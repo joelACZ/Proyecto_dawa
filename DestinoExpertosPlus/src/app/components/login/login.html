@@ -38,8 +38,12 @@
         }
       </div>
 
-      <button type="submit" [disabled]="form.invalid" class="btn-login">
-        Ingresar al Sistema
+      <button type="submit" [disabled]="form.invalid || isLoading" class="btn-login">
+        @if (isLoading) {
+          <span class="spinner"></span> Procesando...
+        } @else {
+          Ingresar al Sistema
+        }
       </button>
     </form>
   </div>
@@ -51,7 +55,7 @@
       <div class="modal-icon">✕</div>
       <h3>Error de Autenticación</h3>
       <p>{{ error }}</p>
-      <button (click)="error = null">Intentar de nuevo</button>
+      <button (click)="clearError()">Intentar de nuevo</button>
     </div>
   </div>
 }

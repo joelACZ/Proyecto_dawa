@@ -1,36 +1,44 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
+import { Component } from '@angular/core';
+import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
+import { AuthService } from './services/auth.service';
+import { filter } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { filter, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule
-  ],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrls: ['./app.css'],
+  imports: [RouterOutlet, CommonModule] // ← SOLO ESTOS
 })
-export class App implements OnInit, OnDestroy {
-  showSidebar = false;
-  private routerSubscription!: Subscription;
-
-  constructor(private router: Router) {}
-
-  ngOnInit() {
-    this.routerSubscription = this.router.events
+export class App {
+  showSidebar = true;
+  currentRoute: string = '';
+  
+  constructor(public auth: AuthService, private router: Router) {
+    // Escuchar cambios de ruta
+    this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
-        this.showSidebar = !event.urlAfterRedirects.includes('/menu');
+        this.currentRoute = event.urlAfterRedirects;
+        this.showSidebar = !this.currentRoute.includes('/login');
+        
+        console.log('📍 Ruta actual:', this.currentRoute);
+        window.scrollTo(0, 0);
       });
   }
 
-  ngOnDestroy() {
-    if (this.routerSubscription) {
-      this.routerSubscription.unsubscribe();
-    }
+  isLoginPage(): boolean {
+    return this.currentRoute.includes('/login');
+  }
+
+  logout(): void {
+    this.auth.logout();
+    this.router.navigate(['/login']);
+  }
+
+  // Método para navegar manualmente (backup)
+  goToRoute(route: string): void {
+    console.log('🚀 Navegando a:', route);
+    this.router.navigate([route]);
   }
 }
