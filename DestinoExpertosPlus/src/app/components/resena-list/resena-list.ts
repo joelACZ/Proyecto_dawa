@@ -4,7 +4,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { firstValueFrom, forkJoin } from 'rxjs';
 
-import { SolicitudService } from '../../services/solicitud-service';
+// Servicios API
 import { ServClientesAPI } from '../../services/cliente-service-API';
 import { ServResenaAPI } from '../../services/resena-service-API';
 import { ServServicioAPI } from '../../services/servicio-service-API';
@@ -14,36 +14,43 @@ import { ServSolicitudAPI } from '../../services/solicitud-service-API';
 @Component({
   selector: 'app-resena-list',
   standalone: true,
-  imports: [CommonModule, HttpClientModule], 
+  imports: [CommonModule, HttpClientModule],
   templateUrl: './resena-list.html',
   styleUrls: ['./resena-list.css']
 })
 export class ResenaListComponent implements OnInit {
+  // Arreglo principal que usará el HTML
   resenas: any[] = [];
-  clientes: any[] = [];
-  profesionales: any[] = [];
-  servicios: any[] = [];
+  
+  // Estados de carga
   cargando = false;
 
-constructor(
+  // Datos de referencia para el cruce
+  private clientes: any[] = [];
+  private profesionales: any[] = [];
+  private servicios: any[] = [];
+
+  constructor(
     private servicioResenas: ServResenaAPI,
     private servicioClientes: ServClientesAPI,
     private servicioProfesionales: ServProfesionalAPI,
     private servicioServicios: ServServicioAPI,
-    private solicitudService: ServSolicitudAPI, // Centralizado
+    private solicitudService: ServSolicitudAPI,
     private router: Router
   ) { }
 
   ngOnInit(): void {
     this.inicializarComponente();
   }
-  
+
+  /**
+   * Carga masiva de datos y procesamiento inicial
+   */
   private async inicializarComponente(): Promise<void> {
     this.cargando = true;
-    console.log('Iniciando carga de datos...');
     
     try {
-
+      // Cargamos todas las fuentes de datos en paralelo
       const data = await firstValueFrom(
         forkJoin({
           clientes: this.servicioClientes.obtenerTodos(),
@@ -54,140 +61,119 @@ constructor(
         })
       );
 
-    
-      console.log(' Clientes cargados:', data.clientes?.length || 0, data.clientes);
-      console.log(' Profesionales cargados:', data.profesionales?.length || 0, data.profesionales);
-      console.log(' Servicios cargados:', data.servicios?.length || 0, data.servicios);
-      console.log(' Reseñas cargadas:', data.resenas?.length || 0, data.resenas);
-      console.log(' Solicitudes cargadas:', data.solicitudes?.length || 0, data.solicitudes);
-
-      
+      // Guardamos referencias para métodos auxiliares
       this.clientes = data.clientes || [];
       this.profesionales = data.profesionales || [];
       this.servicios = data.servicios || [];
 
-      
+      // Procesamos las reseñas para añadirles los nombres reales
       this.enriquecerResenas(data.resenas || [], data.solicitudes || []);
-      
-      console.log(' Reseñas enriquecidas:', this.resenas.length, this.resenas);
 
     } catch (error) {
-      console.error(' Error en la inicialización:', error);
-      this.mostrarMensaje('Error al inicializar componente: ' + error, 'error');
+      console.error('Error al cargar datos en ResenaList:', error);
       this.resenas = [];
     } finally {
       this.cargando = false;
-      console.log(' Carga finalizada. Reseñas:', this.resenas.length);
     }
   }
 
-  private enriquecerResenas(resenas: any[], solicitudes: any[]): void {
-    console.log(' Enriqueciendo reseñas...');
-    
-    
-    const solicitudesMap = new Map(solicitudes.map(s => [String(s.id), s]));
-    console.log(' Mapa de solicitudes creado:', solicitudesMap.size);
+  /**
+   * Realiza el "JOIN" manual entre Reseñas -> Solicitudes -> Clientes/Profesionales
+   */
+  private enriquecerResenas(resenasRaw: any[], solicitudes: any[]): void {
+  // 1. Mapas con normalización de IDs (convertimos todo a String para evitar fallos de tipo)
+  const solicitudesMap = new Map(solicitudes.map(s => [String(s.id || s.Id), s]));
+  const clientesMap = new Map(this.clientes.map(c => [String(c.id || c.Id), c]));
+  const profesionalesMap = new Map(this.profesionales.map(p => [String(p.id || p.Id), p]));
+  const serviciosMap = new Map(this.servicios.map(s => [String(s.id || s.Id), s]));
 
-    this.resenas = resenas.map((resena, index) => {
-      
-      if (index === 0) {
-        console.log(' Ejemplo de reseña original:', resena);
-        console.log(' Claves disponibles en reseña:', Object.keys(resena));
-      }
+  this.resenas = resenasRaw.map(resena => {
+    // Buscamos el ID de la solicitud en la reseña (probando varios nombres)
+    const solicitudId = String(resena.solicitud_id || resena.solicitudId || resena.idSolicitud || resena.SolicitudId || '');
+    const solicitud = solicitudesMap.get(solicitudId);
 
-      
-      let solicitudId = resena.solicitud_id ?? resena.solicitudId ?? 
-                        resena.id_solicitud ?? resena.idSolicitud ?? 
-                        resena.SolicitudId;
-      
-      
-      solicitudId = String(solicitudId);
-      
-      if (index === 0) {
-        console.log(' solicitudId después de conversión:', solicitudId, 'Tipo:', typeof solicitudId);
-      }
-      
-      const solicitud = solicitudesMap.get(solicitudId);
-      
-      if (!solicitud) {
-        if (index === 0) {
-          console.warn(' No se encontró solicitud para ID:', solicitudId);
-          console.warn(' IDs disponibles en solicitudes:', Array.from(solicitudesMap.keys()));
-          console.warn(' Primera solicitud de ejemplo:', solicitudes[0]);
-        }
-      } else {
-        if (index === 0) {
-          console.log(' Solicitud encontrada:', solicitud);
-        }
-      }
+    // LOG DE DEPURACIÓN (Solo para la primera reseña para no saturar la consola)
+    // Descomenta la línea de abajo si el error persiste para ver qué llega en 'solicitud'
+    // if (solicitud) console.log('Solicitud encontrada:', solicitud);
 
-      
-      const cliente = solicitud ? this.clientes.find(c => String(c.id) === String(solicitud.cliente_id)) : null;
-      const profesional = solicitud ? this.profesionales.find(p => String(p.id) === String(solicitud.profesional_id)) : null;
-      const servicio = solicitud ? this.servicios.find(s => String(s.id) === String(solicitud.servicio_id)) : null;
+    // Intentamos obtener el profesionalId de la SOLICITUD o de la RESEÑA directamente
+    const profesionalId = String(
+      solicitud?.profesional_id || 
+      solicitud?.profesionalId || 
+      solicitud?.ProfesionalId || 
+      resena.profesional_id || 
+      resena.profesionalId || 
+      ''
+    );
 
-      
-      if (index === 0 && solicitud) {
-        console.log('Buscando profesional_id:', solicitud.profesional_id, 'Tipo:', typeof solicitud.profesional_id);
-        console.log('Profesionales disponibles (primeros 3):', this.profesionales.slice(0, 3));
-        console.log('Profesional encontrado:', profesional);
-        
-        console.log('Buscando servicio_id:', solicitud.servicio_id, 'Tipo:', typeof solicitud.servicio_id);
-        console.log('Servicios disponibles (primeros 3):', this.servicios.slice(0, 3));
-        console.log('Servicio encontrado:', servicio);
-      }
+    // Intentamos obtener el clienteId
+    const clienteId = String(
+      solicitud?.cliente_id || 
+      solicitud?.clienteId || 
+      resena.cliente_id || 
+      resena.clienteId || 
+      ''
+    );
 
-      const enriquecida = {
-        ...resena,
-        nombreCliente: cliente?.nombre || 'Cliente desconocido',
-        profesionalNombre: profesional?.nombre || 'Profesional no asignado',
-        servicioDescripcion: servicio?.nombre || solicitud?.descripcion || 'Sin descripción',
-        anonima: resena.anonima ?? false
-      };
+    // Intentamos obtener el servicioId
+    const servicioId = String(
+      solicitud?.servicio_id || 
+      solicitud?.servicioId || 
+      resena.servicio_id || 
+      resena.servicioId || 
+      ''
+    );
 
-      if (index === 0) {
-        console.log(' Ejemplo de reseña enriquecida:', enriquecida);
-      }
+    const cliente = clientesMap.get(clienteId);
+    const profesional = profesionalesMap.get(profesionalId);
+    const servicio = serviciosMap.get(servicioId);
 
-      return enriquecida;
-    });
+    return {
+      ...resena,
+      nombreCliente: cliente?.nombre || cliente?.Nombre || 'Cliente no identificado',
+      profesionalNombre: profesional?.nombre || profesional?.Nombre || 'Profesional no asignado',
+      servicioDescripcion: servicio?.nombre || servicio?.Nombre || solicitud?.descripcion || 'Servicio General',
+      fecha: resena.fecha ? new Date(resena.fecha) : new Date(),
+      calificacion: Number(resena.calificacion) || 0,
+      anonima: resena.anonima === true || resena.anonima === 'true'
+    };
+  });
+}
 
-    console.log(' Total reseñas enriquecidas:', this.resenas.length);
+  // --- Métodos de Ayuda para el HTML ---
+
+  obtenerEstrellas(calificacion: number): string {
+    return '⭐'.repeat(Math.max(0, Math.min(5, calificacion)));
+  }
+
+  obtenerIniciales(nombre: string): string {
+    if (!nombre || nombre === 'Cliente no identificado') return '??';
+    return nombre.split(' ')
+                 .map(p => p[0])
+                 .join('')
+                 .substring(0, 2)
+                 .toUpperCase();
+  }
+
+  formatearFecha(fecha: any): string {
+    const d = new Date(fecha);
+    return isNaN(d.getTime()) ? 'S/F' : d.toLocaleDateString('es-ES');
+  }
+
+  buscarResena(termino: string): void {
+    if (!termino) {
+      this.inicializarComponente(); // Recargar si se limpia el buscador
+      return;
+    }
+    const t = termino.toLowerCase();
+    this.resenas = this.resenas.filter(r => 
+      r.comentario?.toLowerCase().includes(t) || 
+      r.nombreCliente?.toLowerCase().includes(t) ||
+      r.profesionalNombre?.toLowerCase().includes(t)
+    );
   }
 
   volverAlCrud(): void {
     this.router.navigate(['/crud-resenas']);
-  }
-
-  obtenerEstrellas(calificacion: number): string {
-    return '⭐'.repeat(calificacion);
-  }
-
-  formatearFecha(fecha: Date | string): string {
-    const fechaObj = new Date(fecha);
-    return isNaN(fechaObj.getTime()) ? 'Fecha inválida' : fechaObj.toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-  }
-
-  obtenerIniciales(nombre: string): string {
-    if (!nombre) return '??';
-    const palabras = nombre.trim().split(' ').filter(p => p);
-    if (palabras.length >= 2) {
-      return (palabras[0][0] + palabras[1][0]).toUpperCase();
-    }
-    return nombre.substring(0, 2).toUpperCase();
-  }
-
-  buscarResena(termino: string): void {
-    console.log(' Buscando reseña:', termino);
-
-  }
-
-  private mostrarMensaje(mensaje: string, tipo: 'success' | 'error' | 'warning'): void {
-    console.log(`${tipo.toUpperCase()}: ${mensaje}`);
-
   }
 }
