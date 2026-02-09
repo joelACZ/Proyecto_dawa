@@ -34,12 +34,9 @@ declare const bootstrap: any;
 export class CrudServicios implements OnInit, AfterViewInit {
   // Datos
   public listaServiciosOriginales: Servicio[] = [];
-  public serviciosFiltrados: any[] = []; // Cambiado a any para soportar campos extra en la tabla
+  public serviciosFiltrados: Servicio[] = [];
   public servicioEnEdicion: Servicio | null = null;
-  
-  // CORRECCIÓN: Cambiado a 'any' para permitir agregar 'profesional_nombre' sin error de TS
-  public servicioDetalle: any | null = null;
-  
+  public servicioDetalle: Servicio | null = null;
   public servicioAEliminar: Servicio | null = null;
 
   // Formulario y UI
@@ -118,8 +115,6 @@ export class CrudServicios implements OnInit, AfterViewInit {
     this.srvProfesionales.obtenerTodos().subscribe({
       next: (datos) => {
         this.profesionales = datos;
-        // Refrescamos filtro por si cargaron después
-        this.filtrarServicios(); 
       },
       error: (err) => {
         console.error(err);
@@ -160,11 +155,11 @@ export class CrudServicios implements OnInit, AfterViewInit {
       filtrados = filtrados.filter(s => s.categoria === this.filtroCategoria);
     }
 
-    // Mapeamos para agregar el nombre del profesional a la lista filtrada
     this.serviciosFiltrados = filtrados.map(s => ({
       ...s,
-      profesional_nombre: this.profesionales.find(p => p.id == s.profesional_id)?.nombre || 'Sin asignar'
+      profesional_nombre: this.profesionales.find(p => p.id === s.profesional_id)?.nombre || 'Sin asignar'
     }));
+
   }
 
   public guardarServicio() {
@@ -207,23 +202,9 @@ export class CrudServicios implements OnInit, AfterViewInit {
     this.mostrarError(`Error al guardar: ${detalle}`);
   }
 
-  // CORRECCIÓN: Método actualizado para evitar errores de tipo y mostrar nombre
   public verDetalleServicio(service: any) {
-    const nombreProf = this.profesionales.find(p => p.id == service.profesional_id)?.nombre;
-    
-    this.servicioDetalle = {
-      ...service,
-      profesional_nombre: nombreProf || 'Sin asignar',
-      estado_texto: service.activo ? 'Activo' : 'Inactivo'
-    };
-    
-    this.mostrarModalDetalle = true;
-  }
-
-  // CORRECCIÓN: Agregado el método que faltaba y pedía el HTML
-  public cerrarDetalle() {
-    this.mostrarModalDetalle = false;
-    this.servicioDetalle = null;
+  this.servicioDetalle = service;
+  this.mostrarModalDetalle = true;
   }
 
   public abrirEdicion(servicio: Servicio) {
@@ -240,8 +221,7 @@ export class CrudServicios implements OnInit, AfterViewInit {
     this.formularioServicio.reset({
       precioBase: 0,
       duracionEstimada: 60,
-      activo: true,
-      profesional_id: ''
+      activo: true
     });
     this.modalRef.show();
   }
@@ -278,7 +258,7 @@ export class CrudServicios implements OnInit, AfterViewInit {
     return Math.ceil(this.serviciosFiltrados.length / this.itemsPorPagina);
   }
 
-  get obtenerServiciosPaginados(): any[] {
+  get obtenerServiciosPaginados(): Servicio[] {
     const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
     return this.serviciosFiltrados.slice(inicio, inicio + this.itemsPorPagina);
   }
