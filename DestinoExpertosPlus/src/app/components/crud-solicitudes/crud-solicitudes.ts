@@ -79,7 +79,7 @@ export class CrudSolicitudesComponent implements OnInit {
   ngOnInit(): void {
     this.inicializarComponente();
   }
-  
+
   abrirModalFormulario(): void {
     const modal = new (window as any).bootstrap.Modal(this.modalFormulario.nativeElement);
     modal.show();
@@ -181,22 +181,28 @@ export class CrudSolicitudesComponent implements OnInit {
   }
 
   crearSolicitud(): void {
-    if (!this.validarFormulario()) return;
-    this.cargando = true;
-    this.servicioSolicitudes.crear(this.formulario).subscribe({
-      next: (nueva) => {
+  if (!this.validarFormulario()) return;
+  this.cargando = true;
+
+  this.servicioSolicitudes.crear(this.formulario).subscribe({
+    next: (nueva) => {
+      // Si el backend no devuelve la solicitud, lo ideal es recargar la lista
+      if (nueva && nueva.id) {
         this.solicitudes.unshift(nueva);
-        this.resetearFormulario();
-        this.mostrarMensaje('Solicitud creada exitosamente', 'success');
-        this.cargando = false;
-      },
-      error: (e) => {
-        console.error('Error creando:', e);
-        this.mostrarMensaje('Error al crear solicitud', 'error');
-        this.cargando = false;
+      } else {
+        this.cargarSolicitudes(); // Recarga desde la API para traer el ID generado
       }
-    });
-  }
+
+      this.cerrarModalFormulario();
+      this.mostrarMensaje('Solicitud creada exitosamente', 'success');
+      this.cargando = false;
+    },
+    error: (e) => {
+      this.mostrarMensaje('Error al crear solicitud', 'error');
+      this.cargando = false;
+    }
+  });
+}
 
   prepararEdicion(solicitud: any): void {
     this.idEditando = solicitud.id;
@@ -205,23 +211,32 @@ export class CrudSolicitudesComponent implements OnInit {
   }
 
   actualizarSolicitud(): void {
-    if (!this.idEditando || !this.validarFormulario()) return;
-    this.cargando = true;
-    this.servicioSolicitudes.actualizar(this.idEditando, this.formulario).subscribe({
-      next: (actualizada) => {
-        const index = this.solicitudes.findIndex(s => s.id === actualizada.id);
-        if (index !== -1) this.solicitudes[index] = actualizada;
-        this.resetearFormulario();
-        this.mostrarMensaje('Solicitud actualizada exitosamente', 'success');
-        this.cargando = false;
-      },
-      error: (e) => {
-        console.error('Error actualizando:', e);
-        this.mostrarMensaje('Error al actualizar solicitud', 'error');
-        this.cargando = false;
+  if (!this.idEditando || !this.validarFormulario()) return;
+  this.cargando = true;
+
+  this.servicioSolicitudes.actualizar(this.idEditando, this.formulario).subscribe({
+    next: (actualizada) => {
+      // 1. Validamos que 'actualizada' no sea null
+      const idBuscado = actualizada?.id || this.idEditando;
+      
+      const index = this.solicitudes.findIndex(s => s && s.id === idBuscado);
+      
+      if (index !== -1) {
+        // Actualizamos la lista con lo que enviamos en el formulario + el ID
+        this.solicitudes[index] = { ...this.formulario, id: idBuscado };
       }
-    });
-  }
+
+      this.cerrarModalFormulario();
+      this.mostrarMensaje('Solicitud actualizada exitosamente', 'success');
+      this.cargando = false;
+    },
+    error: (e) => {
+      console.error('Error actualizando:', e);
+      this.mostrarMensaje('Error al actualizar solicitud', 'error');
+      this.cargando = false;
+    }
+  });
+}
 
   eliminarSolicitud(id: number): void {
     if (!confirm('¿Estás seguro de eliminar esta solicitud?')) return;
@@ -323,20 +338,42 @@ export class CrudSolicitudesComponent implements OnInit {
   }
 
   obtenerNombreCliente(id: any): string {
-  const cliente = this.clientes.find(c => c.id == id);
-  return cliente ? cliente.nombre : `Cliente #${id}`;
-}
+    const cliente = this.clientes.find(c => c.id == id);
+    return cliente ? cliente.nombre : `Cliente #${id}`;
+  }
 
-obtenerNombreProfesional(id: any): string {
-  const pro = this.profesionales.find(p => p.id == id);
-  return pro ? pro.nombre : `Profesional #${id}`;
-}
+  obtenerNombreProfesional(id: any): string {
+    const pro = this.profesionales.find(p => p.id == id);
+    return pro ? pro.nombre : `Profesional #${id}`;
+  }
 
-obtenerNombreServicio(id: any): string {
-  const serv = this.servicios.find(s => s.id == id);
-  return serv ? serv.nombre : `Servicio #${id}`;
-}
+  obtenerNombreServicio(id: any): string {
+    const serv = this.servicios.find(s => s.id == id);
+    return serv ? serv.nombre : `Servicio #${id}`;
+  }
 
+  obtenerProfesionalPorServicioSeleccionado(): string {
+    if (!this.formulario.servicio_id || this.formulario.servicio_id == 0) {
+      return 'Seleccione un servicio primero';
+    }
+
+    // Buscamos el servicio en la lista de servicios cargados
+    const servicioEncontrado = this.servicios.find(s => s.id == this.formulario.servicio_id);
+
+    if (servicioEncontrado && servicioEncontrado.profesional_id) {
+      // Sincronizamos el ID del profesional en el formulario internamente
+      this.formulario.profesional_id = servicioEncontrado.profesional_id;
+      // Retornamos el nombre usando tu función existente
+      return this.obtenerNombreProfesional(servicioEncontrado.profesional_id);
+    }
+
+    return 'Profesional no asignado a este servicio';
+  }
+
+  obtenerNombreProfesionalPorServicio(servicioId: number): string {
+    const servicio = this.servicios.find(s => s.id == servicioId);
+    return servicio ? this.obtenerNombreProfesional(servicio.profesional_id) : 'No asignado';
+  }
   contarSolicitudesPendientes(): number {
     return this.solicitudes.filter(s => s.estado === 'pendiente').length;
   }
@@ -348,4 +385,7 @@ obtenerNombreServicio(id: any): string {
   contarSolicitudesCompletadas(): number {
     return this.solicitudes.filter(s => s.estado === 'completada').length;
   }
+
+
+  
 }

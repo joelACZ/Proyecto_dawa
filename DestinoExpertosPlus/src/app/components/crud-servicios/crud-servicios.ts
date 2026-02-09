@@ -12,7 +12,7 @@ import { ServServicioAPI } from '../../services/servicio-service-API';
 import { ServProfesionalAPI } from '../../services/profesionales-service-API';
 import { ServCategoriasAPI, Categoria } from '../../services/categoria-service-Api';
 import { Servicio } from '../../models/Servicio.model';
-import { RouterModule } from '@angular/router';
+ 
 
 declare const bootstrap: any;
 
@@ -27,8 +27,7 @@ declare const bootstrap: any;
     FormsModule,
     DataTableComponent,
     CardComponent,
-    DetailModal,
-    RouterModule
+    DetailModal
   ],
 })
 export class CrudServicios implements OnInit, AfterViewInit {
@@ -112,17 +111,17 @@ export class CrudServicios implements OnInit, AfterViewInit {
   }
 
   public cargarProfesionales() {
-    this.srvProfesionales.obtenerTodos().subscribe({
-      next: (datos) => {
-        this.profesionales = datos;
-      },
-      error: (err) => {
-        console.error(err);
-        this.mostrarError('Error al cargar los profesionales');
-      }
-    });
-  }
-
+  this.srvProfesionales.obtenerTodos().subscribe({
+    next: (datos) => {
+      this.profesionales = datos;
+      this.filtrarServicios(); 
+    },
+    error: (err) => {
+      console.error(err);
+      this.mostrarError('Error al cargar los profesionales');
+    }
+  });
+}
   public cargarCategorias() {
     this.srvCategorias.obtenerTodas().subscribe({
       next: (datos) => {
@@ -155,10 +154,15 @@ export class CrudServicios implements OnInit, AfterViewInit {
       filtrados = filtrados.filter(s => s.categoria === this.filtroCategoria);
     }
 
-    this.serviciosFiltrados = filtrados.map(s => ({
+    this.serviciosFiltrados = filtrados.map(s => {
+
+    const profesional = this.profesionales.find(p => p.id === s.profesional_id);
+    return {
       ...s,
-      profesional_nombre: this.profesionales.find(p => p.id === s.profesional_id)?.nombre || 'Sin asignar'
-    }));
+
+      profesional_nombre: profesional ? profesional.nombre : 'Sin asignar'
+    };
+  });
 
   }
 
@@ -235,6 +239,8 @@ export class CrudServicios implements OnInit, AfterViewInit {
     this.mostrarModalEliminar = false;
     this.servicioAEliminar = null;
   }
+
+  public cerrarDetalle() { this.mostrarModalDetalle = false; }
 
   public confirmarEliminacion() {
     if (!this.servicioAEliminar) return;

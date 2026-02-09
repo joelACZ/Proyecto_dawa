@@ -1,13 +1,15 @@
 <!-- crud-solicitudes.html -->
 <div class="container-fluid p-4">
-  
+
   <!-- CÚPULA DE CONTROL -->
-  <div class="dashboard-header d-flex justify-content-between align-items-center p-4 mb-4 rounded shadow" style="background: rgba(42, 155, 192, 0.85);">
+  <div class="dashboard-header d-flex justify-content-between align-items-center p-4 mb-4 rounded shadow"
+    style="background: rgba(42, 155, 192, 0.85);">
     <h2 class="fw-bold mb-1" style="color: white;">
-      <i class="bi bi-clipboard-check me-2" ></i>
+      <i class="bi bi-clipboard-check me-2"></i>
       Gestión de Solicitudes
     </h2>
-    <button class="btn btn-light border font-weight-bold py-2 px-4 rounded transition" (click)="resetearFormulario(); abrirModalFormulario()">
+    <button class="btn btn-light border font-weight-bold py-2 px-4 rounded transition"
+      (click)="resetearFormulario(); abrirModalFormulario()">
       <i class="bi bi-plus-circle me-2"></i>
       Nueva Solicitud
     </button>
@@ -56,8 +58,8 @@
         <div class="col-md-4">
           <div class="input-group">
             <span class="input-group-text"><i class="bi bi-search"></i></span>
-            <input type="text" class="form-control" placeholder="Buscar por texto..." 
-                   [(ngModel)]="filtros.busqueda" (keyup.enter)="aplicarFiltros()">
+            <input type="text" class="form-control" placeholder="Buscar por texto..." [(ngModel)]="filtros.busqueda"
+              (keyup.enter)="aplicarFiltros()">
           </div>
         </div>
         <div class="col-md-2">
@@ -77,7 +79,7 @@
             <option value="no_urgente">No Urgente</option>
           </select>
         </div>
-     
+
       </div>
       <div class="row mt-3">
         <div class="col-12 d-flex gap-2 justify-content-end">
@@ -96,117 +98,110 @@
 
   <!-- MENSAJES DE SISTEMA -->
   @if (mensaje) {
-    <div class="alert alert-dismissible fade show mb-4" 
-         [ngClass]="{
+  <div class="alert alert-dismissible fade show mb-4" [ngClass]="{
            'alert-success': mensaje.tipo === 'success',
            'alert-danger': mensaje.tipo === 'error',
            'alert-info': mensaje.tipo === 'info'
          }">
-      {{ mensaje.texto }}
-      <button type="button" class="btn-close" (click)="mensaje = null"></button>
-    </div>
+    {{ mensaje.texto }}
+    <button type="button" class="btn-close" (click)="mensaje = null"></button>
+  </div>
   }
 
   <!-- TABLA-MATRIZ CENTRAL -->
-<div class="card shadow-sm" style="border-radius:12px; overflow:hidden; border:none;">
-  <div class="card-body p-0">
-    <div class="table-responsive">
-      <table class="table mb-0" style="border-collapse:collapse;">
+  <div class="card shadow-sm" style="border-radius:12px; overflow:hidden; border:none;">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table mb-0" style="border-collapse:collapse;">
 
-        <!-- ENCABEZADO: cada columna con color -->
-        <thead>
-          <tr>
-            <th style="padding:14px; background:#2a9bc0; color:#fff;">ID</th>
-            <th style="padding:14px; background:#2a9bc0; color:#fff;">Cliente</th>
-            <th style="padding:14px; background:#2a9bc0; color:#fff;">Profesional</th>
-            <th style="padding:14px; background:#2a9bc0; color:#fff;">Servicio</th>
-            <th style="padding:14px; background:#2a9bc0; color:#fff;">Estado</th>
-            <th style="padding:14px; background:#2a9bc0; color:#fff;">Urgencia</th>
-            <th style="padding:14px; background:#2a9bc0; color:#fff;">Fecha</th>
-            <th style="padding:14px; background:#2a9bc0; color:#fff;">Acciones</th>
-          </tr>
-        </thead>
+          <!-- ENCABEZADO: cada columna con color -->
+          <thead>
+            <tr>
+              <th style="padding:14px; background:#2a9bc0; color:#fff;">ID</th>
+              <th style="padding:14px; background:#2a9bc0; color:#fff;">Cliente</th>
+              <th style="padding:14px; background:#2a9bc0; color:#fff;">Profesional</th>
+              <th style="padding:14px; background:#2a9bc0; color:#fff;">Servicio</th>
+              <th style="padding:14px; background:#2a9bc0; color:#fff;">Estado</th>
+              <th style="padding:14px; background:#2a9bc0; color:#fff;">Urgencia</th>
+              <th style="padding:14px; background:#2a9bc0; color:#fff;">Fecha</th>
+              <th style="padding:14px; background:#2a9bc0; color:#fff;">Acciones</th>
+            </tr>
+          </thead>
 
-        <!-- CUERPO -->
-        <tbody>
+          <!-- CUERPO -->
+          <tbody>
 
-          @for (solicitud of solicitudes; track solicitud.id) {
+            @for (solicitud of solicitudes; track solicitud.id) {
 
-          <tr style="background:#f2f8fb;">
-            <td style="padding:18px; font-weight:bold;">#{{ solicitud.id }}</td>
-            <td style="padding:18px;">{{ obtenerNombreCliente(solicitud.cliente_id) }}</td>
-            <td style="padding:18px;">{{ obtenerNombreProfesional(solicitud.profesional_id) }}</td>
-            <td style="padding:18px;">{{ obtenerNombreServicio(solicitud.servicio_id) }}</td>
+            <tr style="background:#f2f8fb;">
+              <td style="padding:18px; font-weight:bold;">#{{ solicitud.id }}</td>
+              <td style="padding:18px;">{{ obtenerNombreCliente(solicitud.cliente_id) }}</td>
+              <td style="padding:18px;">{{ obtenerNombreProfesionalPorServicio(solicitud.servicio_id) }}</td>
+              <td style="padding:18px;">{{ obtenerNombreServicio(solicitud.servicio_id) }}</td>
 
-            <td style="padding:18px;">
-              <span style="background:#52abc7; color:white; padding:6px 12px; border-radius:8px;">
-                {{ solicitud.estado }}
-              </span>
-            </td>
+              <td style="padding:18px;">
+                <span style="background:#52abc7; color:white; padding:6px 12px; border-radius:8px;">
+                  {{ solicitud.estado }}
+                </span>
+              </td>
 
-            <td style="padding:18px;">
-              @if (solicitud.urgencia) {
+              <td style="padding:18px;">
+                @if (solicitud.urgencia) {
                 <span style="background:#2a9bc0; color:white; padding:6px 12px; border-radius:8px;">
                   URGENTE
                 </span>
-              } @else {
+                } @else {
                 <span style="background:#72b5cf; color:white; padding:6px 12px; border-radius:8px;">
                   Normal
                 </span>
-              }
-            </td>
+                }
+              </td>
 
-            <td style="padding:18px;">{{ formatearFecha(solicitud.fecha) }}</td>
+              <td style="padding:18px;">{{ formatearFecha(solicitud.fecha) }}</td>
 
-            <td style="padding:18px;">
-              <div style="display:flex; gap:8px;">
+              <td style="padding:18px;">
+                <div style="display:flex; gap:8px;">
 
-                <button
-                  title="Ver"
-                  (click)="verDetalle(solicitud)"
-                  style="background:#2a9bc0; border:none; padding:8px 10px; border-radius:10px; color:white;">
-                  <i class="bi bi-eye"></i>
-                </button>
+                  <button title="Ver" (click)="verDetalle(solicitud)"
+                    style="background:#2a9bc0; border:none; padding:8px 10px; border-radius:10px; color:white;">
+                    <i class="bi bi-eye"></i>
+                  </button>
 
-                <button
-                  title="Editar"
-                  (click)="prepararEdicion(solicitud); abrirModalFormulario()"
-                  style="background:#52abc7; border:none; padding:8px 10px; border-radius:10px; color:white;">
-                  <i class="bi bi-pencil"></i>
-                </button>
+                  <button title="Editar" (click)="prepararEdicion(solicitud); abrirModalFormulario()"
+                    style="background:#52abc7; border:none; padding:8px 10px; border-radius:10px; color:white;">
+                    <i class="bi bi-pencil"></i>
+                  </button>
 
-                <button
-                  title="Eliminar"
-                  (click)="eliminarSolicitud(solicitud.id)"
-                  style="background:#72b5cf; border:none; padding:8px 10px; border-radius:10px; color:white;">
-                  <i class="bi bi-trash"></i>
-                </button>
+                  <button title="Eliminar" (click)="eliminarSolicitud(solicitud.id)"
+                    style="background:#72b5cf; border:none; padding:8px 10px; border-radius:10px; color:white;">
+                    <i class="bi bi-trash"></i>
+                  </button>
 
-              </div>
-            </td>
-          </tr>
+                </div>
+              </td>
+            </tr>
 
-          } @empty {
+            } @empty {
 
-          <tr style="background:#a2c4d8; text-align:center;">
-            <td colspan="8" style="padding:40px; color:#2a9bc0;">
-              <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-              No se encontraron solicitudes
-            </td>
-          </tr>
+            <tr style="background:#a2c4d8; text-align:center;">
+              <td colspan="8" style="padding:40px; color:#2a9bc0;">
+                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                No se encontraron solicitudes
+              </td>
+            </tr>
 
-          }
+            }
 
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
-</div>
 
   <!-- PAGINACIÓN CÓSMICA -->
   <div class="d-flex justify-content-between align-items-center mt-3">
     <div class="text-muted">
-      Mostrando {{ (paginaActual - 1) * itemsPorPagina + 1 }} 
+      Mostrando {{ (paginaActual - 1) * itemsPorPagina + 1 }}
       a {{ (paginaActual * itemsPorPagina) > totalItems ? totalItems : (paginaActual * itemsPorPagina) }}
       de {{ totalItems }} solicitudes
     </div>
@@ -218,9 +213,7 @@
           </button>
         </li>
         <li class="page-item" *ngFor="let page of generarArrayPaginas()">
-          <button class="page-link" 
-                  [class.active]="page === paginaActual"
-                  (click)="cambiarPagina(page)">
+          <button class="page-link" [class.active]="page === paginaActual" (click)="cambiarPagina(page)">
             {{ page }}
           </button>
         </li>
@@ -246,149 +239,116 @@
         <button type="button" class="btn-close btn-close-white" (click)="cerrarModalFormulario()"></button>
       </div>
       <div class="modal-body">
-  <form #formSolicitud="ngForm">
+        <form #formSolicitud="ngForm">
 
-    <div class="row g-3">
-      
-      <!-- CLIENTE -->
-      <div class="col-md-6">
-        <label class="form-label">Cliente *</label>
-        <select class="form-select" 
-                required
-                [(ngModel)]="formulario.cliente_id" 
-                name="cliente_id"
-                #cliente_id="ngModel"
-                [class.is-invalid]="cliente_id.invalid && cliente_id.touched">
-          <option value="0">Seleccione un cliente</option>
-          @for (cliente of clientes; track cliente.id) {
-            <option [value]="cliente.id">{{ cliente.nombre }}</option>
-          }
-        </select>
-        <div *ngIf="cliente_id.invalid && cliente_id.touched" class="text-danger small">
-          Seleccione un cliente.
-        </div>
-      </div>
+          <div class="row g-3">
 
-      <!-- PROFESIONAL -->
-      <div class="col-md-6">
-        <label class="form-label">Profesional *</label>
-        <select class="form-select" 
-                required
-                [(ngModel)]="formulario.profesional_id" 
-                name="profesional_id"
-                #profesional_id="ngModel"
-                [class.is-invalid]="profesional_id.invalid && profesional_id.touched">
-          <option value="0">Seleccione un profesional</option>
-          @for (profesional of profesionales; track profesional.id) {
-            <option [value]="profesional.id">{{ profesional.nombre }}</option>
-          }
-        </select>
-        <div *ngIf="profesional_id.invalid && profesional_id.touched" class="text-danger small">
-          Seleccione un profesional.
-        </div>
-      </div>
+            <!-- CLIENTE -->
+            <div class="col-md-6">
+              <label class="form-label">Cliente *</label>
+              <select class="form-select" required [(ngModel)]="formulario.cliente_id" name="cliente_id"
+                #cliente_id="ngModel" [class.is-invalid]="cliente_id.invalid && cliente_id.touched">
+                <option value="0">Seleccione un cliente</option>
+                @for (cliente of clientes; track cliente.id) {
+                <option [value]="cliente.id">{{ cliente.nombre }}</option>
+                }
+              </select>
+              <div *ngIf="cliente_id.invalid && cliente_id.touched" class="text-danger small">
+                Seleccione un cliente.
+              </div>
+            </div>
 
-      <!-- SERVICIO -->
-      <div class="col-md-6">
-        <label class="form-label">Servicio *</label>
-        <select class="form-select" 
-                required
-                [(ngModel)]="formulario.servicio_id" 
-                name="servicio_id"
-                #servicio_id="ngModel"
-                [class.is-invalid]="servicio_id.invalid && servicio_id.touched">
-          <option value="0">Seleccione un servicio</option>
-          @for (servicio of servicios; track servicio.id) {
-            <option [value]="servicio.id">{{ servicio.nombre }}</option>
-          }
-        </select>
-        <div *ngIf="servicio_id.invalid && servicio_id.touched" class="text-danger small">
-          Seleccione un servicio.
-        </div>
-      </div>
+            <!-- PROFESIONAL -->
+            <div class="col-md-6">
+              <label class="form-label d-block text-muted">Profesional Encargado</label>
+              <div class="p-2 border rounded bg-light">
+                <i class="bi bi-person-badge me-2 text-primary"></i>
+                <span class="fw-bold text-dark">
+                  {{ obtenerProfesionalPorServicioSeleccionado() }}
+                </span>
+              </div>
+              <input type="hidden" [(ngModel)]="formulario.profesional_id" name="profesional_id">
+            </div>
 
-      <!-- ESTADO -->
-      <div class="col-md-6">
-        <label class="form-label">Estado *</label>
-        <select class="form-select" 
-                required
-                [(ngModel)]="formulario.estado" 
-                name="estado"
-                #estado="ngModel"
+            <!-- SERVICIO -->
+            <div class="col-md-6">
+              <label class="form-label">Servicio *</label>
+              <select class="form-select" required [(ngModel)]="formulario.servicio_id" name="servicio_id"
+                #servicio_id="ngModel" [class.is-invalid]="servicio_id.invalid && servicio_id.touched">
+                <option value="0">Seleccione un servicio</option>
+                @for (servicio of servicios; track servicio.id) {
+                <option [value]="servicio.id">{{ servicio.nombre }}</option>
+                }
+              </select>
+              <div *ngIf="servicio_id.invalid && servicio_id.touched" class="text-danger small">
+                Seleccione un servicio.
+              </div>
+            </div>
+
+            <!-- ESTADO -->
+            <div class="col-md-6">
+              <label class="form-label">Estado *</label>
+              <select class="form-select" required [(ngModel)]="formulario.estado" name="estado" #estado="ngModel"
                 [class.is-invalid]="estado.invalid && estado.touched">
-          <option value="pendiente">Pendiente</option>
-          <option value="confirmada">Confirmada</option>
-          <option value="en_proceso">En Proceso</option>
-          <option value="completada">Completada</option>
-          <option value="cancelada">Cancelada</option>
-        </select>
-        <div *ngIf="estado.invalid && estado.touched" class="text-danger small">
-          Seleccione un estado.
-        </div>
-      </div>
+                <option value="pendiente">Pendiente</option>
+                <option value="confirmada">Confirmada</option>
+                <option value="en_proceso">En Proceso</option>
+                <option value="completada">Completada</option>
+                <option value="cancelada">Cancelada</option>
+              </select>
+              <div *ngIf="estado.invalid && estado.touched" class="text-danger small">
+                Seleccione un estado.
+              </div>
+            </div>
 
-      <!-- DESCRIPCIÓN -->
-      <div class="col-12">
-        <label class="form-label">Descripción *</label>
-        <textarea class="form-control" rows="3"
-                  required
-                  [(ngModel)]="formulario.descripcion" 
-                  name="descripcion"
-                  #descripcion="ngModel"
-                  [class.is-invalid]="descripcion.invalid && descripcion.touched"></textarea>
-        <div *ngIf="descripcion.invalid && descripcion.touched" class="text-danger small">
-          La descripción es obligatoria.
-        </div>
-      </div>
+            <!-- DESCRIPCIÓN -->
+            <div class="col-12">
+              <label class="form-label">Descripción *</label>
+              <textarea class="form-control" rows="3" required [(ngModel)]="formulario.descripcion" name="descripcion"
+                #descripcion="ngModel" [class.is-invalid]="descripcion.invalid && descripcion.touched"></textarea>
+              <div *ngIf="descripcion.invalid && descripcion.touched" class="text-danger small">
+                La descripción es obligatoria.
+              </div>
+            </div>
 
-      <!-- UBICACIÓN -->
-      <div class="col-12">
-        <label class="form-label">Ubicación *</label>
-        <input type="text" class="form-control"
-               required
-               [(ngModel)]="formulario.ubicacion"
-               name="ubicacion"
-               #ubicacion="ngModel"
-               [class.is-invalid]="ubicacion.invalid && ubicacion.touched">
-        <div *ngIf="ubicacion.invalid && ubicacion.touched" class="text-danger small">
-          Ingrese la ubicación.
-        </div>
-      </div>
+            <!-- UBICACIÓN -->
+            <div class="col-12">
+              <label class="form-label">Ubicación *</label>
+              <input type="text" class="form-control" required [(ngModel)]="formulario.ubicacion" name="ubicacion"
+                #ubicacion="ngModel" [class.is-invalid]="ubicacion.invalid && ubicacion.touched">
+              <div *ngIf="ubicacion.invalid && ubicacion.touched" class="text-danger small">
+                Ingrese la ubicación.
+              </div>
+            </div>
 
-      <!-- URGENCIA -->
-      <div class="col-md-6">
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox"
-                 [(ngModel)]="formulario.urgencia"
-                 name="urgencia"
-                 (change)="toggleUrgencia()">
-          <label class="form-check-label">Marcar como urgente</label>
-        </div>
-      </div>
+            <!-- URGENCIA -->
+            <div class="col-md-6">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" [(ngModel)]="formulario.urgencia" name="urgencia"
+                  (change)="toggleUrgencia()">
+                <label class="form-check-label">Marcar como urgente</label>
+              </div>
+            </div>
 
-      <!-- NIVEL DE URGENCIA -->
-      @if (formulario.urgencia) {
-        <div class="col-md-6">
-          <label class="form-label">Nivel de Urgencia *</label>
-          <select class="form-select"
-                  required
-                  [(ngModel)]="formulario.nivelUrgencia"
-                  name="nivelUrgencia"
-                  #nivelUrgencia="ngModel"
-                  [class.is-invalid]="nivelUrgencia.invalid && nivelUrgencia.touched">
-            <option value="baja">Baja</option>
-            <option value="media" selected>Media</option>
-            <option value="alta">Alta</option>
-          </select>
-          <div *ngIf="nivelUrgencia.invalid && nivelUrgencia.touched" class="text-danger small">
-            Seleccione un nivel de urgencia.
+            <!-- NIVEL DE URGENCIA -->
+            @if (formulario.urgencia) {
+            <div class="col-md-6">
+              <label class="form-label">Nivel de Urgencia *</label>
+              <select class="form-select" required [(ngModel)]="formulario.nivelUrgencia" name="nivelUrgencia"
+                #nivelUrgencia="ngModel" [class.is-invalid]="nivelUrgencia.invalid && nivelUrgencia.touched">
+                <option value="baja">Baja</option>
+                <option value="media" selected>Media</option>
+                <option value="alta">Alta</option>
+              </select>
+              <div *ngIf="nivelUrgencia.invalid && nivelUrgencia.touched" class="text-danger small">
+                Seleccione un nivel de urgencia.
+              </div>
+            </div>
+            }
+
           </div>
-        </div>
-      }
-
-    </div>
-  </form>
-</div>
+        </form>
+      </div>
 
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="cerrarModalFormulario()">
@@ -396,15 +356,15 @@
           Cancelar
         </button>
         @if (modoEdicion) {
-          <button type="button" class="btn btn-primary" (click)="actualizarSolicitud()">
-            <i class="bi bi-save me-1"></i>
-            Actualizar
-          </button>
+        <button type="button" class="btn btn-primary" (click)="actualizarSolicitud()">
+          <i class="bi bi-save me-1"></i>
+          Actualizar
+        </button>
         } @else {
-          <button type="button" class="btn btn-success" (click)="crearSolicitud()">
-            <i class="bi bi-check-circle me-1"></i>
-            Crear Solicitud
-          </button>
+        <button type="button" class="btn btn-success" (click)="crearSolicitud()">
+          <i class="bi bi-check-circle me-1"></i>
+          Crear Solicitud
+        </button>
         }
       </div>
     </div>
@@ -422,9 +382,9 @@
       <div class="modal-body" *ngIf="solicitudSeleccionada">
         <p><strong>ID:</strong> #{{ solicitudSeleccionada.id }}</p>
         <p><strong>Cliente:</strong> {{ obtenerNombreCliente(solicitudSeleccionada.cliente_id) }}</p>
-        <p><strong>Profesional:</strong> {{ obtenerNombreProfesional(solicitudSeleccionada.profesional_id) }}</p>
+        <p><strong>Profesional:</strong> {{ obtenerNombreProfesional(solicitudSeleccionada.profesional_nombre) }}</p>
         <p><strong>Servicio:</strong> {{ obtenerNombreServicio(solicitudSeleccionada.servicio_id) }}</p>
-        <p><strong>Estado:</strong> 
+        <p><strong>Estado:</strong>
           <span class="badge" [ngClass]="obtenerClaseEstado(solicitudSeleccionada.estado)">
             {{ solicitudSeleccionada.estado }}
           </span>
